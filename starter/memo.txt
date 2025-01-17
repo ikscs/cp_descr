@@ -1,0 +1,5 @@
+code .
+
+rem > terminal
+rem > yarn
+rem > yarn dev
