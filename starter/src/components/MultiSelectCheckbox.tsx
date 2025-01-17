@@ -6,21 +6,6 @@ import TreeView, { flattenTree, ITreeViewOnSelectProps, } from "react-accessible
 import cx from "classnames";
 import "./styles.css";
 
-import folderJson from './cp_group.json'; // This import style requires "esModuleInterop", see "side notes"
-const data = flattenTree(folderJson);
-console.log('flattenTree', data.length)
-
-// interface TreeNodeData {
-//   id: string;
-//   name: string;
-//   children?: TreeNodeData[];
-// }
-
-// interface MetaKeyParent {
-//   key: string,
-//   parent?: string,
-// }
-
 function MultiSelectCheckbox(props: any) {
 
   const onSelect = (selprops: ITreeViewOnSelectProps) => {

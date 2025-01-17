@@ -10,9 +10,15 @@
 }
 
 .flexbox-container {
-    display: flex;
-    flex-direction: row;
-	justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.flexbox-container2 {
+  display: flex;
+  flex-direction: row;
+  /* justify-content: space-between; */
 }
 
 .top-left {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Select from 'react-select'
 // yarn add react-select
 
-const customStyles = { 
+const customStyles = {
     menu: (provided: any) => ({ ...provided, textAlign: 'left', }), 
     option: (provided: any) => ({ ...provided, textAlign: 'left', }), 
     input: (provided: any) => ({...provided,  color: 'transparent', }),
@@ -19,6 +19,7 @@ interface IComboProps {
     placeholder: string | undefined,
     options: IValueLabel[],
     onChange: (choice: any) => void,
+    defaultChoice?: IValueLabel | undefined,
 }
 // https://stackoverflow.com/questions/65640550/how-to-remove-text-cursor-on-select-in-react-select-library
 // const MySelect: React.FC = () => ()
@@ -30,7 +31,7 @@ function Combo(props: IComboProps) {
     const [selectedOption, setSelectedOption] = useState<IValueLabel | null>(null)
     
     useEffect(() => {
-        setSelectedOption(null) 
+        setSelectedOption(props.defaultChoice ? props.defaultChoice : null) 
     }, [props.options])
     
     const onChange = (choice: any) => {
@@ -39,7 +40,7 @@ function Combo(props: IComboProps) {
     }
 
     return (
-    <div style={{width: '200px'}}>
+    <div style={{width: '150px'}}>
         <Select
             // inputId={props.inputId}
             value={selectedOption}

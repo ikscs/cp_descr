@@ -1,11 +1,20 @@
 import AppContext from '../AppContext';
 
-// ?? agreement: 'id' is mandatory
-export const fetchData = async (props: any) => {
+interface IFetchBody {
+    backend_point?: string,
+    from?: string,
+    fields?: string,
+    order?: string,
+    where?: object,
+    user?: string,
+    query?: string,
+}
+
+export const fetchData = async (props: IFetchBody) => {
 
     console.log('fetchData')
     const backend_point = props.backend_point || AppContext.backend_point_select
-    let url = AppContext.backend_url + backend_point
+    const url = AppContext.backend_url + backend_point
     console.log('url', url)
     console.log(JSON.stringify(props))
     try {
