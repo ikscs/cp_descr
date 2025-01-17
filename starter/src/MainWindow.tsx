@@ -37,6 +37,7 @@ const MainWindow = () => {
     const [manufFilter, setManufFilter] = useState('');
     const [textareaValue, setTextareaValue] = useState('');
     
+    console.log(user)
     const init = async () => {
         
         // const permCount = await getCount({
@@ -104,7 +105,7 @@ const MainWindow = () => {
         setManufFilter(e.target.value)
     }
 
-    const clearAll = (e:any) => {
+    const clearAll = () => {
         setManufFilter('')
         setGridCols([])
         setGridRows([])
