@@ -110,11 +110,20 @@ const MainWindow = () => {
         setGridCols([])
         setGridRows([])
         setTextareaValue('')
+        // todo: setTreeSelected([])
     }
 
     useEffect(() => {
         init()
     }, [])
+
+    // return (
+    //     <Grid
+    //     cols={gridCols}
+    //     rows={gridRows}
+    //     rowKeyGetter={rowKeyGetter}
+    // />            
+    // )
 
     return (
         <CookiesProvider>
@@ -159,9 +168,8 @@ const MainWindow = () => {
                     placeholder="manuf"
                     value={manufFilter}
                     onChange={(val)=>{ onInput(val) }}/>
-                {/* <DataInputBox/> */}
-                <button onClick={clearAll}>Очистить</button>
                 <button onClick={initGridProd}>Применить</button>
+                <button onClick={clearAll}>Очистить</button>
                 <button onClick={initGridProd}>Action 3</button>
             </div> 
             
@@ -186,8 +194,8 @@ const MainWindow = () => {
                 value={textareaValue}
                 style={{width:600, height:200, }} 
             />
-            <Footer text={footerText}>
-            </Footer>
+            {/* <Footer text={footerText}>
+            </Footer> */}
 
         </CookiesProvider>
     )

@@ -64,6 +64,7 @@ function Grid(props: IGridProps) {
         < DataGrid
             columns ={ cols1 }
             rows ={ sortedRows}
+            style={{ height: '800px' }} 
             defaultColumnOptions={{
                 sortable: true,
                 resizable: true
@@ -78,7 +79,7 @@ function Grid(props: IGridProps) {
             onSelectedRowsChange={setSelectedRows}
             className="fill-grid"
         />
-        < tr >Record count: { props.rows.length}</ tr >
+        {/* < tr >Record count: { props.rows.length}</ tr > */}
     </ div >
     )
 }
