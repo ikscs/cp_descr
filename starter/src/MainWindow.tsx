@@ -10,6 +10,7 @@ import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
 import Checkbox from "./components/checkbox"
+import packageJson from '../package.json';
 // import DataInputBox from "./components/inputbox.jsx"
 
 interface ValueLabel {
@@ -24,19 +25,22 @@ const S = () => (<div style={{width: '20px'}}/>)
 const H4 = (props: any) => (<h4 style={{margin: 8}}>{props.text}</h4>)
 
 const MainWindow = () => {
-    const [cookies, setCookie] = useCookies(['user','userFullName'])
+    const [cookies, setCookie] = useCookies(['user','userFullName','descrState','descrStateName'])
     const [footerText, setFooterText] = useState('') 
     const [userOptions, setUserOptions] = useState<ValueLabel[]>([]);
     const [roleOptions, setRoleOptions] = useState<ValueLabel[]>([]);
     const [subjectOptions, setSubjectOptions] = useState<ValueLabel[]>([]);
+    const [descrStateOptions, setDescrStateOptions] = useState<ValueLabel[]>([]);
     const [user, setUser] = useState('') 
     const [subr, setSubr] = useState(-1);
     const [subj, setSubj] = useState('Unknown');
+    const [descrState, setDescrState] = useState(null);
     const [treeData, setTreeData] = useState(emptyTree)
     const [gridCols, setGridCols] = useState<any[]>([]);
     const [gridRows, setGridRows] = useState<[]>([]);
     const [gridLimit, setGridLimit] = useState(1000);
     const [manufFilter, setManufFilter] = useState('');
+    const [descriptionFilter, setDescriptionFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
     const [textareaValue, setTextareaValue] = useState('');
     
@@ -59,10 +63,20 @@ const MainWindow = () => {
 
         setRoleOptions(await getData({
             from: 'cp3.cp_subject_role', 
-            fields: 'subject_role,description',
+            // fields: 'subject_role,description',
+            fields: 'subject_role, subject_role||\'\'-\'\'||description AS description',
             order: 'subject_role',
         }, 'subject_role','description'))
         setSubr(2)
+
+        const data = await getData({
+            from: 'translate.descr_state', 
+            fields: 'descr_state, descr_state||\'\'-\'\'||description AS description',
+            order: 'descr_state',
+        }, 'descr_state','description')
+        data.push({value: -1, label: 'Любой'})
+        setDescrStateOptions(data.sort((a:any,b:any)=>a.value-b.value))
+        setDescrState(cookies.descrState)
     }
     
     const initSubjects = async (subr: number) => {
@@ -73,14 +87,14 @@ const MainWindow = () => {
             where: { subject_role: subr}
         }, 'subject_id','name'))
     }
-
+    
     const initTreeData = async (subr: number, subj: string) => {
         const rows = await getTreeData(subr, subj)
         setTreeData(treeToJson(rows, 'product_group', 'parent_group'))
     }
     
     const initGridProd = async () => {
-        setFooterColor('blue')
+        setFooterColor('darkmagenta')
         const cols = ['product_id', 'manuf', 'article', 'qtty', 'price_sell', 'name', 'subject_role', 'subject_id',]
         const andManufFilter = manufFilter ? `AND manuf ilike ''%${manufFilter}%''` : ``
         const query = 
@@ -106,8 +120,11 @@ const MainWindow = () => {
     const rowKeyGetter = (row: any) => {
         return row.subject_role +'/'+ row.subject_id +'/'+row.product_id
     }
-    const onInput = (e:any) => {
+    const onManufFilterInput = (e:any) => {
         setManufFilter(e.target.value)
+    }
+    const onDescriptionFilterInput = (e:any) => {
+        setDescriptionFilter(e.target.value)
     }
 
     const clearAll = () => {
@@ -125,7 +142,7 @@ const MainWindow = () => {
     return (
         <CookiesProvider>
             <div className='flexbox-container'>
-                <H4 text='Рабочее'/>
+                <H4 text={packageJson.name+'/'+packageJson.version}/>
                 <Combo
                     placeholder='No User'
                     options={userOptions}
@@ -167,7 +184,26 @@ const MainWindow = () => {
                     size={10}
                     placeholder="Manuf"
                     value={manufFilter}
-                    onChange={(val)=>{ onInput(val) }}/>
+                    onChange={(val)=>{ onManufFilterInput(val) }}/>
+                <S/>
+                <input 
+                    type="text" 
+                    size={10}
+                    placeholder="Description"
+                    value={descriptionFilter}
+                    onChange={(val)=>{ onDescriptionFilterInput(val) }}/>
+                <S/>
+                <Combo
+                    placeholder="Descr State"
+                    options={descrStateOptions}
+                    defaultChoice={{value: cookies.descrState, label: cookies.descrStateName}}
+                    onChange={({value,label}) => {
+                        setFooterText(label)
+                        setDescrState(value)
+                        setCookie('descrState', value, { path: '/' })
+                        setCookie('descrStateName', label, { path: '/' })
+                    }}
+                />
                 <S/>
                 <Checkbox
                     // size={2}

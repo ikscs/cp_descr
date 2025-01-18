@@ -21,15 +21,15 @@ interface IComboProps {
     onChange: (choice: any) => void,
     defaultChoice?: IValueLabel | undefined,
 }
+
 // https://stackoverflow.com/questions/65640550/how-to-remove-text-cursor-on-select-in-react-select-library
-// const MySelect: React.FC = () => ()
 
 function Combo(props: IComboProps) {
     
-    // console.log('Combo', props.placeholder, props.options, props.onChange)
+    // console.log('Combo', props.placeholder, props.options, props.onChange, props.choice)
 
     const [selectedOption, setSelectedOption] = useState<IValueLabel | null>(null)
-    
+
     useEffect(() => {
         setSelectedOption(props.defaultChoice ? props.defaultChoice : null) 
     }, [props.options])
@@ -42,7 +42,6 @@ function Combo(props: IComboProps) {
     return (
     <div style={{width: '150px'}}>
         <Select
-            // inputId={props.inputId}
             value={selectedOption}
             styles={customStyles}
             // styles={{
@@ -57,7 +56,6 @@ function Combo(props: IComboProps) {
             classNamePrefix="select"
             options={props.options}
             onChange={onChange}
-            // onChange={props.onChange}
         />
     </div>
     ) 
