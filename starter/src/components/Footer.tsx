@@ -3,9 +3,13 @@
 
 interface FooterlProps {
      text: string;
+	 backgroundColor: string;
 }
-const Footer = ({text}: FooterlProps) => (
-	<footer className="footer">
+const Footer = ({text,backgroundColor}: FooterlProps) => (
+	<footer 
+		style={{backgroundColor: backgroundColor}} 
+		className="footer"
+	>
 		<p>{text}</p>
 	</footer>
 );

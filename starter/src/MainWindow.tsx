@@ -9,6 +9,7 @@ import { treeToJson, getTreeData, onTreeSelect, } from "./tools/treetools"
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
+import Checkbox from "./components/checkbox"
 // import DataInputBox from "./components/inputbox.jsx"
 
 interface ValueLabel {
@@ -34,7 +35,9 @@ const MainWindow = () => {
     const [treeData, setTreeData] = useState(emptyTree)
     const [gridCols, setGridCols] = useState<any[]>([]);
     const [gridRows, setGridRows] = useState<[]>([]);
+    const [gridLimit, setGridLimit] = useState(1000);
     const [manufFilter, setManufFilter] = useState('');
+    const [footerColor, setFooterColor] = useState('navy');
     const [textareaValue, setTextareaValue] = useState('');
     
     console.log(user)
@@ -77,6 +80,7 @@ const MainWindow = () => {
     }
     
     const initGridProd = async () => {
+        setFooterColor('blue')
         const cols = ['product_id', 'manuf', 'article', 'qtty', 'price_sell', 'name', 'subject_role', 'subject_id',]
         const andManufFilter = manufFilter ? `AND manuf ilike ''%${manufFilter}%''` : ``
         const query = 
@@ -84,7 +88,7 @@ const MainWindow = () => {
     SELECT ${cols.join(',')}
     FROM cp3.vcp_product_org JOIN temp_cp_group USING (subject_role, subject_id, product_group)
     WHERE product_exists AND qtty > 0 ${andManufFilter}
-    LIMIT 1000
+    ${gridLimit ? 'LIMIT ' + gridLimit : '' }
     `
         setTextareaValue(query)
         const fetchParam = {
@@ -96,6 +100,7 @@ const MainWindow = () => {
         setGridCols(cols.map(col => ({key: col, name: col, }))) // width: 5, 
         const data = await fetchData(fetchParam)
         setGridRows(data[0]?.data)
+        setFooterColor('navy')
     }
     
     const rowKeyGetter = (row: any) => {
@@ -116,14 +121,6 @@ const MainWindow = () => {
     useEffect(() => {
         init()
     }, [])
-
-    // return (
-    //     <Grid
-    //     cols={gridCols}
-    //     rows={gridRows}
-    //     rowKeyGetter={rowKeyGetter}
-    // />            
-    // )
 
     return (
         <CookiesProvider>
@@ -149,6 +146,8 @@ const MainWindow = () => {
                         setFooterText(label)
                         setSubr(value)
                         initSubjects(value)
+                        initTreeData(-1,'noname')
+                        setGridRows([])
                     }}
                 />
                 <S/>
@@ -159,15 +158,45 @@ const MainWindow = () => {
                         setFooterText(label)
                         setSubj(value)
                         initTreeData(subr,value)
+                        setGridRows([])
                     }}
                 />
                 <S/>
                 <input 
                     type="text" 
                     size={10}
-                    placeholder="manuf"
+                    placeholder="Manuf"
                     value={manufFilter}
                     onChange={(val)=>{ onInput(val) }}/>
+                <S/>
+                <Checkbox
+                    // size={2}
+                    defaultValue={true}
+                    label='ua'
+                    onChange={(e)=>{ alert(e) }}
+                />
+                <S/>
+                <Checkbox
+                    // size={2}
+                    defaultValue={false}
+                    label='en'
+                    onChange={(e)=>{ alert(e) }}
+                />
+                <S/>
+                <Checkbox
+                    // size={2}
+                    defaultValue={false}
+                    label='ru'
+                    onChange={(e)=>{ alert(e) }}
+                />
+                <S/>
+                <input 
+                    type="text" 
+                    size={3}
+                    placeholder="Limit"
+                    value={gridLimit}
+                    onChange={(e:any)=>{ setGridLimit(e.target.value) }}/>
+                <S/>
                 <button onClick={initGridProd}>Применить</button>
                 <button onClick={clearAll}>Очистить</button>
                 <button onClick={initGridProd}>Action 3</button>
@@ -194,8 +223,11 @@ const MainWindow = () => {
                 value={textareaValue}
                 style={{width:600, height:200, }} 
             />
-            {/* <Footer text={footerText}>
-            </Footer> */}
+
+            <Footer 
+                text={footerText}
+                backgroundColor={footerColor}
+            />
 
         </CookiesProvider>
     )

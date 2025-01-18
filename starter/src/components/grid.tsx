@@ -79,7 +79,7 @@ function Grid(props: IGridProps) {
             onSelectedRowsChange={setSelectedRows}
             className="fill-grid"
         />
-        {/* < tr >Record count: { props.rows.length}</ tr > */}
+        < tr >Record count: { props.rows.length}</ tr >
     </ div >
     )
 }
