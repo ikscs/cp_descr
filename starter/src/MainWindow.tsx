@@ -97,11 +97,12 @@ const MainWindow = () => {
         setFooterColor('darkmagenta')
         const cols = ['product_id', 'manuf', 'article', 'qtty', 'price_sell', 'name', 'subject_role', 'subject_id',]
         const andManufFilter = manufFilter ? `AND manuf ilike ''%${manufFilter}%''` : ``
+        const andDescrState = descrState ? 'AND 1=1' : ''
         const query = 
     `
     SELECT ${cols.join(',')}
     FROM cp3.vcp_product_org JOIN temp_cp_group USING (subject_role, subject_id, product_group)
-    WHERE product_exists AND qtty > 0 ${andManufFilter}
+    WHERE product_exists AND qtty > 0 ${andManufFilter} ${andDescrState}
     ${gridLimit ? 'LIMIT ' + gridLimit : '' }
     `
         setTextareaValue(query)
