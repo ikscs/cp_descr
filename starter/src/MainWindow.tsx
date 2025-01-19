@@ -5,7 +5,7 @@ import Footer from "./components/Footer"
 import Combo from "./components/combo"
 import { /*getCount,*/ getData, } from './api/dataTools'
 import AppContext from "./AppContext"
-import { treeToJson, getTreeData, onTreeSelect, } from "./tools/treetools"
+import { treeToJson, getTreeData, putTreeSelected, } from "./tools/treetools"
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
@@ -16,6 +16,12 @@ import packageJson from '../package.json';
 interface ValueLabel {
     value: Object,
     label: string,
+}
+
+interface ILang {
+    ua?: boolean,
+    en?: boolean,
+    ru?: boolean,
 }
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
@@ -35,7 +41,9 @@ const MainWindow = () => {
     const [subr, setSubr] = useState(-1);
     const [subj, setSubj] = useState('Unknown');
     const [descrState, setDescrState] = useState(null);
+    const [langState, setLangState] = useState<ILang>({ua: true,});
     const [treeData, setTreeData] = useState(emptyTree)
+    const [treeSelected, setTreeSelected] = useState([])
     const [gridCols, setGridCols] = useState<any[]>([]);
     const [gridRows, setGridRows] = useState<[]>([]);
     const [gridLimit, setGridLimit] = useState(1000);
@@ -93,8 +101,20 @@ const MainWindow = () => {
         setTreeData(treeToJson(rows, 'product_group', 'parent_group'))
     }
     
-    const initGridProd = async () => {
+    const longExec = async (f: Function) => {
         setFooterColor('darkmagenta')
+        await f()
+        setFooterColor('navy')
+    }
+    // const longExecStart = () => setFooterColor('darkmagenta')
+    // const longExecStop = () => setFooterColor('navy')
+
+    const initGridProd = async () => {
+        await longExec(async() => {
+
+        await putTreeSelected(treeSelected, subr, subj)
+
+        //setFooterColor('darkmagenta')
         const cols = ['product_id', 'manuf', 'article', 'qtty', 'price_sell', 'name', 'subject_role', 'subject_id',]
         const andManufFilter = manufFilter ? `AND manuf ilike ''%${manufFilter}%''` : ``
         const andDescrState = descrState ? 'AND 1=1' : ''
@@ -115,9 +135,16 @@ const MainWindow = () => {
         setGridCols(cols.map(col => ({key: col, name: col, }))) // width: 5, 
         const data = await fetchData(fetchParam)
         setGridRows(data[0]?.data)
-        setFooterColor('navy')
+        // setFooterColor('navy')
+        })
     }
     
+    // const onTreeSelect = async (items: any) => {
+    //     longExecStart
+    //     await putTreeSelected(items, subr, subj )
+    //     longExecStop
+    // }
+
     const rowKeyGetter = (row: any) => {
         return row.subject_role +'/'+ row.subject_id +'/'+row.product_id
     }
@@ -207,24 +234,21 @@ const MainWindow = () => {
                 />
                 <S/>
                 <Checkbox
-                    // size={2}
-                    defaultValue={true}
+                    defaultValue={langState.ua || false}
                     label='ua'
-                    onChange={(e)=>{ alert(e) }}
+                    onChange={(e) => setLangState(prev => ({...prev, ua: e})) }
                 />
                 <S/>
                 <Checkbox
-                    // size={2}
-                    defaultValue={false}
+                    defaultValue={langState.en || false}
                     label='en'
-                    onChange={(e)=>{ alert(e) }}
+                    onChange={(e) => setLangState(prev => ({...prev, en: e})) }
                 />
                 <S/>
                 <Checkbox
-                    // size={2}
-                    defaultValue={false}
+                    defaultValue={langState.ru || false}
                     label='ru'
-                    onChange={(e)=>{ alert(e) }}
+                    onChange={(e) => setLangState(prev => ({...prev, ru: e})) }
                 />
                 <S/>
                 <input 
@@ -243,7 +267,7 @@ const MainWindow = () => {
                 <div style={{width: '300px'}}>
                     <MultiSelectCheckbox 
                         data={treeData}
-                        onSelect={(items: any) => onTreeSelect(items, subr, subj )}
+                        onSelect={(items: any) => setTreeSelected(items)}
                     />
                 </div>
                 
