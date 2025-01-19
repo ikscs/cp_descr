@@ -33,7 +33,7 @@ const getTreeData = async (subr: number, subj: string) => {
     return rows
 }
 
-const onTreeSelect = async (groups: any, subr: number, subj: string) => {
+const putTreeSelected = async (groups: any, subr: number, subj: string) => {
     console.log(groups)
     const dest = 'temp_cp_group'
     const fieldDefs = [
@@ -70,12 +70,12 @@ ON CONFLICT (user_name, table_name) DO UPDATE SET
       user: user,
       query: query,
     }        
-    console.log(fetchParam)
+    console.log('fetchParam', fetchParam)
     const result = await fetchData(fetchParam)
-    console.log(result)
+    console.log('result',result)
     if (!result[0].ok) {
       alert(JSON.stringify(result[0].data))
     }
 }
 
-export {treeToJson, getTreeData, onTreeSelect}
+export {treeToJson, getTreeData, putTreeSelected}
