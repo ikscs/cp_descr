@@ -6,23 +6,13 @@ import Combo from "./components/combo"
 import { /*getCount,*/ getData, } from './api/dataTools'
 import AppContext from "./AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "./tools/treetools"
+import { getGridCols, getGridRows } from './tools/gridtools'
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
 import Checkbox from "./components/checkbox"
 import packageJson from '../package.json';
-// import DataInputBox from "./components/inputbox.jsx"
-
-interface ValueLabel {
-    value: Object,
-    label: string,
-}
-
-interface ILang {
-    ua?: boolean,
-    en?: boolean,
-    ru?: boolean,
-}
+import { ILang, IDescrFilter, IValueLabel } from './types'
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -31,17 +21,19 @@ const S = () => (<div style={{width: '20px'}}/>)
 const H4 = (props: any) => (<h4 style={{margin: 8}}>{props.text}</h4>)
 
 const MainWindow = () => {
-    const [cookies, setCookie] = useCookies(['user','userFullName','descrState','descrStateName'])
+    const [cookies, setCookie] = useCookies(['user','userFullName','descrState','descrStateName','descrType'])
+    AppContext.userName = cookies.user
     const [footerText, setFooterText] = useState('') 
-    const [userOptions, setUserOptions] = useState<ValueLabel[]>([]);
-    const [roleOptions, setRoleOptions] = useState<ValueLabel[]>([]);
-    const [subjectOptions, setSubjectOptions] = useState<ValueLabel[]>([]);
-    const [descrStateOptions, setDescrStateOptions] = useState<ValueLabel[]>([]);
+    const [userOptions, setUserOptions] = useState<IValueLabel[]>([]);
+    const [roleOptions, setRoleOptions] = useState<IValueLabel[]>([]);
+    const [subjectOptions, setSubjectOptions] = useState<IValueLabel[]>([]);
+    const [descrStateOptions, setDescrStateOptions] = useState<IValueLabel[]>([]);
     const [user, setUser] = useState('') 
     const [subr, setSubr] = useState(-1);
     const [subj, setSubj] = useState('Unknown');
     const [descrState, setDescrState] = useState(null);
-    const [langState, setLangState] = useState<ILang>({ua: true,});
+    const [descrFilter, setDescrFilter] = useState<IDescrFilter>({});
+    const [langFilter, setLangFilter] = useState<ILang>({ua: true,});
     const [treeData, setTreeData] = useState(emptyTree)
     const [treeSelected, setTreeSelected] = useState([])
     const [gridCols, setGridCols] = useState<any[]>([]);
@@ -77,14 +69,21 @@ const MainWindow = () => {
         }, 'subject_role','description'))
         setSubr(2)
 
-        const data = await getData({
+        const descrStateData = await getData({
             from: 'translate.descr_state', 
             fields: 'descr_state, descr_state||\'\'-\'\'||description AS description',
-            order: 'descr_state',
         }, 'descr_state','description')
-        data.push({value: -1, label: 'Любой'})
-        setDescrStateOptions(data.sort((a:any,b:any)=>a.value-b.value))
+        descrStateData.push({value: -1, label: 'Любой'})
+        setDescrStateOptions(descrStateData.sort((a:any,b:any)=>a.value-b.value))
         setDescrState(cookies.descrState)
+
+        const descrTypeData = await getData({
+            from: 'translate.descr_type', 
+            fields: 'descr_type',
+            order: 'descr_type DESC',
+        }, 'descr_type','descr_type')
+        setDescrFilter(prev => ({...prev, descrTypeOptions: descrTypeData}))
+        setDescrFilter(prev => ({...prev, descrType: cookies.descrType}))
     }
     
     const initSubjects = async (subr: number) => {
@@ -102,12 +101,22 @@ const MainWindow = () => {
     }
     
     const longExec = async (f: Function) => {
+        setTextareaValue('')
         setFooterColor('darkmagenta')
         await f()
         setFooterColor('navy')
     }
     // const longExecStart = () => setFooterColor('darkmagenta')
     // const longExecStop = () => setFooterColor('navy')
+
+    const initGrid = async () => {
+        await longExec(async() => {
+            setGridCols(getGridCols(langFilter))
+            const data = await getGridRows(manufFilter, descrFilter, gridLimit, langFilter)
+            setGridRows(data[0]?.data)
+            setTextareaValue(data[0]?.query)
+        })
+    }
 
     const initGridProd = async () => {
         await longExec(async() => {
@@ -209,17 +218,29 @@ const MainWindow = () => {
                 <S/>
                 <input 
                     type="text" 
-                    size={10}
+                    size={5}
                     placeholder="Manuf"
                     value={manufFilter}
                     onChange={(val)=>{ onManufFilterInput(val) }}/>
                 <S/>
                 <input 
                     type="text" 
-                    size={10}
+                    size={5}
                     placeholder="Description"
                     value={descriptionFilter}
                     onChange={(val)=>{ onDescriptionFilterInput(val) }}/>
+                <S/>
+                <Combo
+                    placeholder="Descr Type"
+                    options={descrFilter.descrTypeOptions??[]}
+                    defaultChoice={{value: cookies.descrType, label: cookies.descrType}}
+                    onChange={({value,label}) => {
+                        setFooterText(label)
+                        setDescrFilter(prev => ({...prev, descrType: value}))
+                        // setDescrFilter(value)
+                        setCookie('descrType', value, { path: '/' })
+                    }}
+                />
                 <S/>
                 <Combo
                     placeholder="Descr State"
@@ -234,21 +255,21 @@ const MainWindow = () => {
                 />
                 <S/>
                 <Checkbox
-                    defaultValue={langState.ua || false}
+                    defaultValue={langFilter.ua || false}
                     label='ua'
-                    onChange={(e) => setLangState(prev => ({...prev, ua: e})) }
+                    onChange={(e) => setLangFilter(prev => ({...prev, ua: e})) }
                 />
                 <S/>
                 <Checkbox
-                    defaultValue={langState.en || false}
+                    defaultValue={langFilter.en || false}
                     label='en'
-                    onChange={(e) => setLangState(prev => ({...prev, en: e})) }
+                    onChange={(e) => setLangFilter(prev => ({...prev, en: e})) }
                 />
                 <S/>
                 <Checkbox
-                    defaultValue={langState.ru || false}
+                    defaultValue={langFilter.ru || false}
                     label='ru'
-                    onChange={(e) => setLangState(prev => ({...prev, ru: e})) }
+                    onChange={(e) => setLangFilter(prev => ({...prev, ru: e})) }
                 />
                 <S/>
                 <input 
@@ -258,7 +279,7 @@ const MainWindow = () => {
                     value={gridLimit}
                     onChange={(e:any)=>{ setGridLimit(e.target.value) }}/>
                 <S/>
-                <button onClick={initGridProd}>Применить</button>
+                <button onClick={initGrid}>Применить</button>
                 <button onClick={clearAll}>Очистить</button>
                 <button onClick={initGridProd}>Action 3</button>
             </div> 

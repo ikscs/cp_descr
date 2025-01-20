@@ -64,10 +64,11 @@ function Grid(props: IGridProps) {
         < DataGrid
             columns ={ cols1 }
             rows ={ sortedRows}
-            style={{ height: '800px' }} 
+            style={{ height: '800px' }}  // todo: setup
             defaultColumnOptions={{
                 sortable: true,
-                resizable: true
+                resizable: true,
+                maxWidth: 400, // todo: setup
             }}
             direction ={ 'ltr'}
             sortColumns = {sortColumns}
