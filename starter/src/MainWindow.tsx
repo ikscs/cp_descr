@@ -6,7 +6,7 @@ import Combo from "./components/combo"
 import { /*getCount,*/ getData, } from './api/dataTools'
 import AppContext from "./AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "./tools/treetools"
-import { getGridCols, getGridRows } from './tools/gridtools'
+import { getGridCols, getGridRows, postGrid } from './tools/gridtools'
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
@@ -66,7 +66,7 @@ const MainWindow = () => {
             fields: 'subject_role, subject_role||\'\'-\'\'||description AS description',
             order: 'subject_role',
         }, 'subject_role','description'))
-        setSubr(2)
+        // setSubr(2)
 
         const descrStateData = await getData({
             from: 'translate.descr_state', 
@@ -109,8 +109,12 @@ const MainWindow = () => {
     // const longExecStop = () => setFooterColor('navy')
 
     const initGrid = async () => {
+        if (subr == -1) {
+            alert('Choose role / subject')
+        }
         await longExec(async() => {
             setGridCols(getGridCols(langFilter))
+            await putTreeSelected(treeSelected, subr, subj)
             const data = await getGridRows(manufFilter, descrFilter, gridLimit, langFilter)
             setGridRows(data[0]?.data)
             setTextareaValue(data[0]?.query)
@@ -154,7 +158,8 @@ const MainWindow = () => {
     // }
 
     const rowKeyGetter = (row: any) => {
-        return row.subject_role +'/'+ row.subject_id +'/'+row.product_id
+        // return row.subject_role +'/'+ row.subject_id +'/'+row.product_id
+        return row.manuf +'/'+ row.article
     }
     const onManufFilterInput = (e:any) => {
         setManufFilter(e.target.value)
@@ -296,6 +301,9 @@ const MainWindow = () => {
                         cols={gridCols}
                         rows={gridRows}
                         rowKeyGetter={rowKeyGetter}
+                        onRowsChange={(rows: any, data: any) => {
+                            postGrid(rows, data, descrFilter.descrType||'?')
+                        }}
                     />
                 </div>
             </div>
@@ -305,10 +313,10 @@ const MainWindow = () => {
                 style={{width:600, height:200, }} 
             />
 
-            <Footer 
+            {/* <Footer 
                 text={footerText}
                 backgroundColor={footerColor}
-            />
+            /> */}
 
         </CookiesProvider>
     )

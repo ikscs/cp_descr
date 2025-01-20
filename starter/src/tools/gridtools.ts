@@ -5,6 +5,8 @@ import { ILang, IDescrFilter, } from '../types'
 // 'qtty', 'price_sell', 
 const cols = ['manuf', 'article', 'descr_ua', 'descr_ru', 'descr_en', 'max_state', 'min_state',]
 
+const destTable = 'cp3.product_descr'
+
 const removeLangCols = function(cols: string[], lang: ILang) {
     return cols.filter((col) => {
         if(col.includes('ua')) return lang.ua
@@ -15,6 +17,7 @@ const removeLangCols = function(cols: string[], lang: ILang) {
 }
 
 const getGridCols = (lang: ILang) => {
+    // todo: mark 'lang' columns as editable
     return removeLangCols(cols, lang).map(col => ({key: col, name: col, }))
 }
 
@@ -61,7 +64,37 @@ ${gridLimit && ('LIMIT ' + gridLimit)}
     return data
 }
 
-export { getGridCols, getGridRows }
+const postGrid = async (rows: any, data: any, descrType: string) => {
+    if (data.indexes.length != 1) { // DEBUG
+        alert('Unexpected multiple update')
+    }
+
+    const col = data.column.key
+    const idx = data.indexes[0]
+    const set = { descr: rows[idx][col] }
+    const match = col.match(/descr_(\w+)/);
+    const lang = match ? match[1] : 'nodata'
+    const where = {
+        manuf: rows[idx].manuf,
+        article: rows[idx].article,
+        descr_type: descrType,
+        lang: lang,
+    }
+
+    const fetchParam = {
+        backend_point: AppContext.backend_point_update,
+        dest: destTable, 
+        set: set,
+        where: where,
+    }
+    console.log(fetchParam)
+
+    // return 0
+   const result = await fetchData(fetchParam)
+   return `Number of affected rows ${result||-1}`
+}
+
+export { getGridCols, getGridRows, postGrid }
 
 /**
 SELECT
