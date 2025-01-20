@@ -11,7 +11,7 @@ export interface ILang {
 }
 
 export interface IDescrFilter {
-    descrType?: string | undefined,
+    descrType?: string,
     descrTypeOptions?: IValueLabel[] | undefined,
     descrState?: number| undefined,
     descrOptions?: string[] | undefined,
