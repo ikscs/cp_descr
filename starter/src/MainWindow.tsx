@@ -40,7 +40,6 @@ const MainWindow = () => {
     const [gridRows, setGridRows] = useState<[]>([]);
     const [gridLimit, setGridLimit] = useState(1000);
     const [manufFilter, setManufFilter] = useState('');
-    const [descriptionFilter, setDescriptionFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
     const [textareaValue, setTextareaValue] = useState('');
     
@@ -161,7 +160,7 @@ const MainWindow = () => {
         setManufFilter(e.target.value)
     }
     const onDescriptionFilterInput = (e:any) => {
-        setDescriptionFilter(e.target.value)
+        setDescrFilter(prev => ({...prev, descrDescr: e.target.value}))
     }
 
     const clearAll = () => {
@@ -227,7 +226,7 @@ const MainWindow = () => {
                     type="text" 
                     size={5}
                     placeholder="Description"
-                    value={descriptionFilter}
+                    value={descrFilter.descrDescr}
                     onChange={(val)=>{ onDescriptionFilterInput(val) }}/>
                 <S/>
                 <Combo

@@ -15,4 +15,5 @@ export interface IDescrFilter {
     descrTypeOptions?: IValueLabel[] | undefined,
     descrState?: number| undefined,
     descrOptions?: string[] | undefined,
+    descrDescr?: string | undefined,
 }

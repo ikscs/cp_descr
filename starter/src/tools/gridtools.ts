@@ -21,6 +21,7 @@ const getGridCols = (lang: ILang) => {
 const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridLimit: number, lang: ILang) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
     const andDescrState = descrFilter.descrState??-1 >= 0 ? `AND descr_state=${descrFilter.descrState}` : ``
+    const andDescrDescr = descrFilter.descrDescr ? `AND descr ilike ''%${descrFilter.descrDescr}%''` : ``
     const query = 
 `
 SELECT
@@ -36,7 +37,7 @@ JOIN temp_cp_group USING (subject_role, subject_id, product_group)
 JOIN cp3.product_descr d USING (manuf,article)
 WHERE product_exists 
 	AND qtty > 0
-	AND descr_type = \'\'${descrFilter.descrType}\'\' ${andManufFilter} ${andDescrState}
+	AND descr_type = \'\'${descrFilter.descrType}\'\' ${andManufFilter} ${andDescrState} ${andDescrDescr}
 GROUP BY 1,2
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
