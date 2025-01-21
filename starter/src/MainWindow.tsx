@@ -6,7 +6,7 @@ import Combo from "./components/combo"
 import { /*getCount,*/ getData, } from './api/dataTools'
 import AppContext from "./AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "./tools/treetools"
-import { getGridCols, getGridRows, postGrid } from './tools/gridtools'
+import { getGridCols, getGridRows, postGrid } from './tools/gridtools2'
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
@@ -31,7 +31,7 @@ const MainWindow = () => {
     const [user, setUser] = useState('') 
     const [subr, setSubr] = useState(-1);
     const [subj, setSubj] = useState('Unknown');
-    const [descrState, setDescrState] = useState(null);
+    // const [descrState, setDescrState] = useState(null);
     const [descrFilter, setDescrFilter] = useState<IDescrFilter>({});
     const [langFilter, setLangFilter] = useState<ILang>({ua: true,});
     const [treeData, setTreeData] = useState(emptyTree)
@@ -44,6 +44,8 @@ const MainWindow = () => {
     const [textareaValue, setTextareaValue] = useState('');
     
     console.log(user)
+    console.log(gridCols)
+    console.log(gridRows)
     const init = async () => {
         
         // const permCount = await getCount({
@@ -74,7 +76,8 @@ const MainWindow = () => {
         }, 'descr_state','description')
         descrStateData.push({value: -1, label: 'Любой'})
         setDescrStateOptions(descrStateData.sort((a:any,b:any)=>a.value-b.value))
-        setDescrState(cookies.descrState)
+        // setDescrState(cookies.descrState)
+        setDescrFilter(prev => ({...prev, descrState: cookies.descrState}))
 
         const descrTypeData = await getData({
             from: 'translate.descr_type', 
@@ -113,7 +116,8 @@ const MainWindow = () => {
             alert('Choose role / subject')
         }
         await longExec(async() => {
-            setGridCols(getGridCols(langFilter))
+            setGridCols(getGridCols()) // langFilter
+
             await putTreeSelected(treeSelected, subr, subj)
             const data = await getGridRows(manufFilter, descrFilter, gridLimit, langFilter)
             setGridRows(data[0]?.data)
@@ -129,7 +133,8 @@ const MainWindow = () => {
         //setFooterColor('darkmagenta')
         const cols = ['product_id', 'manuf', 'article', 'qtty', 'price_sell', 'name', 'subject_role', 'subject_id',]
         const andManufFilter = manufFilter ? `AND manuf ilike ''%${manufFilter}%''` : ``
-        const andDescrState = descrState ? 'AND 1=1' : ''
+        // const andDescrState = descrState ? 'AND 1=1' : ''
+        const andDescrState = descrFilter.descrState ? 'AND 1=1' : ''
         const query = 
     `
     SELECT ${cols.join(',')}
@@ -173,6 +178,7 @@ const MainWindow = () => {
         setGridCols([])
         setGridRows([])
         setTextareaValue('')
+        setDescrFilter(prev => ({...prev, descrState: -1}))
         // todo: setTreeSelected([])
     }
 
@@ -252,7 +258,8 @@ const MainWindow = () => {
                     defaultChoice={{value: cookies.descrState, label: cookies.descrStateName}}
                     onChange={({value,label}) => {
                         setFooterText(label)
-                        setDescrState(value)
+                        // setDescrState(value)
+                        setDescrFilter(prev => ({...prev, descrState: value}))
                         setCookie('descrState', value, { path: '/' })
                         setCookie('descrStateName', label, { path: '/' })
                     }}
@@ -313,10 +320,10 @@ const MainWindow = () => {
                 style={{width:600, height:200, }} 
             />
 
-            {/* <Footer 
+            <Footer 
                 text={footerText}
                 backgroundColor={footerColor}
-            /> */}
+            />
 
         </CookiesProvider>
     )
