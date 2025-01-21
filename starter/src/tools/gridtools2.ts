@@ -1,6 +1,6 @@
 import { fetchData } from "../api/fetchData"
 import AppContext from "../AppContext"
-import { ILang, IDescrFilter, } from '../types'
+import { IDescrFilter, } from '../types'
 
 const gridColNames = ['manuf', 'article', 'name', 'state_ua', 'state_ru', 'state_en']
 
