@@ -10,7 +10,7 @@ const getGridCols = () => {
     return gridColNames.map(col => ({key: col, name: col,  width: 200, }))
 }
 
-const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridLimit: number, lang: ILang) => {
+const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridLimit: number) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
     const andDescrState = (descrFilter.descrState??-1) >= 0 ? `AND state=${descrFilter.descrState}` : ``
     const andDescrDescr = descrFilter.descrDescr ? `AND descr ilike ''%${descrFilter.descrDescr}%''` : ``
