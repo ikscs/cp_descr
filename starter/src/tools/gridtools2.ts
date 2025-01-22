@@ -2,13 +2,30 @@ import { fetchData } from "../api/fetchData"
 import AppContext from "../AppContext"
 import { IDescrFilter, } from '../types'
 
-const gridColNames = ['manuf', 'article', 'name', 'state_ua', 'state_ru', 'state_en']
+interface IGridColumn {
+    key: string,
+    name: string,
+    width: number,
+    editable?: boolean,
+}
 
-const destTable = 'cp3.product_descr'
+const gridColNames: IGridColumn[] = [
+    { key: 'manuf', name: 'Manufacturer', width: 100}, 
+    { key: 'article', name: 'Article', width: 100}, 
+    { key: 'name', name: 'Name', width: 200}, 
+    { key: 'state_n_ua', name: 'n-ua', width: 50}, 
+    { key: 'state_d_ua', name: 'd-ua', width: 50}, 
+    { key: 'state_n_ru', name: 'n-ru', width: 50}, 
+    { key: 'state_d_ru', name: 'd-ru', width: 50}, 
+    { key: 'state_n_en', name: 'n-en', width: 50}, 
+    { key: 'state_d_en', name: 'd-en', width: 50}, 
+]
 
 const getGridCols = () => {
-    return gridColNames.map(col => ({key: col, name: col,  width: 200, }))
+    return gridColNames;
 }
+
+const destTable = 'cp3.product_descr'
 
 const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridLimit: number) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
@@ -19,17 +36,22 @@ const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridL
 SELECT
 	manuf,
 	article,
-	max(CASE WHEN lang = \'\'ua\'\' AND descr_type=\'\'name\'\' THEN descr ELSE NULL END) AS name,
-	max(CASE lang WHEN \'\'ua\'\' THEN state ELSE NULL END) AS state_ua,
-	max(CASE lang WHEN \'\'ru\'\' THEN state ELSE NULL END) AS state_ru,
-	max(CASE lang WHEN \'\'en\'\' THEN state ELSE NULL END) AS state_en
+	max(name) AS name,
+	max(CASE WHEN lang=\'\'ua\'\' AND descr_type=\'\'name\'\'       THEN state ELSE NULL END) AS state_n_ua,
+	max(CASE WHEN lang=\'\'ua\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_d_ua,
+	max(CASE WHEN lang=\'\'ru\'\' AND descr_type=\'\'name\'\'       THEN state ELSE NULL END) AS state_n_ru,
+	max(CASE WHEN lang=\'\'ru\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_d_ru,
+	max(CASE WHEN lang=\'\'en\'\' AND descr_type=\'\'name\'\'       THEN state ELSE NULL END) AS state_n_en,
+	max(CASE WHEN lang=\'\'en\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_d_en
 FROM cp3.vcp_product_org 
 JOIN temp_cp_group USING (subject_role, subject_id, product_group)
 JOIN cp3.product_descr d USING (manuf,article)
 WHERE product_exists 
 	AND qtty > 0
 --	AND descr_type = \'\'${descrFilter.descrType}\'\' 
-    ${andManufFilter} ${andDescrState} ${andDescrDescr}
+    ${andManufFilter} 
+    ${andDescrState} 
+    ${andDescrDescr}
 GROUP BY 1,2
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
