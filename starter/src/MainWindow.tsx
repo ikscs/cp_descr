@@ -346,6 +346,7 @@ const MainWindow = () => {
 
                 <div>
                     <H4 text='ua'/>
+                    <H4 text={descrDetail.state_ua}/>
                     <input
                         type="text" 
                         size={100}
@@ -367,7 +368,8 @@ const MainWindow = () => {
                         }}
                     />
                     <H4 text='ru'/>
-                    <input 
+                    <H4 text={descrDetail.state_ru}/>
+                    <input
                         type="text" 
                         size={100}
                         style={{width:'100%', height:30, marginBottom: 10, }}
@@ -378,7 +380,7 @@ const MainWindow = () => {
                             setDescrDetail(prev => ({...prev, name_ru: e.target.value}))
                         }}
                     />
-                    <textarea 
+                    <textarea
                         placeholder="No data"
                         style={{width:'100%', height:100, }}
                         value={descrDetail.description_ru || ''}
@@ -388,8 +390,9 @@ const MainWindow = () => {
                         }}
                     />
                     <H4 text='en'/>
-                    <input 
-                        type="text" 
+                    <H4 text={descrDetail.state_en}/>
+                    <input
+                        type="text"
                         size={100}
                         style={{width:'100%', height:30, marginBottom: 10, }}
                         placeholder="No data"

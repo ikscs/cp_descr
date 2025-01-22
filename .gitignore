@@ -26,3 +26,5 @@ dist-ssr
 --*
 *.lock
 *-lock.json
+
+deploy.cmd
