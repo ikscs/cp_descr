@@ -6,15 +6,17 @@ import Combo from "./components/combo"
 import { /*getCount,*/ getData, } from './api/dataTools'
 import AppContext from "./AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "./tools/treetools"
-import { getGridCols, getGridRows, postGrid } from './tools/gridtools'
+import { getGridCols, getGridRows, postGrid } from './tools/gridtools2'
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
 import Checkbox from "./components/checkbox"
 import packageJson from '../package.json';
-import { ILang, IDescrFilter, IValueLabel } from './types'
+import { ILang, IDescrFilter, IValueLabel, IDescrDetail, } from './types'
+import { getDescrData, defaultDescrDetail } from "./tools/descrtools"
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
+const dedede = defaultDescrDetail
 
 const S = () => (<div style={{width: '20px'}}/>)
 
@@ -31,7 +33,7 @@ const MainWindow = () => {
     const [user, setUser] = useState('') 
     const [subr, setSubr] = useState(-1);
     const [subj, setSubj] = useState('Unknown');
-    const [descrState, setDescrState] = useState(null);
+    // const [descrState, setDescrState] = useState(null);
     const [descrFilter, setDescrFilter] = useState<IDescrFilter>({});
     const [langFilter, setLangFilter] = useState<ILang>({ua: true,});
     const [treeData, setTreeData] = useState(emptyTree)
@@ -41,9 +43,19 @@ const MainWindow = () => {
     const [gridLimit, setGridLimit] = useState(1000);
     const [manufFilter, setManufFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
+    const [descrDetail, setDescrDetail] = useState<IDescrDetail>({});
+    // const [descrDetail, setDescrDetail] = useState<IDescrDetail>(dedede);
+    const [descrPostDisabled, setDescrPostDisabled] = useState(true);
     const [textareaValue, setTextareaValue] = useState('');
     
     console.log(user)
+    console.log(gridCols)
+    console.log(gridRows)
+
+    const debug = (arg0: any) => {
+        setTextareaValue(JSON.stringify(arg0))
+    }
+        
     const init = async () => {
         
         // const permCount = await getCount({
@@ -74,7 +86,8 @@ const MainWindow = () => {
         }, 'descr_state','description')
         descrStateData.push({value: -1, label: 'Любой'})
         setDescrStateOptions(descrStateData.sort((a:any,b:any)=>a.value-b.value))
-        setDescrState(cookies.descrState)
+        // setDescrState(cookies.descrState)
+        setDescrFilter(prev => ({...prev, descrState: cookies.descrState}))
 
         const descrTypeData = await getData({
             from: 'translate.descr_type', 
@@ -82,7 +95,9 @@ const MainWindow = () => {
             order: 'descr_type DESC',
         }, 'descr_type','descr_type')
         setDescrFilter(prev => ({...prev, descrTypeOptions: descrTypeData}))
-        setDescrFilter(prev => ({...prev, descrType: cookies.descrType}))
+        setDescrFilter(prev => ({...prev, descrType: cookies.descrType || 'name'}))
+
+        setGridCols(getGridCols())
     }
     
     const initSubjects = async (subr: number) => {
@@ -112,10 +127,13 @@ const MainWindow = () => {
         if (subr == -1) {
             alert('Choose role / subject')
         }
+
         await longExec(async() => {
-            setGridCols(getGridCols(langFilter))
+            // setGridCols(getGridCols())
+            setDescrDetail(dedede)
+
             await putTreeSelected(treeSelected, subr, subj)
-            const data = await getGridRows(manufFilter, descrFilter, gridLimit, langFilter)
+            const data = await getGridRows(manufFilter, descrFilter, gridLimit)
             setGridRows(data[0]?.data)
             setTextareaValue(data[0]?.query)
         })
@@ -129,7 +147,8 @@ const MainWindow = () => {
         //setFooterColor('darkmagenta')
         const cols = ['product_id', 'manuf', 'article', 'qtty', 'price_sell', 'name', 'subject_role', 'subject_id',]
         const andManufFilter = manufFilter ? `AND manuf ilike ''%${manufFilter}%''` : ``
-        const andDescrState = descrState ? 'AND 1=1' : ''
+        // const andDescrState = descrState ? 'AND 1=1' : ''
+        const andDescrState = descrFilter.descrState ? 'AND 1=1' : ''
         const query = 
     `
     SELECT ${cols.join(',')}
@@ -161,6 +180,21 @@ const MainWindow = () => {
         // return row.subject_role +'/'+ row.subject_id +'/'+row.product_id
         return row.manuf +'/'+ row.article
     }
+
+    const onCellClick = async (cell: any) => {
+        console.log('cell', cell)
+        const dede: IDescrDetail = await getDescrData(cell.row.manuf, cell.row.article)
+        setDescrDetail(dede)
+        // debug(dede)
+        debug(dedede)
+        setDescrPostDisabled(true)
+    }
+
+    const descrPost = async () => {
+        setDescrPostDisabled(true)
+        alert('about to write')
+    }
+
     const onManufFilterInput = (e:any) => {
         setManufFilter(e.target.value)
     }
@@ -173,6 +207,7 @@ const MainWindow = () => {
         setGridCols([])
         setGridRows([])
         setTextareaValue('')
+        setDescrFilter(prev => ({...prev, descrState: -1}))
         // todo: setTreeSelected([])
     }
 
@@ -252,7 +287,8 @@ const MainWindow = () => {
                     defaultChoice={{value: cookies.descrState, label: cookies.descrStateName}}
                     onChange={({value,label}) => {
                         setFooterText(label)
-                        setDescrState(value)
+                        // setDescrState(value)
+                        setDescrFilter(prev => ({...prev, descrState: value}))
                         setCookie('descrState', value, { path: '/' })
                         setCookie('descrStateName', label, { path: '/' })
                     }}
@@ -295,7 +331,7 @@ const MainWindow = () => {
                         onSelect={(items: any) => setTreeSelected(items)}
                     />
                 </div>
-                
+
                 <div style={{width: '100%', height: '100%', }}>
                     <Grid
                         cols={gridCols}
@@ -304,7 +340,78 @@ const MainWindow = () => {
                         onRowsChange={(rows: any, data: any) => {
                             postGrid(rows, data, descrFilter.descrType||'?')
                         }}
+                        onCellClick={onCellClick}
                     />
+                </div>
+
+                <div>
+                    <H4 text='ua'/>
+                    <H4 text={descrDetail.state_ua}/>
+                    <input
+                        type="text" 
+                        size={100}
+                        style={{width:'100%', height:30, marginBottom: 10, }}
+                        placeholder="No data"
+                        value={descrDetail.name_ua || ''} // TODO: разобраться
+                        onChange={(e: any)=>{ 
+                            setDescrPostDisabled(false)
+                            setDescrDetail(prev => ({...prev, name_ua: e.target.value}))
+                        }}
+                    />
+                    <textarea
+                        placeholder="No data"
+                        style={{width:'100%', height:100, }}
+                        value={descrDetail.description_ua || ''}
+                        onChange={(e: any)=>{ 
+                            setDescrPostDisabled(false)
+                            setDescrDetail(prev => ({...prev, description_ua: e.target.value}))
+                        }}
+                    />
+                    <H4 text='ru'/>
+                    <H4 text={descrDetail.state_ru}/>
+                    <input
+                        type="text" 
+                        size={100}
+                        style={{width:'100%', height:30, marginBottom: 10, }}
+                        placeholder="No data"
+                        value={descrDetail.name_ru || ''}
+                        onChange={(e: any)=>{ 
+                            setDescrPostDisabled(false)
+                            setDescrDetail(prev => ({...prev, name_ru: e.target.value}))
+                        }}
+                    />
+                    <textarea
+                        placeholder="No data"
+                        style={{width:'100%', height:100, }}
+                        value={descrDetail.description_ru || ''}
+                        onChange={(e: any)=>{ 
+                            setDescrPostDisabled(false)
+                            setDescrDetail(prev => ({...prev, description_ru: e.target.value}))
+                        }}
+                    />
+                    <H4 text='en'/>
+                    <H4 text={descrDetail.state_en}/>
+                    <input
+                        type="text"
+                        size={100}
+                        style={{width:'100%', height:30, marginBottom: 10, }}
+                        placeholder="No data"
+                        value={descrDetail.name_en || ''}
+                        onChange={(e: any)=>{ 
+                            setDescrPostDisabled(false)
+                            setDescrDetail(prev => ({...prev, name_en: e.target.value}))
+                        }}
+                    />
+                    <textarea 
+                        placeholder="No data"
+                        style={{width:'100%', height:100, }}
+                        value={descrDetail.description_en || ''}
+                        onChange={(e: any)=>{ 
+                            setDescrPostDisabled(false)
+                            setDescrDetail(prev => ({...prev, description_en: e.target.value}))
+                        }}
+                    />
+                    <button onClick={descrPost} disabled={descrPostDisabled} >Записать</button>
                 </div>
             </div>
             <textarea 
@@ -313,11 +420,11 @@ const MainWindow = () => {
                 style={{width:600, height:200, }} 
             />
 
-            {/* <Footer 
+            <Footer 
                 text={footerText}
                 backgroundColor={footerColor}
-            /> */}
-
+            />
+            <S/><label>-</label><S/><label>-</label>
         </CookiesProvider>
     )
 }

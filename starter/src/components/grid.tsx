@@ -17,6 +17,7 @@ interface IGridProps {
     filter?: Object,
     rowKeyGetter?: (row: any) => any,
     onRowsChange?: (rows: any, data: any) => void,
+    onCellClick?: (row: any) => void,
 }
 
 function Grid(props: IGridProps) {
@@ -53,8 +54,14 @@ function Grid(props: IGridProps) {
             // continue
         }
     }
-
-    let cols1 = props.cols.map(obj => ({ ...obj, renderEditCell: textEditor }))
+    
+    // let cols1 = props.cols.map(obj => ({ ...obj, renderEditCell: textEditor }))
+    let cols1 = props.cols.map(obj => {
+        if (obj.editable)
+            return {...obj, renderEditCell: textEditor }
+        else
+            return obj;
+    })
     cols1.push(SelectColumn)
 
     // rows
@@ -64,20 +71,23 @@ function Grid(props: IGridProps) {
         < DataGrid
             columns ={ cols1 }
             rows ={ sortedRows}
-            style={{ height: '800px' }}  // todo: setup
+            style={{ height: '800px', width: '750px'}}  // todo: setup
             defaultColumnOptions={{
                 sortable: true,
                 resizable: true,
-                maxWidth: 400, // todo: setup
+                maxWidth: 300, // todo: setup
             }}
             direction ={ 'ltr'}
             sortColumns = {sortColumns}
             onSortColumnsChange={setSortColumns}
             onRowsChange={onRowsChange}
             rowKeyGetter={props.rowKeyGetter}
-            // onCellClick={onCellClick}
+            onCellClick={props.onCellClick}
             selectedRows={selectedRows}
-            onSelectedRowsChange={setSelectedRows}
+            onSelectedRowsChange={(selectedRows: Set<number>) => { 
+                console.log('Selected rows changed', selectedRows); 
+                setSelectedRows(selectedRows); 
+            }}
             className="fill-grid"
         />
         < tr >Record count: { props.rows.length}</ tr >

@@ -23,7 +23,7 @@ const getGridCols = (lang: ILang) => {
 
 const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridLimit: number, lang: ILang) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
-    const andDescrState = descrFilter.descrState??-1 >= 0 ? `AND descr_state=${descrFilter.descrState}` : ``
+    const andDescrState = (descrFilter.descrState??-1) >= 0 ? `AND state=${descrFilter.descrState}` : ``
     const andDescrDescr = descrFilter.descrDescr ? `AND descr ilike ''%${descrFilter.descrDescr}%''` : ``
     const query = 
 `

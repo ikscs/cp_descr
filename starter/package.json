@@ -1,9 +1,9 @@
 {
   "name": "starter",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.1",
   "type": "module",
-  "homepage": "/starter/",
+  "homepage": "starter",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
