@@ -18,14 +18,17 @@ export interface IDescrFilter {
     descrDescr?: string | undefined,
 }
 
-export interface IDescrDetail {
-    name_ua?: string,
-    description_ua?:  string,
-    state_ua?: number,
-    name_ru?: string,
-    description_ru?:  string,
-    state_ru?: number,
-    name_en?: string,
-    description_en?:  string,
-    state_en?: number,
-}
+// export interface IDescrDetail {
+//     name_ua: string,
+//     state_n_ua: number,
+//     description_ua:  string,
+//     state_d_ua: number,
+//     name_ru: string,
+//     state_n_ru: number,
+//     description_ru:  string,
+//     state_d_ru: number,
+//     name_en: string,
+//     state_n_en: number,
+//     description_en:  string,
+//     state_d_en: number,
+// }

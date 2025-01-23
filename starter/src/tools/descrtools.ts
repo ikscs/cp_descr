@@ -1,17 +1,52 @@
 import { fetchData } from "../api/fetchData"
 import AppContext from "../AppContext"
-import { IDescrDetail } from "../types"
+// import { IDescrDetail } from "../types"
 
-const defaultDescrDetail: IDescrDetail = {
-    name_ua: '',
-    description_ua: '',
-    state_ua: -1,
-    name_ru: '',
-    description_ru: '',
-    state_ru: -1,
-    name_en: '',
-    description_en: '',
-    state_en: -1,
+enum ELang {
+    ua = 'ua',
+    ru = 'ru',
+    en = 'en',
+}
+
+enum EType {
+    name = 'name',
+    description = 'description',
+}
+
+interface IDescrValue { 
+    value: string,
+    state: number, 
+}
+
+type IDescrDetail = {
+    [key in EType]: Record<ELang, IDescrValue>;
+};
+
+const makeDescr = () => {
+    const ds: IDescrValue = {value: '', state: -1}
+    const d: any = {}
+    d[EType.name] = {}
+    d[EType.name][ELang.ua] = ds
+    d[EType.name][ELang.ru] = ds
+    d[EType.name][ELang.en] = ds
+    d[EType.description] = {}
+    d[EType.description][ELang.ua] = ds
+    d[EType.description][ELang.ru] = ds
+    d[EType.description][ELang.en] = ds
+    return d
+}
+
+const copyDescr = (s: IDescrDetail): IDescrDetail => {
+    const d: any = {}
+    d[EType.name] = {}
+    d[EType.name][ELang.ua] =       s[EType.name][ELang.ua]
+    d[EType.name][ELang.ru] =       s[EType.name][ELang.ru]
+    d[EType.name][ELang.en] =       s[EType.name][ELang.en]
+    d[EType.description] = {}
+    d[EType.description][ELang.ua] =s[EType.description][ELang.ua] 
+    d[EType.description][ELang.ru] =s[EType.description][ELang.ru] 
+    d[EType.description][ELang.en] =s[EType.description][ELang.en] 
+    return d
 }
 
 const getDescrData = async (manuf: string, article: string): Promise<IDescrDetail> => {
@@ -23,12 +58,13 @@ const getDescrData = async (manuf: string, article: string): Promise<IDescrDetai
         where: {manuf: manuf, article: article}
     }
 
+    const result = makeDescr()
     const data = await fetchData(fetchParam)
-    // const result: any = defaultDescrDetail
-    const result: any = {}
     for (const data1 of data) {
-        result[data1.descr_type + '_' + data1.lang] = data1.descr
-        result['state_' + data1.lang] = data1.state
+        result[data1.descr_type][data1.lang] = {
+            value: data1.descr,
+            state: data1.state,
+        }
     }
 
     return result
@@ -38,4 +74,5 @@ const postDescrData = async (manuf: string, article: string, data: IDescrDetail)
     console.log(manuf, article, data)
 }
 
-export { getDescrData, postDescrData, defaultDescrDetail }
+export { getDescrData, postDescrData, makeDescr, copyDescr, ELang, EType, }
+export type { IDescrDetail }

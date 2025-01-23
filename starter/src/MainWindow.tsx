@@ -12,11 +12,10 @@ import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
 import Checkbox from "./components/checkbox"
 import packageJson from '../package.json';
-import { ILang, IDescrFilter, IValueLabel, IDescrDetail, } from './types'
-import { getDescrData, defaultDescrDetail } from "./tools/descrtools"
+import { ILang, IDescrFilter, IValueLabel, } from './types'
+import { getDescrData, makeDescr, IDescrDetail, ELang, EType, copyDescr } from "./tools/descrtools"
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
-const dedede = defaultDescrDetail
 
 const S = () => (<div style={{width: '20px'}}/>)
 
@@ -33,9 +32,8 @@ const MainWindow = () => {
     const [user, setUser] = useState('') 
     const [subr, setSubr] = useState(-1);
     const [subj, setSubj] = useState('Unknown');
-    // const [descrState, setDescrState] = useState(null);
     const [descrFilter, setDescrFilter] = useState<IDescrFilter>({});
-    const [langFilter, setLangFilter] = useState<ILang>({ua: true,});
+    // const [langFilter, setLangFilter] = useState<ILang>({ua: true,});
     const [treeData, setTreeData] = useState(emptyTree)
     const [treeSelected, setTreeSelected] = useState([])
     const [gridCols, setGridCols] = useState<any[]>([]);
@@ -43,14 +41,14 @@ const MainWindow = () => {
     const [gridLimit, setGridLimit] = useState(1000);
     const [manufFilter, setManufFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
-    const [descrDetail, setDescrDetail] = useState<IDescrDetail>({});
-    // const [descrDetail, setDescrDetail] = useState<IDescrDetail>(dedede);
+    const [descrDetail, setDescrDetail] = useState<IDescrDetail>(makeDescr());
     const [descrPostDisabled, setDescrPostDisabled] = useState(true);
     const [textareaValue, setTextareaValue] = useState('');
     
     console.log(user)
-    console.log(gridCols)
-    console.log(gridRows)
+    console.log('descrDetail', descrDetail)
+    // console.log(gridCols)
+    // console.log(gridRows)
 
     const debug = (arg0: any) => {
         setTextareaValue(JSON.stringify(arg0))
@@ -130,7 +128,7 @@ const MainWindow = () => {
 
         await longExec(async() => {
             // setGridCols(getGridCols())
-            setDescrDetail(dedede)
+            setDescrDetail(makeDescr())
 
             await putTreeSelected(treeSelected, subr, subj)
             const data = await getGridRows(manufFilter, descrFilter, gridLimit)
@@ -185,8 +183,6 @@ const MainWindow = () => {
         console.log('cell', cell)
         const dede: IDescrDetail = await getDescrData(cell.row.manuf, cell.row.article)
         setDescrDetail(dede)
-        // debug(dede)
-        debug(dedede)
         setDescrPostDisabled(true)
     }
 
@@ -198,6 +194,7 @@ const MainWindow = () => {
     const onManufFilterInput = (e:any) => {
         setManufFilter(e.target.value)
     }
+
     const onDescriptionFilterInput = (e:any) => {
         setDescrFilter(prev => ({...prev, descrDescr: e.target.value}))
     }
@@ -214,6 +211,19 @@ const MainWindow = () => {
     useEffect(() => {
         init()
     }, [])
+
+    const typeLangState = (type: EType, lang: ELang) => 
+        `${type} - ${lang} ( ${descrDetail[type][lang].state} )`
+
+    const updateDescrValue = (type: EType, lang: ELang, value: string) => {
+        setDescrDetail((prev) => {
+            const next = copyDescr(prev)
+            next[type][lang].value = value
+            console.log('prev',prev[type][lang].value)
+            console.log('next',next[type][lang].value)
+            return next
+        })
+    }
 
     return (
         <CookiesProvider>
@@ -293,7 +303,7 @@ const MainWindow = () => {
                         setCookie('descrStateName', label, { path: '/' })
                     }}
                 />
-                <S/>
+                {/* <S/>
                 <Checkbox
                     defaultValue={langFilter.ua || false}
                     label='ua'
@@ -310,7 +320,7 @@ const MainWindow = () => {
                     defaultValue={langFilter.ru || false}
                     label='ru'
                     onChange={(e) => setLangFilter(prev => ({...prev, ru: e})) }
-                />
+                /> */}
                 <S/>
                 <input 
                     type="text" 
@@ -325,14 +335,14 @@ const MainWindow = () => {
             </div> 
             
             <div className='flexbox-container2'>
-                <div style={{width: '300px'}}>
+                <div title='tree' style={{width: '300px'}}>
                     <MultiSelectCheckbox 
                         data={treeData}
                         onSelect={(items: any) => setTreeSelected(items)}
                     />
                 </div>
 
-                <div style={{width: '100%', height: '100%', }}>
+                <div title='grid' style={{width: '100%', height: '100%', }}>
                     <Grid
                         cols={gridCols}
                         rows={gridRows}
@@ -344,71 +354,71 @@ const MainWindow = () => {
                     />
                 </div>
 
-                <div>
-                    <H4 text='ua'/>
-                    <H4 text={descrDetail.state_ua}/>
+                <div title="descr">
+                    <H4 text={typeLangState(EType.name,ELang.ua)}/>
                     <input
                         type="text" 
                         size={100}
                         style={{width:'100%', height:30, marginBottom: 10, }}
                         placeholder="No data"
-                        value={descrDetail.name_ua || ''} // TODO: разобраться
+                        value={descrDetail[EType.name][ELang.ua].value}
                         onChange={(e: any)=>{ 
                             setDescrPostDisabled(false)
-                            setDescrDetail(prev => ({...prev, name_ua: e.target.value}))
+                            updateDescrValue(EType.name, ELang.ua, e.target.value)
                         }}
                     />
+                    <H4 text={typeLangState(EType.description,ELang.ua)}/>
                     <textarea
                         placeholder="No data"
                         style={{width:'100%', height:100, }}
-                        value={descrDetail.description_ua || ''}
+                        value={descrDetail[EType.description][ELang.ua].value}
                         onChange={(e: any)=>{ 
                             setDescrPostDisabled(false)
-                            setDescrDetail(prev => ({...prev, description_ua: e.target.value}))
+                            updateDescrValue(EType.description, ELang.ua, e.target.value)
                         }}
                     />
-                    <H4 text='ru'/>
-                    <H4 text={descrDetail.state_ru}/>
+                    <H4 text={typeLangState(EType.name,ELang.ru)}/>
                     <input
                         type="text" 
                         size={100}
                         style={{width:'100%', height:30, marginBottom: 10, }}
                         placeholder="No data"
-                        value={descrDetail.name_ru || ''}
+                        value={descrDetail[EType.name][ELang.ru].value}
                         onChange={(e: any)=>{ 
                             setDescrPostDisabled(false)
-                            setDescrDetail(prev => ({...prev, name_ru: e.target.value}))
+                            updateDescrValue(EType.name, ELang.ru, e.target.value)
                         }}
                     />
+                    <H4 text={typeLangState(EType.description,ELang.ru)}/>
                     <textarea
                         placeholder="No data"
                         style={{width:'100%', height:100, }}
-                        value={descrDetail.description_ru || ''}
+                        value={descrDetail[EType.description][ELang.ru].value}
                         onChange={(e: any)=>{ 
                             setDescrPostDisabled(false)
-                            setDescrDetail(prev => ({...prev, description_ru: e.target.value}))
+                            updateDescrValue(EType.description, ELang.ru, e.target.value)
                         }}
                     />
-                    <H4 text='en'/>
-                    <H4 text={descrDetail.state_en}/>
+                    <H4 text={typeLangState(EType.name,ELang.en)}/>
                     <input
                         type="text"
                         size={100}
                         style={{width:'100%', height:30, marginBottom: 10, }}
                         placeholder="No data"
-                        value={descrDetail.name_en || ''}
+                        value={descrDetail[EType.name][ELang.en].value}
                         onChange={(e: any)=>{ 
                             setDescrPostDisabled(false)
-                            setDescrDetail(prev => ({...prev, name_en: e.target.value}))
+                            updateDescrValue(EType.name, ELang.en, e.target.value)
                         }}
                     />
+                    <H4 text={typeLangState(EType.description,ELang.en)}/>
                     <textarea 
                         placeholder="No data"
                         style={{width:'100%', height:100, }}
-                        value={descrDetail.description_en || ''}
+                        value={descrDetail[EType.description][ELang.en].value}
                         onChange={(e: any)=>{ 
                             setDescrPostDisabled(false)
-                            setDescrDetail(prev => ({...prev, description_en: e.target.value}))
+                            updateDescrValue(EType.description, ELang.en, e.target.value)
                         }}
                     />
                     <button onClick={descrPost} disabled={descrPostDisabled} >Записать</button>
