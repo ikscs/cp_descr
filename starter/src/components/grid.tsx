@@ -18,6 +18,7 @@ interface IGridProps {
     rowKeyGetter?: (row: any) => any,
     onRowsChange?: (rows: any, data: any) => void,
     onCellClick?: (row: any) => void,
+    onRowSelect?: (row: any) => any,
 }
 
 function Grid(props: IGridProps) {
@@ -85,8 +86,10 @@ function Grid(props: IGridProps) {
             onCellClick={props.onCellClick}
             selectedRows={selectedRows}
             onSelectedRowsChange={(selectedRows: Set<number>) => { 
-                console.log('Selected rows changed', selectedRows); 
-                setSelectedRows(selectedRows); 
+                console.log('Selected rows changed', selectedRows)
+                setSelectedRows(selectedRows)
+                if (props.onRowSelect)
+                    props.onRowSelect(selectedRows)
             }}
             className="fill-grid"
         />

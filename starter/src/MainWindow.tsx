@@ -14,6 +14,7 @@ import Grid from "./components/grid"
 import packageJson from '../package.json';
 import { IDescrFilter, IValueLabel, } from './types'
 import { getDescrData, makeDescr, IDescrDetail, ELang, EType, copyDescr } from "./tools/descrtools"
+import { transOptions, transExec } from "./tools/transtools"
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -44,6 +45,8 @@ const MainWindow = () => {
     const [descrDetail, setDescrDetail] = useState<IDescrDetail>(makeDescr());
     const [descrPostDisabled, setDescrPostDisabled] = useState(true);
     const [textareaValue, setTextareaValue] = useState('');
+    const [transDir, setTransDir] = useState('');
+    const [transRows, setTransRows] = useState([]);
     
     console.log(user)
     console.log('descrDetail', descrDetail)
@@ -167,7 +170,7 @@ const MainWindow = () => {
         // setFooterColor('navy')
         })
     }
-    
+    console.log(initGridProd)
     // const onTreeSelect = async (items: any) => {
     //     longExecStart
     //     await putTreeSelected(items, subr, subj )
@@ -184,6 +187,10 @@ const MainWindow = () => {
         const dede: IDescrDetail = await getDescrData(cell.row.manuf, cell.row.article)
         setDescrDetail(dede)
         setDescrPostDisabled(true)
+    }
+
+    const onRowSelect = (rows: any) => {
+        setTransRows(rows)
     }
 
     const descrPost = async () => {
@@ -206,6 +213,11 @@ const MainWindow = () => {
         setTextareaValue('')
         setDescrFilter(prev => ({...prev, descrState: -1}))
         // todo: setTreeSelected([])
+    }
+
+    const translate = (type: EType) => {
+        transExec(transRows, transDir, type)
+        initGrid()
     }
 
     useEffect(() => {
@@ -320,8 +332,8 @@ const MainWindow = () => {
                     defaultValue={langFilter.ru || false}
                     label='ru'
                     onChange={(e) => setLangFilter(prev => ({...prev, ru: e})) }
-                /> */}
-                <S/>
+                /> 
+                <S/>*/}
                 <input 
                     type="text" 
                     size={3}
@@ -331,7 +343,18 @@ const MainWindow = () => {
                 <S/>
                 <button onClick={initGrid}>Применить</button>
                 <button onClick={clearAll}>Очистить</button>
-                <button onClick={initGridProd}>Action 3</button>
+                {/* <button onClick={initGridProd}>Action 3</button> */}
+                <S/>
+                <Combo
+                    placeholder="Translate"
+                    options={transOptions}
+                    onChange={({value}) => {
+                        setTransDir(value)
+                    }}
+                    width={'130px'}
+                />
+                <S/>
+                <button onClick={()=>translate(EType.name)}>Перевести</button>
             </div> 
             
             <div className='flexbox-container2'>
@@ -342,7 +365,7 @@ const MainWindow = () => {
                     />
                 </div>
 
-                <div title='grid' style={{width: '100%', height: '100%', }}>
+                <div title='grid' style={{/*width: '100%',*/ height: '100%', }}>
                     <Grid
                         cols={gridCols}
                         rows={gridRows}
@@ -351,6 +374,7 @@ const MainWindow = () => {
                             postGrid(rows, data, descrFilter.descrType||'?')
                         }}
                         onCellClick={onCellClick}
+                        onRowSelect={onRowSelect}
                     />
                 </div>
 
