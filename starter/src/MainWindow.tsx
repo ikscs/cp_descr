@@ -10,9 +10,9 @@ import { getGridCols, getGridRows, postGrid } from './tools/gridtools2'
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
-import Checkbox from "./components/checkbox"
+// import Checkbox from "./components/checkbox"
 import packageJson from '../package.json';
-import { ILang, IDescrFilter, IValueLabel, } from './types'
+import { IDescrFilter, IValueLabel, } from './types'
 import { getDescrData, makeDescr, IDescrDetail, ELang, EType, copyDescr } from "./tools/descrtools"
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
@@ -50,9 +50,9 @@ const MainWindow = () => {
     // console.log(gridCols)
     // console.log(gridRows)
 
-    const debug = (arg0: any) => {
-        setTextareaValue(JSON.stringify(arg0))
-    }
+    // const debug = (arg0: any) => {
+    //     setTextareaValue(JSON.stringify(arg0))
+    // }
         
     const init = async () => {
         
