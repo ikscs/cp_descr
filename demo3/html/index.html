@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Соединение слов</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <style>
+    .container {
+      display: flex;
+      justify-content: space-between;
+      margin: 50px;
+    }
+    .list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      width: 400px;
+    }
+    .item {
+      padding: 10px;
+      background-color: #f0f0f0;
+      margin: 5px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .selected {
+      background-color: #d3d3d3; /* Серый цвет для выбранного элемента */
+    }
+    .connected {
+      background-color: #90ee90; /* Зеленый цвет для соединенного элемента */
+    }
+    .hovered {
+      background-color: #f984e5; /* Светло-пурпурный при наведении на соединенную пару */
+    }
+    .result {
+      margin-top: 30px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .result ul {
+      padding: 0;
+      list-style-type: none;
+    }
+    .result li {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <!-- Первый список слов -->
+      <ul class="list">
+        <li
+          v-for="(item, index) in list1"
+          :key="'list1-' + index"
+          class="item"
+          :class="{
+            selected: isSelected('list1', index),
+            connected: isConnected('list1', index),
+            hovered: isHovered('list1', index)
+          }"
+          @click="selectItem('list1', index)"
+          @mouseover="setHovered('list1', index)"
+          @mouseleave="setHovered(null, null)"
+        >
+          {{ item }}
+        </li>
+      </ul>
+
+      <!-- Второй список слов -->
+      <ul class="list">
+        <li
+          v-for="(item, index) in list2"
+          :key="'list2-' + index"
+          class="item"
+          :class="{
+            selected: isSelected('list2', index),
+            connected: isConnected('list2', index),
+            hovered: isHovered('list2', index)
+          }"
+          @click="selectItem('list2', index)"
+          @mouseover="setHovered('list2', index)"
+          @mouseleave="setHovered(null, null)"
+        >
+          {{ item }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Вывод результата -->
+    <div class="result" v-if="connectedPairs.length > 0">
+      <h3>Результат соединений:</h3>
+      <ul>
+        <li v-for="(pair, index) in connectedPairs" :key="index">
+          {{ list1[pair.first.index] }} - {{ list2[pair.second.index] }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          list1: [
+'1854 : «Природне срібло»', '321 : Місячно-блакитний', '337 : Природне срібло', '417 : Срібний (слюда)', '424 : «Біла кераміка»', 
+'578 : Космічний синій', '602 : Небесно-блакитний', '618 : «Чорна тінь»', '671 : Блідо-золотиста троянда', '702 : Блакитне небо', 
+'1423 : Опівнічний чорний', '1479 : Slate blue', '1497 : Теплий золотистий', '272 : Метеоритне срібло', '312 : Діамантовий білий', 
+'282 : Сріблястий льодовик', '355 : Матовий чорний', '379 : Синій'
+],
+          list2: [
+'787 : Natural silver', '993 : Shadow black', '1131 : Diamond white', '1277 : Meteor silver', '1336 : Performance blue', 
+'1372 : Ceramic white', '1519 : Moonlight blue', '1538 : Warm gold', '1663 : Space blue', '1754 : Pale golden rose', 
+'1799 : Mica silver', '1850 : Jet black', '2222 : Glacier silver', '2229 : Sky blue', '2238 : Atmospheric blue', 
+'2406 : Slate blue', '2411 : Nightfall black'
+],
+          selectedItem: null,
+          connectedPairs: [],
+          hoveredPair: null
+        };
+      },
+      methods: {
+        selectItem(list, index) {
+          if (this.selectedItem) {
+            // Если выбран элемент из другого списка, соединяем их
+            if (this.selectedItem.list !== list) {
+              this.connectItems(list, index);
+            } else {
+              this.selectedItem = null;
+            }
+          } else {
+            // Проверка на удаление связи, если элемент уже соединен
+            if (this.isConnected(list, index)) {
+              this.removeConnection(list, index);
+            } else {
+              // Если элемент не выбран, выбираем его
+              this.selectedItem = { list, index };
+            }
+          }
+        },
+        connectItems(list, index) {
+          const pair = {
+            first: this.selectedItem,
+            second: { list, index }
+          };
+
+          // Добавляем пару в список соединений
+          this.connectedPairs.push(pair);
+
+          // Сбрасываем выбранный элемент
+          this.selectedItem = null;
+        },
+        removeConnection(list, index) {
+          // Удаляем связь, если она существует
+          this.connectedPairs = this.connectedPairs.filter(pair => {
+            return !(pair.first.list === list && pair.first.index === index) &&
+                   !(pair.second.list === list && pair.second.index === index);
+          });
+        },
+        isSelected(list, index) {
+          return this.selectedItem && this.selectedItem.list === list && this.selectedItem.index === index;
+        },
+        isConnected(list, index) {
+          return this.connectedPairs.some(pair => {
+            return (
+              (pair.first.list === list && pair.first.index === index) ||
+              (pair.second.list === list && pair.second.index === index)
+            );
+          });
+        },
+        setHovered(list, index) {
+          this.hoveredPair = { list, index };
+        },
+        isHovered(list, index) {
+          // Проверка, является ли текущий элемент частью пары, которая наводится
+          return this.connectedPairs.some(pair => {
+            return (
+              (pair.first.list === list && pair.first.index === index) ||
+              (pair.second.list === list && pair.second.index === index)
+            ) && (
+              pair.first.list === this.hoveredPair.list && pair.first.index === this.hoveredPair.index ||
+              pair.second.list === this.hoveredPair.list && pair.second.index === this.hoveredPair.index
+            );
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
