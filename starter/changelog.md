@@ -1,0 +1,47 @@
+# Changelog
+
+## [Unreleased]
+
+### Added
+
+- Initial project setup with React and Vite.
+- Basic folder structure for the project.
+- Example components and pages.
+
+### Changed
+
+- Updated README with project setup instructions.
+
+### Fixed
+
+- N/A
+
+## [0.1.0] - 2023-10-01
+
+### Added
+
+- Initial release of the project.
+- Basic functionality and initial components.
+
+### Changed
+
+- N/A
+
+### Fixed
+
+- N/A
+
+## [0.3.1] - 2025-01-24
+
+### Added
+
+- translate functionality
+- edit functionality
+
+### Changed
+
+- N/A
+
+### Fixed
+
+- N/A
