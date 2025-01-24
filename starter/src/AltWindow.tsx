@@ -6,30 +6,25 @@ import Combo from "./components/combo"
 import { /*getCount,*/ getData, } from './api/dataTools'
 import AppContext from "./AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "./tools/treetools"
-import { getGridCols, getGridRows, postGrid, toExcel } from './tools/gridtools2'
+import { getGridCols, getGridRows, postGrid } from './tools/gridtools2'
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
 // import Checkbox from "./components/checkbox"
 import packageJson from '../package.json';
 import { IDescrFilter, IValueLabel, } from './types'
-import { getDescrData, makeDescr, IDescrDetail, IDescrKey, ELang, EType, copyDescr, postDescrData } from "./tools/descrtools"
+import { getDescrData, makeDescr, IDescrDetail, ELang, EType, copyDescr } from "./tools/descrtools"
 import { transOptions, transExec } from "./tools/transtools"
-import ComboMenu from "./components/ComboMenu"
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
-const S = () => (<div style={{width: '10px'}}/>)
+const S = () => (<div style={{width: '20px'}}/>)
 
 const H4 = (props: any) => (<h4 style={{margin: 8}}>{props.text}</h4>)
 
-const MainWindow = () => {
-    const [cookies, setCookie] = useCookies(['user','userFullName','descrState','descrStateName','descrType','transDir'])
+const AltWindow = () => {
+    const [cookies, setCookie] = useCookies(['user','userFullName','descrState','descrStateName','descrType'])
     AppContext.userName = cookies.user
-    const actions = [
-        { label: 'Перевести', onSelect: () => translate(EType.name) },
-        { label: 'Excel', onSelect: () => toExcel([]) },
-    ];
     const [footerText, setFooterText] = useState('') 
     const [userOptions, setUserOptions] = useState<IValueLabel[]>([]);
     const [roleOptions, setRoleOptions] = useState<IValueLabel[]>([]);
@@ -48,10 +43,9 @@ const MainWindow = () => {
     const [manufFilter, setManufFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
     const [descrDetail, setDescrDetail] = useState<IDescrDetail>(makeDescr());
-    const [descrKey, setDescrKey] = useState<IDescrKey>({manuf:'',article:''});
     const [descrPostDisabled, setDescrPostDisabled] = useState(true);
     const [textareaValue, setTextareaValue] = useState('');
-    const [transDir, setTransDir] = useState('ua-ru');
+    const [transDir, setTransDir] = useState('');
     const [transRows, setTransRows] = useState([]);
     
     console.log(user)
@@ -78,7 +72,6 @@ const MainWindow = () => {
         }, 'user_name','user_full_name'))
         
         setUser(cookies.user)
-        setTransDir(cookies.transDir || 'ua-ru')
 
         setRoleOptions(await getData({
             from: 'cp3.cp_subject_role', 
@@ -193,7 +186,6 @@ const MainWindow = () => {
         console.log('cell', cell)
         const dede: IDescrDetail = await getDescrData(cell.row.manuf, cell.row.article)
         setDescrDetail(dede)
-        setDescrKey({manuf: cell.row.manuf, article: cell.row.article})
         setDescrPostDisabled(true)
     }
 
@@ -201,29 +193,10 @@ const MainWindow = () => {
         setTransRows(rows)
     }
 
-    const withErrorHandling = async (asyncFunc: () => Promise<void>) => {
-        try {
-            await asyncFunc();
-            setFooterText('Ok');
-            setFooterColor('navy');
-        } catch (error: unknown) {
-            console.error('Error:', error);
-            if (error instanceof Error) {
-                setFooterText(error.message);
-            } else {
-                setFooterText('An unknown error occurred');
-            }
-            setFooterColor('red');
-        }
-    };
-
     const descrPost = async () => {
-        setDescrPostDisabled(true);
-        await withErrorHandling(async () => {
-            const result = await postDescrData(descrKey, descrDetail);
-            console.log('postDescrData result:', result);
-        });
-    };
+        setDescrPostDisabled(true)
+        alert('about to write')
+    }
 
     const onManufFilterInput = (e:any) => {
         setManufFilter(e.target.value)
@@ -244,7 +217,7 @@ const MainWindow = () => {
 
     const translate = (type: EType) => {
         transExec(transRows, transDir, type)
-        // initGrid()
+        initGrid()
     }
 
     useEffect(() => {
@@ -279,8 +252,6 @@ const MainWindow = () => {
                         setCookie('userFullName', label, { path: '/' })
                         AppContext.userName = value
                     }}
-                    title="User"
-                    width='100px'
                 />
                 <S/>
                 <Combo
@@ -293,7 +264,6 @@ const MainWindow = () => {
                         initTreeData(-1,'noname')
                         setGridRows([])
                     }}
-                    title="Subject Role"
                 />
                 <S/>
                 <Combo
@@ -305,7 +275,6 @@ const MainWindow = () => {
                         initTreeData(subr,value)
                         setGridRows([])
                     }}
-                    title="Subject"
                 />
                 <S/>
                 <input 
@@ -331,8 +300,6 @@ const MainWindow = () => {
                         setDescrFilter(prev => ({...prev, descrType: value}))
                         setCookie('descrType', value, { path: '/' })
                     }}
-                    title="Description type"
-                    width="130px"
                 />
                 <S/>
                 <Combo
@@ -346,8 +313,6 @@ const MainWindow = () => {
                         setCookie('descrState', value, { path: '/' })
                         setCookie('descrStateName', label, { path: '/' })
                     }}
-                    title="Description state"
-                    width="150px"
                 />
                 {/* <S/>
                 <Checkbox
@@ -384,17 +349,11 @@ const MainWindow = () => {
                     options={transOptions}
                     onChange={({value}) => {
                         setTransDir(value)
-                        setCookie('transDir', value, { path: '/' })
                     }}
                     width={'130px'}
-                    title="Translate direction"
                 />
                 <S/>
                 <button onClick={()=>translate(EType.name)}>Перевести</button>
-                <ComboMenu
-                    caption="Actions"
-                    options={actions}
-                />
             </div> 
             
             <div className='flexbox-container2'>
@@ -503,4 +462,4 @@ const MainWindow = () => {
     )
 }
 
-export default MainWindow
+export default AltWindow

@@ -102,4 +102,8 @@ const postGrid = async (rows: any, data: any, descrType: string) => {
    return `Number of affected rows ${result||-1}`
 }
 
-export { getGridCols, getGridRows, postGrid }
+const toExcel = async (rows: any) => {
+    console.log('toExcel', rows)
+}
+
+export { getGridCols, getGridRows, postGrid, toExcel, }

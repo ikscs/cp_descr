@@ -1,4 +1,4 @@
-import { fetchData } from "../api/fetchData"
+import { escapeSingleQuotes, fetchData } from "../api/fetchData"
 import AppContext from "../AppContext"
 // import { IDescrDetail } from "../types"
 
@@ -21,6 +21,11 @@ interface IDescrValue {
 type IDescrDetail = {
     [key in EType]: Record<ELang, IDescrValue>;
 };
+
+interface IDescrKey {
+    manuf: string;
+    article: string;
+}
 
 const makeDescr = () => {
     const ds: IDescrValue = {value: '', state: -1}
@@ -70,9 +75,57 @@ const getDescrData = async (manuf: string, article: string): Promise<IDescrDetai
     return result
 }
 
-const postDescrData = async (manuf: string, article: string, data: IDescrDetail) => {
-    console.log(manuf, article, data)
+const postDescrData = async (key: IDescrKey, data: IDescrDetail) => {
+    console.log(key.manuf, key.article, data)
+
+    const values = []
+    for (const [type, langData] of Object.entries(data)) {
+        for (const [lang, value] of Object.entries(langData)) {
+            if (value.value === '') 
+                continue
+            values.push(`('${key.manuf}','${key.article}','${type}','${lang}',${value.state},'${value.value}')`)
+        }
+    }
+
+    const insertQuery =
+`INSERT INTO cp3.product_descr(manuf, article, descr_type, lang, state,descr)
+VALUES ${values.join(',')}
+ON CONFLICT(manuf,article,descr_type,lang) DO UPDATE SET 
+  descr = EXCLUDED.descr,
+  state = EXCLUDED.state
+`
+    const insertFetchParam = {
+        backend_point: AppContext.backend_point_query,
+        query: escapeSingleQuotes(insertQuery),
+    }
+    console.log(insertFetchParam)
+    const insertResult = await fetchData(insertFetchParam)    
+    console.log('postDescrData insert result',insertResult)
+    if (!insertResult[0].ok)
+        throw new Error("postDescrData insert error");
+
+    const delKeys = []
+    for (const [type, langData] of Object.entries(data)) {
+        for (const [lang, value] of Object.entries(langData)) {
+            if (value.value === '') 
+                delKeys.push(`('${key.manuf}','${key.article}','${type}','${lang}')`)   
+        }
+    }
+
+    const deleteQuery =
+`WITH del AS (values ${delKeys.join(',')}) 
+DELETE FROM cp3.product_descr WHERE (manuf,article,descr_type,lang) IN (SELECT * FROM del)
+`
+    const deleteFetchParam = {
+        backend_point: AppContext.backend_point_query,
+        query: escapeSingleQuotes(deleteQuery),
+    }
+    console.log(deleteFetchParam)
+    const deleteResult = await fetchData(deleteFetchParam)    
+    console.log('postDescrData delete result',deleteResult)
+    if (!deleteResult[0].ok)
+        throw new Error("postDescrData delete error");
 }
 
 export { getDescrData, postDescrData, makeDescr, copyDescr, ELang, EType, }
-export type { IDescrDetail }
+export type { IDescrDetail, IDescrKey, }

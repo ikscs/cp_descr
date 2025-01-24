@@ -21,6 +21,7 @@ interface IComboProps {
     onChange: (choice: any) => void,
     defaultChoice?: IValueLabel | undefined,
     width?: string,
+    title?: string,
 }
 
 // https://stackoverflow.com/questions/65640550/how-to-remove-text-cursor-on-select-in-react-select-library
@@ -43,7 +44,7 @@ function Combo(props: IComboProps) {
     const width = props.width || '150px'
 
     return (
-    <div style={{width: width}}>
+    <div style={{width: width}} title={props.title}>
         <Select
             value={selectedOption}
             styles={customStyles}

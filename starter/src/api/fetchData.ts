@@ -10,6 +10,10 @@ interface IFetchBody {
     query?: string,
 }
 
+export const escapeSingleQuotes = (str: string): string => {
+    return str.replace(/'/g, "\'\'");
+}
+
 export const fetchData = async (props: IFetchBody) => {
 
     console.log('fetchData')
@@ -17,6 +21,12 @@ export const fetchData = async (props: IFetchBody) => {
     const url = AppContext.backend_url + backend_point
     console.log('url', url)
     console.log(JSON.stringify(props))
+
+    // Escape single quotes in the query
+    // if (props.query) {
+    //     props.query = escapeSingleQuotes(props.query);
+    // }
+
     try {
 // body: {from: 'cp3.cp_subject_role', fields: ['subject_role, description']}
         const response = await fetch(url, {
