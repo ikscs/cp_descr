@@ -3,7 +3,7 @@ import Select from 'react-select'
 // yarn add react-select
 
 const customStyles = {
-    menu: (provided: any) => ({ ...provided, textAlign: 'left', }), 
+    menu: (provided: any) => ({ ...provided, textAlign: 'left', color: 'black', }), 
     option: (provided: any) => ({ ...provided, textAlign: 'left', }), 
     input: (provided: any) => ({...provided,  color: 'transparent', }),
 }
