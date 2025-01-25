@@ -1,3 +1,4 @@
+// Generated with Copilot
 import React, { useState, useEffect, useRef } from 'react';
 
 interface Option {
@@ -11,7 +12,7 @@ interface ComboProps {
     width?: string;
 }
 
-const ComboMenu: React.FC<ComboProps> = ({ options, caption, width }) => {
+const DropDownMenu: React.FC<ComboProps> = ({ options, caption, width }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -57,4 +58,4 @@ const ComboMenu: React.FC<ComboProps> = ({ options, caption, width }) => {
     );
 };
 
-export default ComboMenu;
+export default DropDownMenu;

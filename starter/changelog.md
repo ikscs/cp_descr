@@ -44,4 +44,18 @@
 
 ### Fixed
 
-- N/A111222
+- N/A
+
+## [0.3.2]
+
+### Added
+
+- N/A
+
+### Changed
+
+- renamed combomenu -> dropdownmenu
+
+### Fixed
+
+- очистить - применить (удалялись колонкпи)

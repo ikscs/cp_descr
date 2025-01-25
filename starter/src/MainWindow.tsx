@@ -15,7 +15,7 @@ import packageJson from '../package.json';
 import { IDescrFilter, IValueLabel, } from './types'
 import { getDescrData, makeDescr, IDescrDetail, IDescrKey, ELang, EType, copyDescr, postDescrData } from "./tools/descrtools"
 import { transOptions, transExec } from "./tools/transtools"
-import ComboMenu from "./components/ComboMenu"
+import DropDownMenu from "./components/DropDownMenu"
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -235,7 +235,7 @@ const MainWindow = () => {
 
     const clearAll = () => {
         setManufFilter('')
-        setGridCols([])
+        // setGridCols([])
         setGridRows([])
         setTextareaValue('')
         setDescrFilter(prev => ({...prev, descrState: -1}))
@@ -391,7 +391,7 @@ const MainWindow = () => {
                 />
                 <S/>
                 <button onClick={()=>translate(EType.name)}>Перевести</button>
-                <ComboMenu
+                <DropDownMenu
                     caption="Actions"
                     options={actions}
                 />
