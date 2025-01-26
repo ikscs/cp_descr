@@ -59,3 +59,16 @@
 ### Fixed
 
 - очистить - применить (удалялись колонкпи)
+
+## [0.4.1]
+
+### Added
+
+- widegrid
+- excel download
+
+### Changed
+
+- added props to comps
+
+### Fixed

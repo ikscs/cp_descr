@@ -7,15 +7,18 @@ import { /*getCount,*/ getData, } from './api/dataTools'
 import AppContext from "./AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "./tools/treetools"
 import { getGridCols, getGridRows, postGrid, toExcel } from './tools/gridtools2'
+import { getGridRows as getWideGridRows, gridCols as wideGridCols } from './tools/widegridtools'
 import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import { fetchData } from "./api/fetchData"
 import Grid from "./components/grid"
+import WideGrid from "./views/WideGrid"
 // import Checkbox from "./components/checkbox"
 import packageJson from '../package.json';
 import { IDescrFilter, IValueLabel, } from './types'
 import { getDescrData, makeDescr, IDescrDetail, IDescrKey, ELang, EType, copyDescr, postDescrData } from "./tools/descrtools"
 import { transOptions, transExec } from "./tools/transtools"
 import DropDownMenu from "./components/DropDownMenu"
+import Cond from "./components/Cond"
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -28,9 +31,16 @@ const MainWindow = () => {
     AppContext.userName = cookies.user
     const actions = [
         { label: 'Перевести', onSelect: () => translate(EType.name) },
-        { label: 'Excel', onSelect: () => toExcel([]) },
+        { label: 'Excel', onSelect: () => toExcel(
+            mode=='WideGrid'? wideGridCols : gridCols,
+            mode=='WideGrid'? wideGridRows : gridRows,
+        ) },
+        { label: '-'},
+        { label: 'Descr', onSelect: () => setMode('GridPlusDescr') },
+        { label: 'Wide', onSelect: () => setMode('WideGrid') },
     ];
     const [footerText, setFooterText] = useState('') 
+    const [mode, setMode] = useState('GridPlusDescr')
     const [userOptions, setUserOptions] = useState<IValueLabel[]>([]);
     const [roleOptions, setRoleOptions] = useState<IValueLabel[]>([]);
     const [subjectOptions, setSubjectOptions] = useState<IValueLabel[]>([]);
@@ -44,6 +54,7 @@ const MainWindow = () => {
     const [treeSelected, setTreeSelected] = useState([])
     const [gridCols, setGridCols] = useState<any[]>([]);
     const [gridRows, setGridRows] = useState<[]>([]);
+    const [wideGridRows, setWideGridRows] = useState<[]>([]);
     const [gridLimit, setGridLimit] = useState(1000);
     const [manufFilter, setManufFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
@@ -128,14 +139,17 @@ const MainWindow = () => {
         await f()
         setFooterColor('navy')
     }
+
+    const longExec2 = async (f: Function) => {
+        await withErrorHandling(async () => {
+            await f()
+        });
+    }
+
     // const longExecStart = () => setFooterColor('darkmagenta')
     // const longExecStop = () => setFooterColor('navy')
 
     const initGrid = async () => {
-        if (subr == -1) {
-            alert('Choose role / subject')
-        }
-
         await longExec(async() => {
             // setGridCols(getGridCols())
             setDescrDetail(makeDescr())
@@ -143,6 +157,15 @@ const MainWindow = () => {
             await putTreeSelected(treeSelected, subr, subj)
             const data = await getGridRows(manufFilter, descrFilter, gridLimit)
             setGridRows(data[0]?.data)
+            setTextareaValue(data[0]?.query)
+        })
+    }
+
+    const initWideGrid = async () => {
+        await longExec2(async() => {
+            await putTreeSelected(treeSelected, subr, subj)
+            const data = await getWideGridRows(manufFilter, descrFilter, gridLimit)
+            setWideGridRows(data[0]?.data)
             setTextareaValue(data[0]?.query)
         })
     }
@@ -267,6 +290,7 @@ const MainWindow = () => {
     return (
         <CookiesProvider>
             <div className='flexbox-container'>
+                
                 <H4 text={packageJson.name+'/'+packageJson.version}/>
                 <Combo
                     placeholder='No User'
@@ -375,7 +399,7 @@ const MainWindow = () => {
                     value={gridLimit}
                     onChange={(e:any)=>{ setGridLimit(e.target.value) }}/>
                 <S/>
-                <button onClick={initGrid}>Применить</button>
+                <button onClick={ mode=='GridPlusDescr' ? initGrid : initWideGrid }>Применить</button>
                 <button onClick={clearAll}>Очистить</button>
                 {/* <button onClick={initGridProd}>Action 3</button> */}
                 <S/>
@@ -405,7 +429,7 @@ const MainWindow = () => {
                     />
                 </div>
 
-                <div title='grid' style={{/*width: '100%',*/ height: '100%', }}>
+                <Cond condition={mode==='GridPlusDescr'} style={{/*width: '100%',*/ height: '100%', }}>
                     <Grid
                         cols={gridCols}
                         rows={gridRows}
@@ -416,9 +440,9 @@ const MainWindow = () => {
                         onCellClick={onCellClick}
                         onRowSelect={onRowSelect}
                     />
-                </div>
+                </Cond>
 
-                <div title="descr">
+                <Cond condition={mode==='GridPlusDescr'}>
                     <H4 text={typeLangState(EType.name,ELang.ua)}/>
                     <input
                         type="text" 
@@ -486,7 +510,15 @@ const MainWindow = () => {
                         }}
                     />
                     <button onClick={descrPost} disabled={descrPostDisabled} >Записать</button>
-                </div>
+                </Cond>
+
+                <Cond condition={mode==='WideGrid'} style={{/*width: '100%',*/ height: '100%', }}>
+                    <WideGrid
+                        width="1400px"
+                        rows={wideGridRows}
+                    />
+                </Cond>
+
             </div>
             <textarea 
                 id='textarea'

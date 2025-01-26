@@ -19,6 +19,9 @@ interface IGridProps {
     onRowsChange?: (rows: any, data: any) => void,
     onCellClick?: (row: any) => void,
     onRowSelect?: (row: any) => any,
+    height?: string, 
+    width?: string, 
+    maxColWidth?: number,
 }
 
 function Grid(props: IGridProps) {
@@ -72,11 +75,12 @@ function Grid(props: IGridProps) {
         < DataGrid
             columns ={ cols1 }
             rows ={ sortedRows}
-            style={{ height: '800px', width: '750px'}}  // todo: setup
+            style={{ height: props.height || '800px', width: props.width || '750px'}}
             defaultColumnOptions={{
                 sortable: true,
                 resizable: true,
-                maxWidth: 300, // todo: setup
+                maxWidth: props.maxColWidth || 300,
+                // maxWidth: 300, // todo: setup
             }}
             direction ={ 'ltr'}
             sortColumns = {sortColumns}
