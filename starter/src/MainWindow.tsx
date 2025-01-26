@@ -47,7 +47,7 @@ const MainWindow = () => {
     const [descrStateOptions, setDescrStateOptions] = useState<IValueLabel[]>([]);
     const [user, setUser] = useState('') 
     const [subr, setSubr] = useState(-1);
-    const [subj, setSubj] = useState('Unknown');
+    const [subj, setSubj] = useState('');
     const [descrFilter, setDescrFilter] = useState<IDescrFilter>({});
     // const [langFilter, setLangFilter] = useState<ILang>({ua: true,});
     const [treeData, setTreeData] = useState(emptyTree)
@@ -97,7 +97,10 @@ const MainWindow = () => {
             fields: 'subject_role, subject_role||\'\'-\'\'||description AS description',
             order: 'subject_role',
         }, 'subject_role','description'))
-        // setSubr(2)
+        
+        setSubr(0)
+        setSubj('IKSCS')
+        initTreeData(0,'IKSCS')
 
         const descrStateData = await getData({
             from: 'translate.descr_state', 
@@ -307,7 +310,7 @@ const MainWindow = () => {
                     width='100px'
                 />
                 <S/>
-                <Combo
+                {false && <Combo
                     placeholder="Role"
                     options={roleOptions}
                     onChange={({value,label}) => {
@@ -318,9 +321,9 @@ const MainWindow = () => {
                         setGridRows([])
                     }}
                     title="Subject Role"
-                />
+                />}
                 <S/>
-                <Combo
+                {false && <Combo
                     placeholder="Subject"
                     options={subjectOptions}
                     onChange={({value,label}) => {
@@ -330,7 +333,7 @@ const MainWindow = () => {
                         setGridRows([])
                     }}
                     title="Subject"
-                />
+                />}
                 <S/>
                 <input 
                     type="text" 
@@ -426,6 +429,7 @@ const MainWindow = () => {
                     <MultiSelectCheckbox 
                         data={treeData}
                         onSelect={(items: any) => setTreeSelected(items)}
+                        width='300px'
                     />
                 </div>
 
