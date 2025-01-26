@@ -16,7 +16,7 @@ function MultiSelectCheckbox(props: any) {
   const data1 = flattenTree(props.data);
   console.log(props)
   return (
-    <div>
+    <div style={{width: props.width || '300px'} }>
       <div className="checkbox">
         <TreeView
           data={data1}
