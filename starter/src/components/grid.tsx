@@ -97,7 +97,7 @@ function Grid(props: IGridProps) {
             }}
             className="fill-grid"
         />
-        < tr >Record count: { props.rows.length}</ tr >
+        < tr >Record count: { props.rows?.length}</ tr >
     </ div >
     )
 }
