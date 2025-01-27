@@ -2,12 +2,12 @@ import { escapeSingleQuotes, fetchData } from "../api/fetchData"
 import AppContext from "../AppContext"
 import { IDescrFilter, } from '../types'
 
-interface IGridColumn {
-    key: string,
-    name: string,
-    width: number,
-    editable?: boolean,
-}
+// interface IGridColumn {
+//     key: string,
+//     name: string,
+//     width: number,
+//     editable?: boolean,
+// }
 
 const gridCols = [
     { key: 'manuf', name: 'Manufacturer' },
