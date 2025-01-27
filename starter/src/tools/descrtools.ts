@@ -101,7 +101,7 @@ ON CONFLICT(manuf,article,descr_type,lang) DO UPDATE SET
     console.log(insertFetchParam)
     const insertResult = await fetchData(insertFetchParam)    
     console.log('postDescrData insert result',insertResult)
-    if (!insertResult[0].ok)
+    if (!insertResult.ok)
         throw new Error("postDescrData insert error");
 
     const delKeys = []
@@ -123,7 +123,7 @@ DELETE FROM cp3.product_descr WHERE (manuf,article,descr_type,lang) IN (SELECT *
     console.log(deleteFetchParam)
     const deleteResult = await fetchData(deleteFetchParam)    
     console.log('postDescrData delete result',deleteResult)
-    if (!deleteResult[0].ok)
+    if (!deleteResult.ok)
         throw new Error("postDescrData delete error");
 }
 

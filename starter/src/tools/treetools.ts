@@ -73,8 +73,8 @@ ON CONFLICT (user_name, table_name) DO UPDATE SET
     console.log('fetchParam', fetchParam)
     const result = await fetchData(fetchParam)
     console.log('result',result)
-    if (!result[0].ok) {
-      alert(JSON.stringify(result[0].data))
+    if (!result.ok) {
+      alert(JSON.stringify(result.data))
     }
 }
 

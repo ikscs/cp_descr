@@ -64,9 +64,7 @@ ${gridLimit && ('LIMIT ' + gridLimit)}
     }
 
     const data = await fetchData(fetchParam)
-    if (data[0]) { // for DEBUG
-        data[0].query = query
-    }
+    data.query = query
     return data
 }
 
