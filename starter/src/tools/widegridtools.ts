@@ -43,9 +43,9 @@ const gridCols = [
 ];
 
 const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridLimit: number) => {
-    const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
+    const andManufFilter = manufFilter && `AND manuf ilike '%${manufFilter}%'`
     const andDescrState = (descrFilter.descrState??-1) >= 0 ? `AND state=${descrFilter.descrState}` : ``
-    const andDescrDescr = descrFilter.descrDescr ? `AND descr ilike ''%${descrFilter.descrDescr}%''` : ``
+    const andDescrDescr = descrFilter.descrDescr ? `AND descr ilike '%${descrFilter.descrDescr}%'` : ``
     const query = 
 `
 SELECT
@@ -100,9 +100,7 @@ ${gridLimit && ('LIMIT ' + gridLimit)}
     }
 
     const data = await fetchData(fetchParam)
-    if (data[0]) { // for DEBUG
-        data[0].query = query
-    }
+    data.query = query
     return data
 }
 

@@ -28,7 +28,7 @@ const WideGrid: React.FC<WideGridProps> = ({ rows, width }) => {
     // const [gridRows, setGridRows] = React.useState<[]>([]);
 
     const rowKeyGetter = (row: any) => {
-        return row.id; // Adjust according to your row data structure
+        return row.manuf +'/'+ row.article
     };
 
     const onCellClick = (event: any) => {

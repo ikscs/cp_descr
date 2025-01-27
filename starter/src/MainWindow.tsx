@@ -14,7 +14,6 @@ import Cond from "./components/Cond"
 import Grid from "./components/grid"
 import WideGrid from "./views/WideGrid"
 // import Checkbox from "./components/checkbox"
-import { fetchData } from "./api/fetchData"
 import packageJson from '../package.json';
 import { IDescrFilter, IValueLabel, } from './types'
 import { getDescrData, makeDescr, IDescrDetail, IDescrKey, ELang, EType, copyDescr, postDescrData } from "./tools/descrtools"
@@ -36,7 +35,7 @@ const MainWindow = () => {
             mode=='WideGrid'? wideGridRows : gridRows,
         ) },
         { label: '-'},
-        { label: 'Descr', onSelect: () => setMode('GridPlusDescr') },
+        { label: 'Narrow', onSelect: () => setMode('GridPlusDescr') },
         { label: 'Wide', onSelect: () => setMode('WideGrid') },
     ];
     const [footerText, setFooterText] = useState('') 
@@ -137,20 +136,10 @@ const MainWindow = () => {
     }
     
     const longExec = async (f: Function) => {
-        setTextareaValue('')
-        setFooterColor('darkmagenta')
-        await f()
-        setFooterColor('navy')
-    }
-
-    const longExec2 = async (f: Function) => {
         await withErrorHandling(async () => {
             await f()
         });
     }
-
-    // const longExecStart = () => setFooterColor('darkmagenta')
-    // const longExecStop = () => setFooterColor('navy')
 
     const initGrid = async () => {
         await longExec(async() => {
@@ -159,56 +148,19 @@ const MainWindow = () => {
 
             await putTreeSelected(treeSelected, subr, subj)
             const data = await getGridRows(manufFilter, descrFilter, gridLimit)
-            setGridRows(data[0]?.data)
-            setTextareaValue(data[0]?.query)
+            setGridRows(data.data)
+            setTextareaValue(data.query)
         })
     }
 
     const initWideGrid = async () => {
-        await longExec2(async() => {
+        await longExec(async() => {
             await putTreeSelected(treeSelected, subr, subj)
             const data = await getWideGridRows(manufFilter, descrFilter, gridLimit)
-            setWideGridRows(data[0]?.data)
-            setTextareaValue(data[0]?.query)
+            setWideGridRows(data.data)
+            setTextareaValue(data.query)
         })
     }
-
-    const initGridProd = async () => {
-        await longExec(async() => {
-
-        await putTreeSelected(treeSelected, subr, subj)
-
-        //setFooterColor('darkmagenta')
-        const cols = ['product_id', 'manuf', 'article', 'qtty', 'price_sell', 'name', 'subject_role', 'subject_id',]
-        const andManufFilter = manufFilter ? `AND manuf ilike ''%${manufFilter}%''` : ``
-        // const andDescrState = descrState ? 'AND 1=1' : ''
-        const andDescrState = descrFilter.descrState ? 'AND 1=1' : ''
-        const query = 
-    `
-    SELECT ${cols.join(',')}
-    FROM cp3.vcp_product_org JOIN temp_cp_group USING (subject_role, subject_id, product_group)
-    WHERE product_exists AND qtty > 0 ${andManufFilter} ${andDescrState}
-    ${gridLimit ? 'LIMIT ' + gridLimit : '' }
-    `
-        setTextareaValue(query)
-        const fetchParam = {
-            backend_point: AppContext.backend_point_query,
-            user: AppContext.userName,
-            restore: ['temp_cp_group'],
-            query: query,
-        }
-        setGridCols(cols.map(col => ({key: col, name: col, }))) // width: 5, 
-        const data = await fetchData(fetchParam)
-        setGridRows(data[0]?.data)
-        // setFooterColor('navy')
-        })
-    }
-    console.log(initGridProd)
-    // const onTreeSelect = async (items: any) => {
-    //     longExecStart
-    //     await putTreeSelected(items, subr, subj )
-    //     longExecStop
-    // }
 
     const rowKeyGetter = (row: any) => {
         // return row.subject_role +'/'+ row.subject_id +'/'+row.product_id
@@ -229,9 +181,13 @@ const MainWindow = () => {
 
     const withErrorHandling = async (asyncFunc: () => Promise<void>) => {
         try {
+            setTextareaValue('')
+            
+            setFooterText('Running');
+            setFooterColor('darkmagenta')
             await asyncFunc();
             setFooterText('Ok');
-            setFooterColor('navy');
+            setFooterColor('navy')
         } catch (error: unknown) {
             console.error('Error:', error);
             if (error instanceof Error) {
