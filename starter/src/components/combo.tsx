@@ -34,7 +34,7 @@ function Combo(props: IComboProps) {
 
     useEffect(() => {
         setSelectedOption(props.defaultChoice ? props.defaultChoice : null) 
-    }, [props.options])
+    }, [props.options, props.defaultChoice, ])
     
     const onChange = (choice: any) => {
         setSelectedOption(choice)
