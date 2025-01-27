@@ -12,8 +12,8 @@ import MultiSelectCheckbox from "./components/MultiSelectCheckbox"
 import DropDownMenu from "./components/DropDownMenu"
 import Cond from "./components/Cond"
 import Grid from "./components/grid"
+import Checkbox from "./components/checkbox"
 import WideGrid from "./views/WideGrid"
-// import Checkbox from "./components/checkbox"
 import packageJson from '../package.json';
 import { IDescrFilter, IValueLabel, } from './types'
 import { getDescrData, makeDescr, IDescrDetail, IDescrKey, ELang, EType, copyDescr, postDescrData } from "./tools/descrtools"
@@ -56,6 +56,8 @@ const MainWindow = () => {
     const [wideGridRows, setWideGridRows] = useState<[]>([]);
     const [gridLimit, setGridLimit] = useState(1000);
     const [manufFilter, setManufFilter] = useState('');
+    const [isValidLangFilter, setIsValidLangFilter] = useState(false);
+    const [isValidDetectFilter, setIsValidDetectFilter] = useState(false);
     const [footerColor, setFooterColor] = useState('navy');
     const [descrDetail, setDescrDetail] = useState<IDescrDetail>(makeDescr());
     const [descrKey, setDescrKey] = useState<IDescrKey>({manuf:'',article:''});
@@ -156,7 +158,7 @@ const MainWindow = () => {
     const initWideGrid = async () => {
         await longExec(async() => {
             await putTreeSelected(treeSelected, subr, subj)
-            const data = await getWideGridRows(manufFilter, descrFilter, gridLimit)
+            const data = await getWideGridRows(manufFilter, descrFilter, gridLimit, isValidLangFilter, isValidDetectFilter)
             setWideGridRows(data.data)
             setTextareaValue(data.query)
         })
@@ -221,7 +223,9 @@ const MainWindow = () => {
         setGridRows([])
         setTextareaValue('')
         setDescrFilter(prev => ({...prev, descrState: -1}))
-        // todo: setTreeSelected([])
+        setCookie('descrState', descrStateOptions[0].value, { path: '/' })
+        setCookie('descrStateName', descrStateOptions[0].label, { path: '/' })
+// todo: setTreeSelected([])
     }
 
     const translate = (type: EType) => {
@@ -321,6 +325,7 @@ const MainWindow = () => {
                 <Combo
                     placeholder="Descr State"
                     options={descrStateOptions}
+                    // defaultChoice={{value: descrFilter.descrState, label: cookies.descrStateName}}
                     defaultChoice={{value: cookies.descrState, label: cookies.descrStateName}}
                     onChange={({value,label}) => {
                         setFooterText(label)
@@ -332,6 +337,21 @@ const MainWindow = () => {
                     title="Description state"
                     width="150px"
                 />
+                <S/>
+                <Cond condition={mode==='WideGrid'}>
+                    <Checkbox
+                        defaultValue={isValidLangFilter}
+                        label='ivl'
+                        onChange={(e) => setIsValidLangFilter(e) }
+                    />
+                </Cond>
+                <Cond condition={mode==='WideGrid'}>
+                    <Checkbox
+                        defaultValue={isValidDetectFilter}
+                        label='ivd'
+                        onChange={(e) => setIsValidDetectFilter(e) }
+                    />                
+                </Cond>
                 {/* <S/>
                 <Checkbox
                     defaultValue={langFilter.ua || false}
