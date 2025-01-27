@@ -134,6 +134,11 @@ const MainWindow = () => {
     
     const initTreeData = async (subr: number, subj: string) => {
         const rows = await getTreeData(subr, subj)
+        rows.forEach((row: any) => { 
+            if (row.parent_group === null) 
+                row.parent_group = 'root' 
+        })
+        rows.unshift({product_group: 'root', parent_group: null, name: 'Root', subject_id: subj, subject_role: subr, })
         setTreeData(treeToJson(rows, 'product_group', 'parent_group'))
     }
     
