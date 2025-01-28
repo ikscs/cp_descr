@@ -9,7 +9,7 @@ import BooleanFormatter from '../components/BooleanFormatter'
 //     name: string,
 //     width: number,
 //     editable?: boolean,
-// }
+// } 
 
 const gridCols = [
     { key: 'manuf', name: 'Manufacturer' },
@@ -47,10 +47,31 @@ const gridCols = [
 
 const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridLimit: number, isValidLangFilter: boolean, isValidDetectFilter: boolean) => {
     const andManufFilter = manufFilter && `AND manuf ilike '%${manufFilter}%'`
-    const andDescrState = (descrFilter.descrState??-1) >= 0 ? `AND state=${descrFilter.descrState}` : ``
-    const andDescrDescr = descrFilter.descrDescr ? `AND descr ilike '%${descrFilter.descrDescr}%'` : ``
-    const andIsValidLang = isValidLangFilter ? `AND NOT is_valid_lang` : ``
-    const andIsValidDetected = isValidDetectFilter ? `AND detect_lang <> lang` : ``
+    
+	const andDescrState = (descrFilter.descrState??-1) >= 0 ? 
+`AND EXISTS (SELECT 1 FROM cp3.product_descr d 
+WHERE p.manuf = d.manuf 
+AND p.article = d.article 
+AND d.state=${descrFilter.descrState})` : ``
+
+    const andDescrDescr = descrFilter.descrDescr ? 
+`AND EXISTS (SELECT 1 FROM cp3.product_descr d 
+WHERE p.manuf = d.manuf 
+AND p.article = d.article 
+AND d.descr ilike '%${descrFilter.descrDescr}%')` : ``
+
+    const andIsValidLang = isValidLangFilter ? 
+`AND EXISTS (SELECT 1 FROM cp3.product_descr d 
+WHERE p.manuf = d.manuf 
+AND p.article = d.article 
+AND NOT translate.is_valid_lang(d.descr, d.lang))` : ``
+
+    const andIsValidDetected = isValidDetectFilter ? 
+`AND EXISTS (SELECT 1 FROM cp3.product_descr d 
+WHERE p.manuf = d.manuf 
+AND p.article = d.article 
+AND translate.detect_lang(d.descr) <> d.lang)` : ``
+
     /*const query_ = 
 `
 SELECT
