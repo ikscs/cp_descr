@@ -55,8 +55,11 @@ const putTreeSelected = async (groups: any, subr: number, subj: string) => {
       fieldDefs: fieldDefs,
     })
     // const tableData = makeInsertValues(values)
-    const tableData = JSON.stringify(values)
-
+    // const tableData = JSON.stringify(values)
+    const values1 = values.map(({ product_group, ...rest }: { product_group: string }) => 
+      ({ ...rest, product_group: (product_group.replace(/'/g, "''''''''")) }));
+    
+    const tableData = JSON.stringify(values1)
     const query = 
 `
 INSERT INTO cp3.perm_data (user_name,table_name,create_script,table_data) 
