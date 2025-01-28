@@ -40,8 +40,10 @@ export const fetchData = async (props: IFetchBody) => {
         
         console.log('response', response.status);
         const result = await response.json();
+        console.log('result.ok', result.ok);
         return result
     } catch (error) {
         console.error('Error fetching data: ', error);
+        throw error;
     }
 };
