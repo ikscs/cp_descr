@@ -164,8 +164,11 @@ const MainWindow = () => {
         await longExec(async() => {
             await putTreeSelected(treeSelected, subr, subj)
             const data = await getWideGridRows(manufFilter, descrFilter, gridLimit, isValidLangFilter, isValidDetectFilter)
-            setWideGridRows(data.data)
             setTextareaValue(data.query)
+            if (!data.ok) {
+                throw new Error('Error fetching data') 
+            }
+            setWideGridRows(data.data)
         })
     }
 
