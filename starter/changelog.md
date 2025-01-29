@@ -72,3 +72,13 @@
 - added props to comps
 
 ### Fixed
+
+## [0.5.1]
+
+### Added
+
+- grid filtering
+
+### Changed
+
+### Fixed
