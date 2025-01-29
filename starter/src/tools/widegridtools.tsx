@@ -1,48 +1,56 @@
 import { escapeSingleQuotes, fetchData } from "../api/fetchData"
 import AppContext from "../AppContext"
-import { IDescrFilter, } from '../types'
-import BooleanFormatter from '../components/BooleanFormatter'
+import { IDescrFilter, IValueLabel, } from '../types'
+// import BooleanFormatter from '../components/BooleanFormatter'
 
+interface IGridColumn {
+    key: string,
+    name: string,
+    width?: number | string,
+    editable?: boolean,
+	filterType?: string,
+	filterOptions?: {value: any, label: string}[],
+	resizable?: boolean,
+}
 
-// interface IGridColumn {
-//     key: string,
-//     name: string,
-//     width: number,
-//     editable?: boolean,
-// } 
+const boolOptions: IValueLabel[] = [
+	{value: -1, label: ''}, 
+	{value: 0, label: 'False'}, 
+	{value: 1, label: 'True'},
+] 
+console.log('boolOptions:', boolOptions)
 
-const gridCols = [
-    { key: 'manuf', name: 'Manufacturer' },
-    { key: 'article', name: 'Article' },
-    { key: 'name', name: 'Internal Name' },
-    { key: 'state_n_ua', name: 'n-ua', width: 50}, 
-    { key: 'state_d_ua', name: 'd-ua', width: 50}, 
-    { key: 'state_n_ru', name: 'n-ru', width: 50}, 
-    { key: 'state_d_ru', name: 'd-ru', width: 50}, 
-    { key: 'state_n_en', name: 'n-en', width: 50}, 
-    { key: 'state_d_en', name: 'd-en', width: 50}, 
+const gridCols: IGridColumn[] = [
+    { key: 'manuf', name: 'Manufacturer', width: 100, filterType: 'textbox' },
+    { key: 'article', name: 'Article', width: 150, filterType: 'textbox'},
+    { key: 'name', name: 'Internal Name', width: 200, filterType: 'textbox'},
+    { key: 'state_n_ua', name: 'n-ua', width: 50, filterType: 'textbox'},
+    { key: 'state_d_ua', name: 'd-ua', width: 50, filterType: 'textbox'},
+    { key: 'state_n_ru', name: 'n-ru', width: 50, filterType: 'textbox'},
+    { key: 'state_d_ru', name: 'd-ru', width: 50, filterType: 'textbox'},
+    { key: 'state_n_en', name: 'n-en', width: 50, filterType: 'textbox'},
+    { key: 'state_d_en', name: 'd-en', width: 50, filterType: 'textbox'},
 
-    // { key: 'ivl_n_ua', name: 'i_n-ua', width: 60, formatter: (props: any) => BooleanFormatter ({...props})  }, 
-    { key: 'ivl_n_ua', name: 'i_n-ua', width: 60, formatter: (props: any) => <BooleanFormatter {...props} /> }, 
-    { key: 'ivl_d_ua', name: 'i_d-ua', width: 60}, 
-    { key: 'ivl_n_ru', name: 'i_n-ru', width: 60}, 
-    { key: 'ivl_d_ru', name: 'i_d-ru', width: 60}, 
-    { key: 'ivl_n_en', name: 'i_n-en', width: 60}, 
-    { key: 'ivl_d_en', name: 'i_d-en', width: 60}, 
+    { key: 'ivl_n_ua', name: 'i_n-ua', width: 60, filterType: 'textbox', },
+    { key: 'ivl_d_ua', name: 'i_d-ua', width: 60, filterType: 'textbox' }, 
+    { key: 'ivl_n_ru', name: 'i_n-ru', width: 60, filterType: 'textbox' },
+    { key: 'ivl_d_ru', name: 'i_d-ru', width: 60, filterType: 'textbox' }, 
+    { key: 'ivl_n_en', name: 'i_n-en', width: 60, filterType: 'textbox' },
+    { key: 'ivl_d_en', name: 'i_d-en', width: 60, filterType: 'textbox' },
 
-    { key: 'dl_n_ua', name: 'd_n-ua', width: 60}, 
-    { key: 'dl_d_ua', name: 'd_d-ua', width: 60}, 
-    { key: 'dl_n_ru', name: 'd_n-ru', width: 60}, 
-    { key: 'dl_d_ru', name: 'd_d-ru', width: 60}, 
-    { key: 'dl_n_en', name: 'd_n-en', width: 60}, 
-    { key: 'dl_d_en', name: 'd_d-en', width: 60}, 
+    { key: 'dl_n_ua', name: 'd_n-ua', width: 60, filterType: 'textbox' },
+    { key: 'dl_d_ua', name: 'd_d-ua', width: 60, filterType: 'textbox' },
+    { key: 'dl_n_ru', name: 'd_n-ru', width: 60, filterType: 'textbox' },
+    { key: 'dl_d_ru', name: 'd_d-ru', width: 60, filterType: 'textbox' },
+    { key: 'dl_n_en', name: 'd_n-en', width: 60, filterType: 'textbox' },
+    { key: 'dl_d_en', name: 'd_d-en', width: 60, filterType: 'textbox' },
 
-    { key: 'descr_n_ua', name: 'Name (UA)' },
-    { key: 'descr_n_ru', name: 'Name (RU)' },
-    { key: 'descr_n_en', name: 'Name (EN)' },
-    { key: 'descr_d_ua', name: 'Description (UA)', width: 300, resizable: true },
-    { key: 'descr_d_ru', name: 'Description (RU)', width: 300, resizable: true },
-    { key: 'descr_d_en', name: 'Description (EN)', width: 300, resizable: true },
+    { key: 'descr_n_ua', name: 'Name (UA)', filterType: 'textbox'},
+    { key: 'descr_n_ru', name: 'Name (RU)', filterType: 'textbox'}, 
+    { key: 'descr_n_en', name: 'Name (EN)', filterType: 'textbox'},
+    { key: 'descr_d_ua', name: 'Description (UA)', width: 300, resizable: true, filterType: 'textbox'},
+    { key: 'descr_d_ru', name: 'Description (RU)', width: 300, resizable: true, filterType: 'textbox'},
+    { key: 'descr_d_en', name: 'Description (EN)', width: 300, resizable: true, filterType: 'textbox'},
 ];
 
 const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridLimit: number, isValidLangFilter: boolean, isValidDetectFilter: boolean) => {
@@ -196,4 +204,6 @@ ${gridLimit && ('LIMIT ' + gridLimit)}`
     return data
 }
 
-export { gridCols, getGridRows, }
+export { gridCols, getGridRows };
+export type { IGridColumn };
+

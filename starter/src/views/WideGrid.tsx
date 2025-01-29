@@ -1,43 +1,25 @@
 import React from 'react';
-import Grid from '../components/grid';
+import Grid from '../components/grid copy';
 import { gridCols } from '../tools/widegridtools';
-// import { getGridRows, gridCols } from '../tools/widegridtools';
-// import { IDescrFilter } from '../types';
 
 interface WideGridProps {
     rows: [],
     width?: string,
-    // manufFilter: string, 
-    // descrFilter: IDescrFilter,
-    // gridLimit: number,
 }
 
-// interface IProductWide {
-//     manuf: string;
-//     article: string;
-//     internal_name: string;
-//     name_ua: string;
-//     name_ru: string;
-//     name_en: string;
-//     descr_ua: string;
-//     descr_ru: string;
-//     descr_en: string;
-// }
-
 const WideGrid: React.FC<WideGridProps> = ({ rows, width }) => {
-    // const [gridRows, setGridRows] = React.useState<[]>([]);
 
     const rowKeyGetter = (row: any) => {
         return row.manuf +'/'+ row.article
     };
 
     const onCellClick = (event: any) => {
-        console.log(event);
+        console.log('event', event);
         // Implement your onCellClick logic here
     };
 
     const onRowSelect = (selectedRow: any) => {
-        console.log(selectedRow);
+        console.log('selectedRow', selectedRow);
         // Implement your onRowSelect logic here
     };
 
