@@ -11,6 +11,7 @@ interface IGridColumn {
 }
 
 const gridColNames: IGridColumn[] = [
+    { key: 'product_group', name: 'Group', width: 100}, 
     { key: 'manuf', name: 'Manufacturer', width: 100}, 
     { key: 'article', name: 'Article', width: 100}, 
     { key: 'name', name: 'Name', width: 200}, 
@@ -35,6 +36,7 @@ const getGridRows = async (manufFilter: string, descrFilter: IDescrFilter, gridL
     const query = 
 `
 SELECT
+    product_group,
 	manuf,
 	article,
 	max(name) AS name,
@@ -53,7 +55,7 @@ WHERE product_exists
     ${andManufFilter} 
     ${andDescrState} 
     ${andDescrDescr}
-GROUP BY 1,2
+GROUP BY 1,2,3
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
     const fetchParam = {

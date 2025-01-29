@@ -21,6 +21,7 @@ const boolOptions: IValueLabel[] = [
 console.log('boolOptions:', boolOptions)
 
 const gridCols: IGridColumn[] = [
+    { key: 'product_group', name: 'Group', width: 150, filterType: 'textbox' },
     { key: 'manuf', name: 'Manufacturer', width: 100, filterType: 'textbox' },
     { key: 'article', name: 'Article', width: 150, filterType: 'textbox'},
     { key: 'name', name: 'Internal Name', width: 200, filterType: 'textbox'},
