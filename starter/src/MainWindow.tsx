@@ -18,6 +18,9 @@ import packageJson from '../package.json';
 import { IDescrFilter, IValueLabel, } from './types'
 import { getDescrData, makeDescr, IDescrDetail, IDescrKey, ELang, EType, copyDescr, postDescrData } from "./tools/descrtools"
 import { transOptions, transExec } from "./tools/transtools"
+import './components/SplitPane.css'
+// import SplitPane from 'react-split-pane';
+// yarn add react-split-pane@0.1.92
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -108,6 +111,8 @@ const MainWindow = () => {
             fields: 'descr_state, descr_state||\'\'-\'\'||description AS description',
         }, 'descr_state','description')
         descrStateData.push({value: -1, label: 'Любой'})
+        descrStateData.push({value: 101, label: '![1|3]'})
+        descrStateData.push({value: 102, label: '[1-5]'})
         setDescrStateOptions(descrStateData.sort((a:any,b:any)=>a.value-b.value))
         // setDescrState(cookies.descrState)
         setDescrFilter(prev => ({...prev, descrState: cookies.descrState}))
@@ -260,6 +265,7 @@ const MainWindow = () => {
 
     return (
         <CookiesProvider>
+            {/* <SplitPane split="horizontal" minSize={300} defaultSize={600}> */}
             <div className='flexbox-container'>
                 
                 <H4 text={packageJson.name+'/'+packageJson.version}/>
@@ -409,6 +415,7 @@ const MainWindow = () => {
             </div> 
             
             <div className='flexbox-container2'>
+                {/* <SplitPane split="vertical" minSize={50} defaultSize={300}> */}
                 <div title='tree' style={{width: '300px'}}>
                     <MultiSelectCheckbox 
                         data={treeData}
@@ -506,6 +513,7 @@ const MainWindow = () => {
                         rows={wideGridRows}
                     />
                 </Cond>
+                {/* </SplitPane> */}
 
             </div>
             <textarea 
@@ -513,6 +521,7 @@ const MainWindow = () => {
                 value={textareaValue}
                 style={{width:600, height:200, }} 
             />
+            {/* </SplitPane> */}
 
             <Footer 
                 text={footerText}
