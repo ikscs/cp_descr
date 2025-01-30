@@ -430,7 +430,8 @@ const MainWindow = () => {
                         rows={gridRows}
                         rowKeyGetter={rowKeyGetter}
                         onRowsChange={(rows: any, data: any) => {
-                            postGrid(rows, data, descrFilter.descrType||'?')
+                            // postGrid(rows, data, descrFilter.descrType||'?')
+                            postGrid(rows, data)
                         }}
                         onCellClick={onCellClick}
                         onRowSelect={onRowSelect}

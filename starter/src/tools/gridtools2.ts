@@ -15,12 +15,12 @@ const gridColNames: IGridColumn[] = [
     { key: 'manuf', name: 'Manufacturer', width: 100}, 
     { key: 'article', name: 'Article', width: 100}, 
     { key: 'name', name: 'Name', width: 200}, 
-    { key: 'state_n_ua', name: 'n-ua', width: 50}, 
-    { key: 'state_d_ua', name: 'd-ua', width: 50}, 
-    { key: 'state_n_ru', name: 'n-ru', width: 50}, 
-    { key: 'state_d_ru', name: 'd-ru', width: 50}, 
-    { key: 'state_n_en', name: 'n-en', width: 50}, 
-    { key: 'state_d_en', name: 'd-en', width: 50}, 
+    { key: 'state_name_ua',        name: 'n-ua', width: 50, editable: true}, 
+    { key: 'state_description_ua', name: 'd-ua', width: 50, editable: true},
+    { key: 'state_name_ru',        name: 'n-ru', width: 50, editable: true},
+    { key: 'state_description_ru', name: 'd-ru', width: 50, editable: true},
+    { key: 'state_name_en',        name: 'n-en', width: 50, editable: true},
+    { key: 'state_description_en', name: 'd-en', width: 50, editable: true},
 ]
 
 const getGridCols = () => {
@@ -40,12 +40,12 @@ SELECT
 	manuf,
 	article,
 	max(name) AS name,
-	max(CASE WHEN lang=\'\'ua\'\' AND descr_type=\'\'name\'\'       THEN state ELSE NULL END) AS state_n_ua,
-	max(CASE WHEN lang=\'\'ua\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_d_ua,
-	max(CASE WHEN lang=\'\'ru\'\' AND descr_type=\'\'name\'\'       THEN state ELSE NULL END) AS state_n_ru,
-	max(CASE WHEN lang=\'\'ru\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_d_ru,
-	max(CASE WHEN lang=\'\'en\'\' AND descr_type=\'\'name\'\'       THEN state ELSE NULL END) AS state_n_en,
-	max(CASE WHEN lang=\'\'en\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_d_en
+	max(CASE WHEN lang=\'\'ua\'\' AND descr_type=\'\'name\'\'        THEN state ELSE NULL END) AS state_name_ua,
+	max(CASE WHEN lang=\'\'ua\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_description_ua,
+	max(CASE WHEN lang=\'\'ru\'\' AND descr_type=\'\'name\'\'        THEN state ELSE NULL END) AS state_name_ru,
+	max(CASE WHEN lang=\'\'ru\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_description_ru,
+	max(CASE WHEN lang=\'\'en\'\' AND descr_type=\'\'name\'\'        THEN state ELSE NULL END) AS state_name_en,
+	max(CASE WHEN lang=\'\'en\'\' AND descr_type=\'\'description\'\' THEN state ELSE NULL END) AS state_description_en
 FROM cp3.vcp_product_org 
 JOIN temp_cp_group USING (subject_role, subject_id, product_group)
 JOIN cp3.product_descr d USING (manuf,article)
@@ -70,9 +70,10 @@ ${gridLimit && ('LIMIT ' + gridLimit)}
     return data
 }
 
-const postGrid = async (rows: any, data: any, descrType: string) => {
+// const postGrid = async (rows: any, data: any, descrType: string) => {
+const postGrid = async (rows: any, data: any) => {
     
-    return -1
+    // return -1
 
     if (data.indexes.length != 1) { // DEBUG
         alert('Unexpected multiple update')
@@ -80,9 +81,15 @@ const postGrid = async (rows: any, data: any, descrType: string) => {
 
     const col = data.column.key
     const idx = data.indexes[0]
-    const set = { descr: rows[idx][col] }
-    const match = col.match(/descr_(\w+)/);
-    const lang = match ? match[1] : 'nodata'
+    // update descr 
+    // const set = { descr: rows[idx][col] }
+    // const match = col.match(/descr_(\w+)/);
+    // const lang = match ? match[1] : 'nodata'
+
+    // state_description_ua
+    const[field, descrType, lang] = col.split('_')
+    const set:any = {}
+    set[field] = rows[idx][col]
     const where = {
         manuf: rows[idx].manuf,
         article: rows[idx].article,
