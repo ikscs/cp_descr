@@ -82,3 +82,13 @@
 ### Changed
 
 ### Fixed
+
+## [0.5.2]
+
+### Added
+
+- grid filtering corrected
+
+### Changed
+
+### Fixed
