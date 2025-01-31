@@ -26,7 +26,7 @@ interface IGridProps {
 
 function Grid(props: IGridProps) {
     console.log('Grid props', props)
-    const [rows, setRows] = useState([]);
+    const [rows, setRows] = useState<any[]>([]);
     const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
     const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 

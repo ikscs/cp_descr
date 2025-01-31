@@ -4,8 +4,8 @@ interface CondProps extends HTMLAttributes<HTMLDivElement> {
     condition: boolean;
 }
 
-const Cond: React.FC<CondProps> = ({ condition, children, ...rest }) => {
-    return condition ? <div {...rest}>{children}</div> : null;
+const Cond: React.FC<CondProps> = ({ condition, ...rest }) => {
+    return condition ? <div {...rest} ></div> : null;
 };
 
 export default Cond;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, createContext, /*useContext,*/ } from "react"; 
+import { useEffect, useMemo, useState, useCallback, /* createContext,useContext,*/ } from "react"; 
 import DataGrid, {
     // Row,
     SelectColumn,
@@ -27,23 +27,25 @@ interface IGridProps {
     maxColWidth?: number,
 }
 
-// const filterClassname = `
-//   inline-size: 100%;
-//   padding: 4px;
-//   font-size: 14px;
-// `;
-
 interface Filter {
     [key: string]: string;
 }
 
+interface ISelectedPosition {
+    rowIdx: number;
+    colName: string;
+}
+
 // Context is needed to read filter values otherwise columns are
 // re-created when filters are changed and filter loses focus
-const FilterContext = createContext<Filter | undefined>(undefined);
+// const FilterContext = createContext<Filter | undefined>(undefined);
 
 function Grid(props: IGridProps) {
 
-    console.log('Grid props', props)
+    const [count, setCount] = useState(0);
+    const increment = () => { setCount(prevCount => prevCount + 1); };
+
+    const [selectedPosition, setSelectedPosition] = useState<ISelectedPosition | null>(null);
     const [rows, setRows] = useState([]);
     const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
     const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
@@ -75,11 +77,26 @@ function Grid(props: IGridProps) {
         console.log('Rendering cols', props.cols, filters)
         let result = props.cols.map(col => {
             if (col.editable)
-                return {...col, renderEditCell: textEditor, renderHeaderCell: GridFilterRenderer, }
+                return {...col,
+                    renderEditCell: textEditor,
+                        editable: true,
+                    renderHeaderCell: (props: any) => 
+                        <GridFilterRenderer {...props} 
+                            filters={filters} 
+                            setFilters={setFilters} 
+                            getEditable={getEditable}
+                        />,
+                    headerCellClass: filterColumnClassName,
+                }
             else
-                return {
+                return { 
                     ...col, 
-                    renderHeaderCell: (props: any) => <GridFilterRenderer {...props} filters={filters} setFilters={setFilters} />,
+                    renderHeaderCell: (props: any) => 
+                        <GridFilterRenderer {...props} 
+                            filters={filters} 
+                            setFilters={setFilters} 
+                            getEditable={getEditable}
+                        />,
                     headerCellClass: filterColumnClassName,
                 }
             })
@@ -116,14 +133,39 @@ function Grid(props: IGridProps) {
             return 0;
         });
       }, [filters, filteredRows, sortColumns, ]);
-      
+
+    const onSelectedCellChange = (cellInfo: any) => {
+        console.log('Cell selected', cellInfo.rowIdx, cellInfo.column.name)
+        setSelectedPosition(() => { 
+            return { 
+                rowIdx: cellInfo.rowIdx, 
+                colName: cellInfo.column.name 
+            }
+        });
+    }
+    
+    const getSelectedPosition = () => {
+        console.log('Get selected position', selectedPosition)
+        return selectedPosition
+    }
+
+    // is selected cell is editable
+    const getEditable = useCallback(():boolean => {
+        console.log('Get editable DEBUG', count, increment() ) // to trigger re-render
+        getSelectedPosition() 
+
+        const found = props.cols.find( col => col.name == selectedPosition?.colName)
+        console.log('Get editable', selectedPosition?.colName, found ? found.editable || false : false)
+        return found ? found.editable : false
+    }, [])
+
+    console.log('Grid copy props, selectedPosition', props, selectedPosition)
     return (
     < div >
-        <FilterContext.Provider value={filters}>
+        {/* <FilterContext.Provider value={filters}> */}
         <DataGrid
             columns ={ colsRendered }
             rows ={ sortedRows}
-            // rows ={ filteredRows }
             style={{ height: props.height || '800px', width: props.width || '750px'}}
             defaultColumnOptions={{
                 sortable: true,
@@ -146,8 +188,9 @@ function Grid(props: IGridProps) {
             }}
             className="fill-grid"
             headerRowHeight={70}
+            onSelectedCellChange={onSelectedCellChange}
         />
-        </FilterContext.Provider>
+        {/* </FilterContext.Provider> */}
         < tr >Record count: { props.rows?.length}</ tr >
     </ div >
     )

@@ -14,7 +14,7 @@ const WideGrid: React.FC<WideGridProps> = ({ rows, width }) => {
     };
 
     const onCellClick = (event: any) => {
-        console.log('event', event);
+        console.log('onCellClick event', event);
         // Implement your onCellClick logic here
     };
 
