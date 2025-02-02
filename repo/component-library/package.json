@@ -1,6 +1,7 @@
 {
   "name": "best-component-library",
-  "version": "0.1.3",
+  "version": "0.1.4",
+  "main/module/exports": "index.ts",
   "dependencies": {
     "cra-template": "1.2.0",
     "react": "^19.0.0",
