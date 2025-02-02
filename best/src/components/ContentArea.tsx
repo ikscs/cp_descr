@@ -8,6 +8,9 @@ import Container from './Container';
 import TabViewExam from '../views/TabViewExam';
 import TabView2Exam from '../views/TabView2Exam';
 import PropertyEditorView from '../views/PropertyEditorView';
+import App from '../App';
+import GridView from '../views/GridView';
+import { TabProvider } from '../views/TabContext';
 
 const ContentArea: React.FC<{ selectedComponent: string }> = ({ selectedComponent }) => {
   const renderComponent = () => {
@@ -31,8 +34,10 @@ const ContentArea: React.FC<{ selectedComponent: string }> = ({ selectedComponen
         );
       case 'Container':
         return <Container />;
-      // case 'Grid':
-      //   return <GridView width='800px'/>;
+      case 'App':
+        return <App />;
+      case 'Grid':
+        return <GridView width='800px'/>;
       case 'Tabs':
         return <TabViewExam/>;
       case 'Tabs2':
@@ -45,9 +50,11 @@ const ContentArea: React.FC<{ selectedComponent: string }> = ({ selectedComponen
   };
 
   return (
+    <TabProvider>
     <div className={styles.contentArea}>
       {renderComponent()}
     </div>
+    </TabProvider>
   );
 };
 
