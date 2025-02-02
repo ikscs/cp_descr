@@ -4,8 +4,10 @@ import styles from './ContentArea.module.css';
 import Header from './Header';
 import Footer from './Footer';
 import Container from './Container';
-import GridView from '../views/GridView';
+// import GridView from '../views/GridView';
 import TabViewExam from '../views/TabViewExam';
+import TabView2Exam from '../views/TabView2Exam';
+import PropertyEditorView from '../views/PropertyEditorView';
 
 const ContentArea: React.FC<{ selectedComponent: string }> = ({ selectedComponent }) => {
   const renderComponent = () => {
@@ -29,10 +31,14 @@ const ContentArea: React.FC<{ selectedComponent: string }> = ({ selectedComponen
         );
       case 'Container':
         return <Container />;
-      case 'Grid':
-        return <GridView width='800px'/>;
+      // case 'Grid':
+      //   return <GridView width='800px'/>;
       case 'Tabs':
         return <TabViewExam/>;
+      case 'Tabs2':
+        return <TabView2Exam/>;
+      case 'PropEdit':
+        return <PropertyEditorView/>;
       default:
         return null;
     }
