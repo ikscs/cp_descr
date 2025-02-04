@@ -19,6 +19,10 @@ import { IDescrFilter, IValueLabel, } from './types'
 import { getDescrData, makeDescr, IDescrDetail, IDescrKey, ELang, EType, copyDescr, postDescrData } from "./tools/descrtools"
 import { transOptions, transExec } from "./tools/transtools"
 import './components/SplitPane.css'
+import ModalWrapper from "./components/ModalWrapper"
+import Modal from "./components/Modal"
+import UpsertDialog from "./views/UpsertDialog"
+import { useUpsert } from "./views/UpsertContext"
 // import SplitPane from 'react-split-pane';
 // yarn add react-split-pane@0.1.92
 
@@ -33,6 +37,7 @@ const MainWindow = () => {
     AppContext.userName = cookies.user
     const actions = [
         { label: 'Перевести', onSelect: () => translate(EType.name) },
+        { label: 'Установить статус', onSelect: () => upsertStatus() },
         { label: 'Excel', onSelect: () => toExcel(
             mode=='WideGrid'? wideGridCols : gridCols,
             mode=='WideGrid'? wideGridRows : gridRows,
@@ -67,7 +72,8 @@ const MainWindow = () => {
     const [descrPostDisabled, setDescrPostDisabled] = useState(true);
     const [textareaValue, setTextareaValue] = useState('');
     const [transDir, setTransDir] = useState('ua-ru');
-    const [transRows, setTransRows] = useState([]);
+    const [transRows, setTransRows] = useState<Set<number>>();
+    const [wideGridSelectedRows, setWideGridSelectedRows] = useState<Set<number>>();
     
     console.log(user)
     console.log('descrDetail', descrDetail)
@@ -194,6 +200,10 @@ const MainWindow = () => {
         setTransRows(rows)
     }
 
+    const onWideGridRowSelect = (rows: any) => {
+        setWideGridSelectedRows(rows)
+    }
+
     const withErrorHandling = async (asyncFunc: () => Promise<void>) => {
         try {
             setTextareaValue('')
@@ -246,6 +256,27 @@ const MainWindow = () => {
         // initGrid()
     }
 
+    // upsertStatus
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    // const openModal = () => setIsModalOpen(true);
+    const {setUpsertCount} = useUpsert()
+    
+    const closeModal = () => setIsModalOpen(false);
+
+    const upsertStatus = () => {
+        const count = (mode==='WideGrid' ? wideGridSelectedRows?.size : transRows?.size) || 0
+        if (count > 0) {
+            setUpsertCount(count)
+            setIsModalOpen(true);
+        }
+    }
+
+    const onSubmitUpsert = () => {
+        // todo: 
+        // upsertTools.upsert()
+        setIsModalOpen(false);
+    }
+
     useEffect(() => {
         init()
     }, [])
@@ -265,6 +296,7 @@ const MainWindow = () => {
 
     return (
         <CookiesProvider>
+
             {/* <SplitPane split="horizontal" minSize={300} defaultSize={600}> */}
             <div className='flexbox-container'>
                 
@@ -512,6 +544,7 @@ const MainWindow = () => {
                     <WideGrid
                         width="1400px"
                         rows={wideGridRows}
+                        onRowSelect={onWideGridRowSelect}
                     />
                 </Cond>
                 {/* </SplitPane> */}
@@ -529,6 +562,29 @@ const MainWindow = () => {
                 backgroundColor={footerColor}
             />
             <S/><label>-</label><S/><label>-</label>
+
+            <ModalWrapper isOpen={isModalOpen} onClose={closeModal} onSubmit={onSubmitUpsert}>
+                <div>
+                {/* <form> */}
+                <h3>ModalWrapper Example</h3>
+                <label>
+                    Name:
+                    <input type="text" name="name" />
+                </label>
+                <br/>
+                <label>
+                    Email:
+                    <input type="email" name="email" />
+                </label>
+                <br/>
+                <button type="submit">Submit</button>
+                {/* </form> */}
+                </div>
+            </ModalWrapper>
+                <Modal isOpen={isModalOpen} onClose={closeModal}>
+                {/* <UpsertDialog onSubmit={onSubmitUpsert}/> */}
+                    <UpsertDialog />
+                </Modal>
         </CookiesProvider>
     )
 }
