@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import MainWindow from './MainWindow';
 import AltWindow from './AltWindow';
+import { UpsertProvider } from './views/UpsertContext';
 
 const GrandContainer: React.FC = () => {
 
@@ -13,7 +14,9 @@ const GrandContainer: React.FC = () => {
 
                 {activeWindow === 'MainWindow' && 
                     <div className="App" style={{position: 'absolute', top: 0, margin:10}}>
-                        <MainWindow/>
+                        <UpsertProvider>
+                            <MainWindow/>
+                        </UpsertProvider>
                     </div>}
 
                 {activeWindow === 'AltWindow' && 
