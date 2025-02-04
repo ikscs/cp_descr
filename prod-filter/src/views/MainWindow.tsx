@@ -3,13 +3,15 @@ import { CookiesProvider, useCookies } from 'react-cookie'
 import { /*getCount,*/ getData, } from '../api/dataTools'
 import AppContext from "../contexts/AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "../tools/treetools"
-import { getGridCols, getGridRows, toExcel } from '../tools/gridtools2'
+import { getGridCols, getGridRows, toExcel } from '../tools/gridtools'
 import '../components/footer.css'
 import Footer from "../components/Footer"
 import Combo, { IValueLabel } from "../components/combo"
 import MultiSelectCheckbox from "../components/MultiSelectCheckbox"
-import Grid from "../components/grid copy"
+import Grid from "../components/gridFilter"
 import packageJson from '../../package.json';
+// import { Input } from "react-select/animated"
+import { InputString,InputNumber } from "../components/Input"
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -32,6 +34,7 @@ const MainWindow = () => {
     const [gridRows, setGridRows] = useState<[]>([]);
     const [gridLimit, setGridLimit] = useState(1000);
     const [manufFilter, setManufFilter] = useState('');
+    const [articleFilter, setArticleFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
     const [textareaValue, setTextareaValue] = useState('');
     const [footerText, setFooterText] = useState('') 
@@ -85,7 +88,7 @@ const MainWindow = () => {
     const initGrid = async () => {
         await longExec(async() => {
             await putTreeSelected(treeSelected, subr, subj)
-            const data = await getGridRows(manufFilter, gridLimit)
+            const data = await getGridRows(manufFilter, articleFilter, gridLimit)
             setTextareaValue(data.query)
             if (!data.ok) {
                 throw new Error('Error fetching data') 
@@ -122,12 +125,9 @@ const MainWindow = () => {
         }
     };
 
-    const onManufFilterInput = (e:any) => {
-        setManufFilter(e.target.value)
-    }
-
     const clearAll = () => {
         setManufFilter('')
+        setArticleFilter('')
         setGridRows([])
         setTextareaValue('')
     }
@@ -182,19 +182,21 @@ const MainWindow = () => {
                     title="Subject"
                 />
                 <S/>
-                <input 
-                    type="text" 
+                <InputString
                     size={5}
-                    placeholder="Manuf"
+                    placeholder="Manuf ?"
                     value={manufFilter}
-                    onChange={(val)=>{ onManufFilterInput(val) }}/>
-                <S/>
-                <input 
-                    type="text" 
+                    setValue={setManufFilter}/>
+                <InputString
+                    size={5}
+                    placeholder="Article ?"
+                    value={articleFilter}
+                    setValue={setArticleFilter}/>
+                <InputNumber
                     size={3}
-                    placeholder="Limit"
+                    placeholder="Limit ?"
                     value={gridLimit}
-                    onChange={(e:any)=>{ setGridLimit(e.target.value) }}/>
+                    setValue={setGridLimit}/>
                 <S/>
                 <button onClick={ initGrid }>Применить</button>
                 <button onClick={clearAll}>Очистить</button>

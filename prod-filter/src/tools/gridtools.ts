@@ -27,8 +27,9 @@ const getGridCols = () => {
     return gridColNames;
 }
 
-const getGridRows = async (manufFilter: string, gridLimit?: number) => {
+const getGridRows = async (manufFilter: string, articleFilter: string, gridLimit?: number) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
+    const andArticleFilter = articleFilter && `AND article ilike ''%${articleFilter}%''`
     const query = 
 `
 SELECT
@@ -44,7 +45,8 @@ FROM cp3.vcp_product_org
 JOIN temp_cp_group USING (subject_role, subject_id, product_group)
 WHERE product_exists 
 	AND qtty > 0
-    ${andManufFilter} 
+    ${andManufFilter}
+    ${andArticleFilter}
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
     const fetchParam = {
