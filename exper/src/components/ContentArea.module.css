@@ -1,0 +1,14 @@
+/* filepath: /d:/dvl/ikscs/react/vp-descr/best/src/components/ContentArea.module.css */
+.contentArea {
+  flex: 1;
+  padding: 10px;
+  background-color: #fff;
+  overflow: auto;
+}
+
+.innerContentArea {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  margin-top: 10px;
+}

@@ -1,0 +1,19 @@
+/* filepath: /d:/dvl/ikscs/react/vp-descr/best/src/components/Container.module.css */
+.container {
+  width: 100%; /* Задаем ширину контейнера */
+  max-width: 1200px; /* Максимальная ширина контейнера */
+  margin: 0 auto; /* Центрируем контейнер */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f0f0f0; /* Добавляем фон */
+  border: 1px solid #ccc; /* Добавляем границу */
+  box-sizing: border-box; /* Учитываем padding и border в ширине и высоте */
+}
+
+.content {
+  flex: 1;
+  padding: 10px;
+  background-color: #fff;
+  overflow: auto;
+}

@@ -1,0 +1,16 @@
+/* filepath: /d:/dvl/ikscs/react/vp-descr/best/src/components/Footer.module.css */
+.footer {
+  height: 50px;
+  padding: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+}
+
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

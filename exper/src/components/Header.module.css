@@ -1,0 +1,20 @@
+/* filepath: /D:/dvl/ikscs/react/vp-descr/best/src/components/Header.module.css */
+.header {
+  height: 50px;
+  background-color: #ccc;
+  padding: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  position: relative; /* Добавляем относительное позиционирование */
+}
+
+.leftButton {
+  margin-right: auto;
+}
+
+.rightButton {
+  position: absolute; /* Абсолютное позиционирование */
+  right: 10px; /* Привязка к правому краю экрана */
+}
