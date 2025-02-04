@@ -4,7 +4,7 @@ rem > terminal
 rem > yarn
 rem > yarn dev
 
-rem > yarn add react-icons/fa
+rem > yarn add react-icons
 rem > yarn add classnames
 rem > yarn add react-accessible-treeview
 rem > yarn add react-data-grid
