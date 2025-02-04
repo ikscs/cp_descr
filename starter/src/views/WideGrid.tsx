@@ -5,9 +5,10 @@ import { gridCols } from '../tools/widegridtools';
 interface WideGridProps {
     rows: [],
     width?: string,
+    onRowSelect: (rows: any[]) => void
 }
 
-const WideGrid: React.FC<WideGridProps> = ({ rows, width }) => {
+const WideGrid: React.FC<WideGridProps> = ({ rows, width, onRowSelect }) => {
 
     const rowKeyGetter = (row: any) => {
         return row.manuf +'/'+ row.article
@@ -16,11 +17,6 @@ const WideGrid: React.FC<WideGridProps> = ({ rows, width }) => {
     const onCellClick = (event: any) => {
         console.log('onCellClick event', event);
         // Implement your onCellClick logic here
-    };
-
-    const onRowSelect = (selectedRow: any) => {
-        console.log('selectedRow', selectedRow);
-        // Implement your onRowSelect logic here
     };
 
     React.useEffect(() => {
@@ -35,7 +31,7 @@ const WideGrid: React.FC<WideGridProps> = ({ rows, width }) => {
             rowKeyGetter={rowKeyGetter}
             onRowsChange={(rows: any, data: any) => {
                 console.log(rows, data);
-                // postGrid(rows, data, subj);
+                // todo: postGrid(rows, data, subj);
             }}
             onCellClick={onCellClick}
             onRowSelect={onRowSelect}
