@@ -18,7 +18,7 @@ interface IGridProps {
     rowKeyGetter?: (row: any) => any,
     onRowsChange?: (rows: any, data: any) => void,
     onCellClick?: (row: any) => void,
-    onRowSelect?: (row: any) => any,
+    onRowSelect?:   (rows: Set<number>) => void,
     height?: string, 
     width?: string, 
     maxColWidth?: number,
