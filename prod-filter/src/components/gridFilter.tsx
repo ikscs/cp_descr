@@ -17,7 +17,7 @@ const filterColumnClassName = 'filter-cell';
 
 interface IGridProps {
     cols: any[],
-    rows: [],
+    rows: any[],
     rowKeyGetter?: (row: any) => any,
     onRowsChange?: (rows: any, data: any) => void,
     onCellClick?: (row: any) => void,
@@ -46,7 +46,7 @@ function Grid(props: IGridProps) {
     const increment = () => { setCount(prevCount => prevCount + 1); };
 
     const [selectedPosition, setSelectedPosition] = useState<ISelectedPosition | null>(null);
-    const [rows, setRows] = useState([]);
+    const [rows, setRows] = useState<any[]>([]);
     const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
     const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
     

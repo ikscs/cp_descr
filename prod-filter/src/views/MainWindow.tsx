@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { CookiesProvider, useCookies } from 'react-cookie'
 import { /*getCount,*/ getData, } from '../api/dataTools'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
 import AppContext from "../contexts/AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "../tools/treetools"
 import { getGridCols, getGridRows, toExcel } from '../tools/gridtools'
@@ -12,6 +14,8 @@ import Grid from "../components/gridFilter"
 import packageJson from '../../package.json';
 // import { Input } from "react-select/animated"
 import { InputString,InputNumber } from "../components/Input"
+import Checkbox from "../components/checkbox";
+import ManufGridView from "./ManufGridView";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -38,6 +42,10 @@ const MainWindow = () => {
     const [footerColor, setFooterColor] = useState('navy');
     const [textareaValue, setTextareaValue] = useState('');
     const [footerText, setFooterText] = useState('') 
+    const [manufGridEnabled, setManufGridEnabled] = useState<boolean>(false) 
+    const [manufGridRows, setManufGridRows] = useState<any[]>([]) 
+    const [manufGridCols, setManufGridCols] = useState<any[]>([]) 
+    const [manufGridRowSelected, setManufGridRowSelected] = useState<Set<number>>(new Set()) 
     
     console.log(user)
     const init = async () => {
@@ -88,7 +96,10 @@ const MainWindow = () => {
     const initGrid = async () => {
         await longExec(async() => {
             await putTreeSelected(treeSelected, subr, subj)
-            const data = await getGridRows(manufFilter, articleFilter, gridLimit)
+            const manufList: string[] = manufGridEnabled ? manufGridRows
+                .filter(data => manufGridRowSelected?.has(data.key))
+                .map(data => data.value) : [];
+            const data = await getGridRows(manufFilter, articleFilter, gridLimit, manufList)
             setTextareaValue(data.query)
             if (!data.ok) {
                 throw new Error('Error fetching data') 
@@ -204,7 +215,7 @@ const MainWindow = () => {
                 <S/>
             </div> 
             
-            <div className='flexbox-container2'>
+            <div className='flexbox-container'>
                 <div title='tree' style={{width: '300px'}}>
                     <MultiSelectCheckbox 
                         data={treeData}
@@ -213,17 +224,43 @@ const MainWindow = () => {
                     />
                 </div>
 
-                <div style={{/*width: '100%',*/ height: '100%', }}>
-                    <Grid width="1500px"
-                        cols={gridCols}
-                        rows={gridRows}
-                        rowKeyGetter={rowKeyGetter}
-                        // onCellClick={onCellClick}
-                        onRowSelect={onRowSelect}
-                    />
-                </div>
-
-
+                <Tabs>
+                    <TabList>
+                        <Tab key='1' tabIndex='1'>Data</Tab>
+                        <Tab key='2' tabIndex='2'>Data Filter</Tab>
+                    </TabList>
+                    <TabPanel key='1'>
+                        <div style={{/*width: '100%',*/ height: '100%', }}>
+                            <Grid width="1500px"
+                                cols={gridCols}
+                                rows={gridRows}
+                                rowKeyGetter={rowKeyGetter}
+                                // onCellClick={onCellClick}
+                                onRowSelect={onRowSelect}
+                            />
+                        </div>
+                    </TabPanel>
+                    <TabPanel key='2'>
+                        <div style={{/*width: '100%',*/ height: '100%', }}>
+                            <Checkbox
+                                label='Включить'
+                                defaultValue={false}
+                                onChange={setManufGridEnabled}
+                            />
+                            <ManufGridView 
+                                width="400px" 
+                                height="200px"
+                                manufGridRows={manufGridRows}
+                                setManufGridRows={setManufGridRows}
+                                manufGridCols={manufGridCols}
+                                setManufGridCols={setManufGridCols}
+                                manufGridRowsSelected={manufGridRowSelected}
+                                setManufGridRowsSelected={setManufGridRowSelected}
+                                preset=""
+                            />
+                        </div>
+                    </TabPanel>
+                </Tabs>
             </div>
             <textarea 
                 id='textarea'

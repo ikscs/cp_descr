@@ -13,21 +13,26 @@ import DataGrid, {
 
 interface IGridProps {
     cols: any[],
-    rows: [],
+    rows: any[],
     filter?: Object,
     rowKeyGetter?: (row: any) => any,
     onRowsChange?: (rows: any, data: any) => void,
     onCellClick?: (row: any) => void,
-    onRowSelect?:   (rows: Set<number>) => void,
     height?: string, 
     width?: string, 
     maxColWidth?: number,
+    selectedRows?: Set<number>
+    // onRowSelect?:   (rows: Set<number>) => void,
+    onSelectedRowsChange?: (rows: Set<number>) => void,
 }
+
+const test = (): ReadonlySet<number> => new Set([1,2])
 
 function Grid(props: IGridProps) {
     console.log('Grid props', props)
     const [rows, setRows] = useState<any[]>([]);
-    const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
+    // const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
+    const [selectedRows, setSelectedRows] = useState(test);
     const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
     const sortedRows = useMemo((): readonly any[] => {
@@ -89,11 +94,14 @@ function Grid(props: IGridProps) {
             rowKeyGetter={props.rowKeyGetter}
             onCellClick={props.onCellClick}
             selectedRows={selectedRows}
+            // onSelectedRowsChange={props.onSelectedRowsChange}
             onSelectedRowsChange={(selectedRows: Set<number>) => { 
                 console.log('Selected rows changed', selectedRows)
                 setSelectedRows(selectedRows)
-                if (props.onRowSelect)
-                    props.onRowSelect(selectedRows)
+                // if (props.onRowSelect)
+                //     props.onRowSelect(selectedRows)
+                if (props.onSelectedRowsChange)
+                    props.onSelectedRowsChange(selectedRows)
             }}
             className="fill-grid"
         />

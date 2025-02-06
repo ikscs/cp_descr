@@ -6,6 +6,7 @@ const AppContext: {
     backend_url: string,
     backend_point_select?: string,
     backend_point_insert?: string,
+    backend_point_upsert?: string,
     backend_point_update?: string,
     backend_point_create_temp?: string,
     backend_point_query?: string,

@@ -2,7 +2,7 @@ import writeXlsxFile from "write-excel-file"
 import { fetchData } from "../api/fetchData"
 import AppContext from "../contexts/AppContext"
 
-interface IGridColumn {
+export interface IGridColumn {
     key: string,
     name: string,
     width?: number | string,
@@ -27,7 +27,11 @@ const getGridCols = () => {
     return gridColNames;
 }
 
-const getGridRows = async (manufFilter: string, articleFilter: string, gridLimit?: number) => {
+const makeInList = (field: string, list: string[]) => {
+    return list.length == 0 ? '' : `AND ${field} IN (${list.map(e => '\'\'' + e + '\'\'').join(',')})`
+}
+
+const getGridRows = async (manufFilter: string, articleFilter: string, gridLimit?: number, manufs?: string[]) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
     const andArticleFilter = articleFilter && `AND article ilike ''%${articleFilter}%''`
     const query = 
@@ -47,6 +51,7 @@ WHERE product_exists
 	AND qtty > 0
     ${andManufFilter}
     ${andArticleFilter}
+    ${makeInList('manuf', manufs??[])}
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
     const fetchParam = {
