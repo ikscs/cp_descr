@@ -1,6 +1,7 @@
 import React from 'react';
-import Grid from '../components/GridFilter';
+import Grid from '../components/GridFilterCombo';
 import { useTabContext } from './TabContext';
+import { IValueLabel } from '../components/GridFilterComboRenderer';
 
 export interface IGridViewState {
     rows: any[];
@@ -19,22 +20,30 @@ interface IGridColumn {
 	filterType?: string,
 	filterOptions?: {value: any, label: string}[],
 	resizable?: boolean,
+    options?: IValueLabel[],
 }
 
 const gridCols: IGridColumn[] = [
-    { key: 'product_group', name: 'Group', width: 150, filterType: 'textbox' },
-    { key: 'manuf', name: 'Manufacturer', width: 100, filterType: 'textbox', editable: true },
-    { key: 'article', name: 'Article', width: 150, filterType: 'textbox'},
+    { key: 'product_group', name: 'Group1', width: 150, filterType: 'textbox' },
+    { key: 'manuf', name: 'Manufacturer1', width: 100, filterType: 'textbox', editable: true },
+    { key: 'article', name: 'Article1', width: 150, filterType: 'select', options: [
+        // {label: '__All__', value:''},
+        {label: 'Art1', value:'Art1'},
+        {label: 'Art2', value:'Art2'},
+        {label: 'label3', value:'value3'},
+        {label: 'label4', value:'value4'},
+        {label: 'label5', value:'value5'},
+    ]},
 ];
 
 export const gridRowsInitial: any[] = [
     { product_group: 'Group1', manuf: 'Manuf5 ****', article: 'Art1' },
     { product_group: 'Group2', manuf: 'Manuf4', article: 'Art2' },
-    { product_group: 'Group3', manuf: 'Manuf3', article: 'Art3' },
-    { product_group: 'Group4', manuf: 'Manuf2', article: 'Art4' },
-    { product_group: 'Group5', manuf: 'Manuf1', article: 'Art5' },
-    { product_group: 'Group6', manuf: 'Manuf6', article: 'Art6' },
-    { product_group: 'Group7', manuf: 'Manuf7', article: 'Art7' },
+    { product_group: 'Group3', manuf: 'Manuf3', article: 'Art2' },
+    { product_group: 'Group4', manuf: 'Manuf2', article: 'Art2' },
+    { product_group: 'Group5', manuf: 'Manuf1', article: 'A rt5' },
+    { product_group: 'Group6', manuf: 'Manuf6', article: 'Ar t6' },
+    { product_group: 'Group7', manuf: 'Manuf7', article: 'Art 7' },
     { product_group: 'Group8', manuf: 'Manuf8', article: 'Art8' },
     { product_group: 'Group9', manuf: 'Manuf9', article: 'Art9' },
 ]
@@ -68,7 +77,8 @@ const GridView: React.FC<GridViewProps> = ({ width,height }) => {
             width={width || '800px'}
             height={height || '400px'}
             cols={gridCols}
-            rows={gridViewState.rows||[]}
+            rows={gridRowsInitial}
+            // rows={gridViewState.rows||[]}
             rowKeyGetter={rowKeyGetter}
             onRowsChange={(rows: any, data: any) => {
                 console.log(rows, data);

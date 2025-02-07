@@ -10,6 +10,7 @@ import TabView2Exam from '../views/TabView2Exam';
 import PropertyEditorView from '../views/PropertyEditorView';
 import App from '../App';
 import GridView from '../views/GridView';
+import  { default as Gcw } from '../views/GridComboView';
 import { TabProvider } from '../views/TabContext';
 
 const ContentArea: React.FC<{ selectedComponent: string }> = ({ selectedComponent }) => {
@@ -38,6 +39,8 @@ const ContentArea: React.FC<{ selectedComponent: string }> = ({ selectedComponen
         return <App />;
       case 'Grid':
         return <GridView width='800px'/>;
+      case 'GridCombo':
+        return <Gcw width='800px'/>;
       case 'Tabs':
         return <TabViewExam/>;
       case 'Tabs2':
