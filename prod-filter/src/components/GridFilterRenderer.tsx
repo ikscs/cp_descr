@@ -1,6 +1,11 @@
 import Combo from './combo';
 import Checkbox from './checkbox';
 
+export interface IValueLabel {
+    value: string,
+    label: string,
+}
+
 interface GridFilterRendererProps {
     column: any;
     filters: { [key: string]: string };
@@ -57,6 +62,27 @@ const GridFilterRenderer: React.FC<GridFilterRendererProps> = ({ column, filters
     // };
 
     switch (column.filterType) {
+        case 'select':
+            if (!column.options)
+                return (<></>)
+
+            return (
+            <>
+                <div style={{ width: '100px' }}>{column.name}</div>
+                <select
+                    style={{ width: '100%' }}
+                    value={filters[column.key]}
+                    onChange={(e) => handleFilterChange(e.target.value)}
+                    onClick={handleFilterInputClick}
+                    onKeyDown={handleFilterInputKeyDown}
+                >
+                    <option value=''>All</option>
+                    { column.options.map((option: IValueLabel) => (
+                        <option value={option.value}>{option.label}</option>
+                    ))}
+                </select>
+            </>
+            );
         case 'combobox':
             return (
             <><div>{column.name}</div>
@@ -72,7 +98,7 @@ const GridFilterRenderer: React.FC<GridFilterRendererProps> = ({ column, filters
             <><div>{column.name}</div>
                 <Checkbox
                     label=''
-                    defaultValue={false}
+                    checked={false}
                     onChange={handleFilterChange}
                 />
             </>

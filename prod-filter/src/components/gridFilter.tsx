@@ -59,6 +59,15 @@ function Grid(props: IGridProps) {
     })
 
     useEffect(() => {
+        // provide options for filter-select columns
+        // for (const col of props.cols) {
+        //     if (col.filterType == 'select') {
+        //         const vals: string[] = props.rows.map((row: any) => row[col.key])
+        //         const distinct_vals = [...new Set(vals)] // ES6
+        //         col.options = distinct_vals.map((val: string) => ({value: val, label: val}))
+        //     }
+        // }
+
         console.log('Setting rows', props.rows)
         setRows(props.rows)
     }, [props.rows])
@@ -74,6 +83,15 @@ function Grid(props: IGridProps) {
     }
 
     const colsRendered = useMemo(() => {
+        // provide options for filter-select columns
+        for (const col of props.cols) {
+            if (col.filterType == 'select') {
+                const vals: string[] = props.rows.map((row: any) => row[col.key])
+                const distinct_vals = [...new Set(vals)] // ES6
+                col.options = distinct_vals.map((val: string) => ({value: val, label: val}))
+            }
+        }
+
         console.log('Rendering cols', props.cols, filters)
         let result = props.cols.map(col => {
             if (col.editable)
@@ -102,7 +120,7 @@ function Grid(props: IGridProps) {
             })
             result.push(SelectColumn)
             return result
-        }, [props.cols, filters])
+        }, [props.cols, props.rows, filters])
 
     const filteredRows = useMemo(() => {
         console.log('Filtering rows', rows, filters)
