@@ -26,13 +26,14 @@ interface IGridProps {
     onSelectedRowsChange?: (rows: Set<number>) => void,
 }
 
-const test = (): ReadonlySet<number> => new Set([1,2])
+// const test = (): ReadonlySet<number> => new Set([1,2])
+const emptySet = (): ReadonlySet<number> => new Set([])
 
 function Grid(props: IGridProps) {
     console.log('Grid props', props)
     const [rows, setRows] = useState<any[]>([]);
     // const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
-    const [selectedRows, setSelectedRows] = useState(test);
+    const [selectedRows, setSelectedRows] = useState(emptySet);
     const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
     const sortedRows = useMemo((): readonly any[] => {
