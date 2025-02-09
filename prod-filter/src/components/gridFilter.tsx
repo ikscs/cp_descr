@@ -21,7 +21,8 @@ interface IGridProps {
     rowKeyGetter?: (row: any) => any,
     onRowsChange?: (rows: any, data: any) => void,
     onCellClick?: (row: any) => void,
-    onRowSelect?: (row: any) => any,
+    selectedRows?: Set<number>,
+    onSelectedRowsChange?: (set: ReadonlySet<number>) => any,
     height?: string, 
     width?: string, 
     maxColWidth?: number,
@@ -88,7 +89,9 @@ function Grid(props: IGridProps) {
             if (col.filterType == 'select') {
                 const vals: string[] = props.rows.map((row: any) => row[col.key])
                 const distinct_vals = [...new Set(vals)] // ES6
-                col.options = distinct_vals.map((val: string) => ({value: val, label: val}))
+                col.options = distinct_vals
+                    .sort((a,b) => a == b ? 0 : (a < b ? -1 : 1))
+                    .map((val: string) => ({value: val, label: val}))
             }
         }
 
@@ -201,8 +204,8 @@ function Grid(props: IGridProps) {
             onSelectedRowsChange={(selectedRows: Set<number>) => { 
                 console.log('Selected rows changed', selectedRows)
                 setSelectedRows(selectedRows)
-                if (props.onRowSelect)
-                    props.onRowSelect(selectedRows)
+                if (props.onSelectedRowsChange)
+                    props.onSelectedRowsChange(selectedRows)
             }}
             className="fill-grid"
             headerRowHeight={70}
