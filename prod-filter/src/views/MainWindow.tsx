@@ -12,26 +12,42 @@ import Combo, { IValueLabel } from "../components/combo"
 import MultiSelectCheckbox from "../components/MultiSelectCheckbox"
 import Grid from "../components/gridFilter"
 import packageJson from '../../package.json';
-// import { Input } from "react-select/animated"
 import { InputString,InputNumber } from "../components/Input"
 import Checkbox from "../components/checkbox";
 import ManufGridView from "./ManufGridView";
+import { usePresetContext } from "../contexts/PresetContext";
+import { presetDataGet, presetDataPost } from "../tools/presettools";
+import NameGridView from "./NameGridView";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
+
+const emptySubj = 'emptySubj'
+const drfaultRole = 0
+// const emptyPreset = ''
 
 const S = () => (<div style={{width: '10px'}}/>)
 
 const H4 = (props: any) => (<h4 style={{margin: 8}}>{props.text}</h4>)
 
 const MainWindow = () => {
-    const [cookies, setCookie] = useCookies(['user','userFullName','descrState','descrStateName','descrType','transDir'])
+    const [cookies, setCookie] = useCookies(['user','userFullName','preset'])
     AppContext.userName = cookies.user
     const [user, setUser] = useState('') 
     const [subr, setSubr] = useState(-1);
-    const [subj, setSubj] = useState('');
+    const [subj, setSubj] = useState(emptySubj);
+    // const [preset, setPreset] = useState(emptyPreset);
+    const { 
+        preset, setPreset, 
+        manufGridRowsSelected, setManufGridRowsSelected,
+        manufGridRows, setManufGridRows,
+        nameGridRows, setNameGridRows,
+        nameGridRowsSelected, setNameGridRowsSelected,
+        /*manufGridCols, setManufGridCols,*/
+    } = usePresetContext();
     const [userOptions, setUserOptions] = useState<IValueLabel[]>([]);
     const [roleOptions, setRoleOptions] = useState<IValueLabel[]>([]);
     const [subjectOptions, setSubjectOptions] = useState<IValueLabel[]>([]);
+    const [presetOptions, setPresetOptions] = useState<IValueLabel[]>([]);
     const [treeData, setTreeData] = useState(emptyTree)
     const [treeSelected, setTreeSelected] = useState([])
     const [gridCols, setGridCols] = useState<any[]>([]);
@@ -41,13 +57,14 @@ const MainWindow = () => {
     const [articleFilter, setArticleFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
     const [textareaValue, setTextareaValue] = useState('');
-    const [footerText, setFooterText] = useState('') 
-    const [manufGridEnabled, setManufGridEnabled] = useState<boolean>(false) 
-    const [manufGridRows, setManufGridRows] = useState<any[]>([]) 
-    const [manufGridCols, setManufGridCols] = useState<any[]>([]) 
-    const [manufGridRowSelected, setManufGridRowSelected] = useState<Set<number>>(new Set()) 
+    const [footerText, setFooterText] = useState('')
+    const [manufGridEnabled, setManufGridEnabled] = useState<boolean>(true) 
+    const [presetSaveTo,setPresetSaveTo] = useState('')
+    // const [manufGridRows, setManufGridRows] = useState<any[]>([]) 
+    // const [manufGridCols, setManufGridCols] = useState<any[]>([]) 
+    // const [manufGridRowSelected, setManufGridRowSelected] = useState<Set<number>>(new Set())
     
-    console.log(user)
+    console.log('MainWindow', user)
     const init = async () => {
         
         setUserOptions(await getData({
@@ -64,6 +81,14 @@ const MainWindow = () => {
             fields: 'subject_role, subject_role||\'\'-\'\'||description AS description',
             order: 'subject_role',
         }, 'subject_role','description'))
+
+        setSubr(drfaultRole)
+
+        setPresetOptions(await getData({
+            from: 'cp3.perm_preset', 
+            fields: 'preset_id',
+            order: 'preset_id',
+        }, 'preset_id', 'preset_id'))
 
         setGridCols(getGridCols())
     }
@@ -85,6 +110,7 @@ const MainWindow = () => {
         })
         rows.unshift({product_group: 'root', parent_group: null, name: 'Root', subject_id: subj, subject_role: subr, })
         setTreeData(treeToJson(rows, 'product_group', 'parent_group'))
+        setTreeSelected([])
     }
     
     const longExec = async (f: Function) => {
@@ -95,11 +121,18 @@ const MainWindow = () => {
 
     const initGrid = async () => {
         await longExec(async() => {
-            await putTreeSelected(treeSelected, subr, subj)
+            subj != emptySubj && await putTreeSelected(treeSelected, subr, subj)
+
             const manufList: string[] = manufGridEnabled ? manufGridRows
-                .filter(data => manufGridRowSelected?.has(data.key))
+                .filter(data => manufGridRowsSelected?.has(data.key))
                 .map(data => data.value) : [];
-            const data = await getGridRows(manufFilter, articleFilter, gridLimit, manufList)
+
+            const nameList: string[] = manufGridEnabled ? nameGridRows
+                .filter(data => nameGridRowsSelected?.has(data.key))
+                .map(data => data.value) : [];
+
+            const data = await getGridRows(subj == emptySubj, subr, manufFilter, articleFilter, gridLimit, manufList, nameList)
+            
             setTextareaValue(data.query)
             if (!data.ok) {
                 throw new Error('Error fetching data') 
@@ -126,15 +159,29 @@ const MainWindow = () => {
             setFooterText('Ok');
             setFooterColor('navy')
         } catch (error: unknown) {
-            console.error('Error:', error);
             if (error instanceof Error) {
+                console.error('Error:', error);
                 setFooterText(error.message);
             } else {
+                console.error('Error: unknown error');
                 setFooterText('An unknown error occurred');
             }
             setFooterColor('red');
         }
     };
+
+    const onComboPresetChange = async ({value}: { value: string }) => {
+        setPreset(value)
+        const {
+            manufRows, manufSelected, 
+            nameRows, nameSelected, 
+        } = await presetDataGet(value)
+        setManufGridRows(manufRows)
+        setManufGridRowsSelected(new Set(manufSelected))
+        setNameGridRows(nameRows)
+        setNameGridRowsSelected(new Set(nameSelected))
+    setCookie('preset', value, { path: '/' })
+    }
 
     const clearAll = () => {
         setManufFilter('')
@@ -146,6 +193,28 @@ const MainWindow = () => {
     useEffect(() => {
         init()
     }, [])
+
+    const savePreset = async () => {
+        await longExec(async() => {
+            await presetDataPost(preset, 
+                manufGridRows, manufGridRowsSelected,
+                nameGridRows, nameGridRowsSelected,
+            )
+        })
+    }
+
+    const savePresetAs = async () => {
+        await longExec(async() => {
+            if (!presetSaveTo)
+               throw new Error('Preset name is Empty');
+
+            const r = await presetDataPost(presetSaveTo, 
+                manufGridRows, manufGridRowsSelected,
+                nameGridRows, nameGridRowsSelected,
+            )
+            console.log('r',r)
+        })
+    }
 
     return (
         <CookiesProvider>
@@ -171,11 +240,15 @@ const MainWindow = () => {
                 <Combo
                     placeholder="Role"
                     options={roleOptions}
+                    // defaultChoice={{
+                    //     value: drfaultRole, 
+                    //     label: roleOptions.find(option => option.value === drfaultRole)?.label || ''}}
                     onChange={({value,label}) => {
                         setFooterText(label)
                         setSubr(value)
                         initSubjects(value)
-                        initTreeData(-1,'noname')
+                        setSubj(emptySubj)
+                        initTreeData(-1,emptySubj)
                         setGridRows([])
                     }}
                     title="Subject Role"
@@ -209,7 +282,7 @@ const MainWindow = () => {
                     value={gridLimit}
                     setValue={setGridLimit}/>
                 <S/>
-                <button onClick={ initGrid }>Применить</button>
+                <button onClick={ initGrid }>Выбрать</button>
                 <button onClick={clearAll}>Очистить</button>
                 <button onClick={ () => toExcel(gridCols,gridRows)}>Excel</button>
                 <S/>
@@ -223,7 +296,6 @@ const MainWindow = () => {
                         width='300px'
                     />
                 </div>
-
                 <Tabs>
                     <TabList>
                         <Tab key='1' tabIndex='1'>Data</Tab>
@@ -236,28 +308,63 @@ const MainWindow = () => {
                                 rows={gridRows}
                                 rowKeyGetter={rowKeyGetter}
                                 // onCellClick={onCellClick}
-                                onRowSelect={onRowSelect}
+                                onSelectedRowsChange={onRowSelect}
                             />
                         </div>
                     </TabPanel>
                     <TabPanel key='2'>
                         <div style={{/*width: '100%',*/ height: '100%', }}>
+                            
+                            <div className='flexbox-container-single'>
+                            {/* <div style={{display: flex; align-items: center}}/> */}
+                            <label>Пресет</label><S/>
+                            <Combo
+                                placeholder='Unknown'
+                                defaultChoice={{value: preset, label: preset}}
+                                options={presetOptions}
+                                onChange={onComboPresetChange}
+                                title='Preset'
+                            />
+                            <button
+                                style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                title="Save Preset"
+                                onClick={savePreset}
+                            >Сохранить</button>&nbsp;
+                            <button
+                                style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                title="Save Preset"
+                                onClick={savePresetAs}
+                            >Сохранить как</button>&nbsp;
+                            <InputString
+                                    size={5}
+                                    placeholder="preset ?"
+                                    value={presetSaveTo}
+                                    setValue={setPresetSaveTo}/>
+                            </div>
+
                             <Checkbox
                                 label='Включить'
-                                defaultValue={false}
+                                checked={manufGridEnabled}
                                 onChange={setManufGridEnabled}
                             />
-                            <ManufGridView 
-                                width="400px" 
-                                height="200px"
-                                manufGridRows={manufGridRows}
-                                setManufGridRows={setManufGridRows}
-                                manufGridCols={manufGridCols}
-                                setManufGridCols={setManufGridCols}
-                                manufGridRowsSelected={manufGridRowSelected}
-                                setManufGridRowsSelected={setManufGridRowSelected}
-                                preset=""
-                            />
+
+                            <div className='flexbox-container'>
+                                <S/>
+                                <ManufGridView 
+                                    // width="400px" 
+                                    // height="200px"
+                                    // manufGridRows={manufGridRows}
+                                    // setManufGridRows={setManufGridRows}
+                                    // manufGridCols={manufGridCols}
+                                    // setManufGridCols={setManufGridCols}
+                                    // manufGridRowsSelected={manufGridRowsSelected}
+                                    // setManufGridRowsSelected={setManufGridRowSelected}
+                                    // preset={preset}
+                                    // setPreset={setPreset}
+                                />
+                                <S/>
+                                <NameGridView/>
+                            </div>
                         </div>
                     </TabPanel>
                 </Tabs>

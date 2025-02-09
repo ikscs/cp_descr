@@ -22,7 +22,7 @@ const gridColNames: IGridColumn[] = [
     { key: 'group', name: 'Group', width: 150, filterType: 'select' },
     { key: 'manuf_org', name: 'Manufacturer', width: 200, filterType: 'select', },
     { key: 'article_org', name: 'Article', width: 200, filterType: 'textbox', },
-    { key: 'name', name: 'Internal Name', width: 200, filterType: 'textbox', },
+    { key: 'name', name: 'Name', width: 200, filterType: 'textbox', },
     { key: 'price_buy', name: 'price_buy', width: 100, filterType: 'textbox', },
     { key: 'price_sell', name: 'price_sell', width: 100, filterType: 'textbox', },
     { key: 'qtty', name: 'Quantity', width: 50, filterType: 'textbox', },
@@ -39,7 +39,22 @@ const makeInList = (field: string, list: string[]) => {
     return list.length == 0 ? '' : `AND ${field} IN (${list.map(e => '\'\'' + e + '\'\'').join(',')})`
 }
 
-const getGridRows = async (withoutTree: boolean, subrFilter: number, manufFilter: string, articleFilter: string, gridLimit?: number, manufs?: string[]) => {
+const makeLikeList = (field: string, list: string[]) => {
+    if (list.length == 0)
+        return ''
+
+    const ll = list.map(item => `${field} ilike '\'\%${item}%\'\'`)
+    return `AND (${ll.join(' OR ') })`
+}
+
+const getGridRows = async (withoutTree: boolean, 
+    subrFilter: number, 
+    manufFilter: string, 
+    articleFilter: string, 
+    gridLimit?: number, 
+    manufs?: string[],
+    names?: string[],
+) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
     const andArticleFilter = articleFilter && `AND article ilike ''%${articleFilter}%''`
     const query = 
@@ -63,6 +78,7 @@ WHERE product_exists
     ${andManufFilter}
     ${andArticleFilter}
     ${makeInList('manuf', manufs??[])}
+    ${makeLikeList('name', names??[])}
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
     const fetchParam = {

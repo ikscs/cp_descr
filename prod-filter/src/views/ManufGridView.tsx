@@ -1,74 +1,71 @@
-import React, { useEffect, useState } from 'react';
+// import React, { useEffect, useState } from 'react';
 import Grid from '../components/grid';
 import { IGridColumn } from '../tools/gridtools';
-import packageJson from '../../package.json';
-import { fetchData } from '../api/fetchData';
-import { InputString } from '../components/Input';
-import AppContext from '../contexts/AppContext';
-import { getCount } from '../api/dataTools';
+// import packageJson from '../../package.json';
+// import { fetchData } from '../api/fetchData';
+// import { InputString } from '../components/Input';
+// import AppContext from '../contexts/AppContext';
+// import { getCount } from '../api/dataTools';
+import { usePresetContext } from '../contexts/PresetContext';
 
 interface IManufGridView {
-    width: string
-    height: string
-    manufGridCols: any[]
-    manufGridRows: any[]
-    manufGridRowsSelected: Set<number>
-    setManufGridCols: (cols: any[])=>void
-    setManufGridRows: (rows: any[])=>void
-    setManufGridRowsSelected: (s: Set<number>)=>void
-    preset: string
+    // width: string
+    // height: string
+    // manufGridCols: any[]
+    // manufGridRows: any[]
+    // manufGridRowsSelected: Set<number>
+    // setManufGridCols: (cols: any[])=>void
+    // setManufGridRows: (rows: any[])=>void
+    // setManufGridRowsSelected: (set_: Set<number>)=>void
+    // preset: string
+    // setPreset: (value: string)=>void
 }
 
 // https://www.flaticon.com/free-icons/close
 
-const gridColNames: IGridColumn[] = [
+const cols: IGridColumn[] = [
     { key: 'key', name: 'key', width: 40, },
     { key: 'value', name: 'manuf', width: 200, editable: true, },
 ]
 
-const loadPreset = async (preset: string) => {
-    return await fetchData({
-        from: 'cp3.perm_preset', 
-        fields: 'preset_id,preset_data',
-        where: preset.length > 0 ? {app_id: packageJson.name, preset_id: preset} : {app_id: packageJson.name}
-    })
-}
+// export const loadPreset = async (preset: string) => {
+//     return await fetchData({
+//         from: 'cp3.perm_preset', 
+//         fields: 'preset_id,preset_data',
+//         where: preset.length > 0 ? {app_id: packageJson.name, preset_id: preset} : {app_id: packageJson.name}
+//     })
+// }
+//
+// const qq = (s: string) => `''${s}''`
+//const q = (s: string) => `'${s}'`
+//
+// const postPreset = async (preset: string, rows: any[]) => {
+//     if (rows.length == 0)
+//         return
 
-const qq = (s: string) => `''${s}''`
-const q = (s: string) => `'${s}'`
+//     const count = await getCount({
+//         from: 'cp3.perm_preset',
+//         where: {app_id: packageJson.name, preset_id: preset}
+//     })
 
-const postPreset = async (preset: string, rows: any[]) => {
-    if (rows.length == 0)
-        return
+//     const fetchParam = count == 0 ? {
+//         backend_point: AppContext.backend_point_insert,
+//         dest: 'cp3.perm_preset', 
+//         fields: 'app_id,preset_id,preset_data',
+//         values: [[qq(packageJson.name), qq(preset), qq(JSON.stringify({manuf: rows}))]]
+//     } : {
+//         backend_point: AppContext.backend_point_update,
+//         dest: 'cp3.perm_preset', 
+//         set: {preset_data: qq(JSON.stringify({manuf: rows}))  },
+//         where: {app_id: packageJson.name, preset_id: preset }
+//     }
 
-    const count = await getCount({
-        from: 'cp3.perm_preset',
-        where: {app_id: packageJson.name, preset_id: preset}
-    })
-
-    const rowa: any[] = rows.map( row => [row.key, row.value, ])
-    let fetchParam = {}
-    if (count == 0) {
-        fetchParam = {
-            backend_point: AppContext.backend_point_insert,
-            dest: 'cp3.perm_preset', 
-            fields: 'app_id,preset_id,preset_data',
-            values: [[qq(packageJson.name), qq(preset), qq(JSON.stringify({manuf: rowa}))]]
-        }
-        console.log(fetchParam)
-     } else {
-        fetchParam = {
-            backend_point: AppContext.backend_point_update,
-            dest: 'cp3.perm_preset', 
-            set: {preset_data: q(JSON.stringify({manuf: rowa}))  },
-            where: {app_id: packageJson.name, preset_id: preset }
-        }
-    }
-    console.log(fetchParam)
-    const result = await fetchData(fetchParam)
-    return `Number of affected rows ${result||-1}`
-}
-
+//     console.log(fetchParam)
+//     const result = await fetchData(fetchParam)
+//     return `Number of affected rows ${result||-1}`
+// }
+//
+/*
 const presetToRows = (presetData: any[]) => {
     if (presetData.length == 0)
         return []
@@ -77,51 +74,70 @@ const presetToRows = (presetData: any[]) => {
     console.log(obj)
     return []
 }
-
-const presetToSelected = (presetData: any[]) => {
-    if (presetData.length == 0)
-        return new Set<number>
+*/
+// const presetToSelected = (presetData: any[]) => {
+//     if (presetData.length == 0)
+//         return new Set<number>()
     
-    const obj = JSON.parse(presetData[0])
-    console.log(obj)
-    return new Set<number>
-}
-
+//     const obj = JSON.parse(presetData[0])
+//     console.log(obj)
+//     return new Set<number>() // TODO: !!!
+// }
 
 const ManufGridView: React.FC<IManufGridView> = ({
-        manufGridCols, 
-        setManufGridCols, 
-        manufGridRows, 
-        setManufGridRows, 
-        manufGridRowsSelected, 
-        setManufGridRowsSelected,
-        preset }) => {
+        // manufGridCols, 
+        // setManufGridCols, 
+        // manufGridRows, 
+        // setManufGridRows, 
+        // manufGridRowsSelected, 
+        // setManufGridRowsSelected,
+        // preset, -- see usePresetContext
+        // setPreset,
+     }) => {
 
-    console.log(Array.from(manufGridRowsSelected))
+    const { 
+        manufGridRowsSelected, setManufGridRowsSelected,
+        manufGridRows, setManufGridRows,
+        // manufGridCols, setManufGridCols,
+     } = usePresetContext();
 
-    const [preset1,setPreset1] = useState('')
-    useEffect(() => {
-        setManufGridCols(gridColNames)
-    }, [])
+    console.log('ManufGridView manufGridRowsSelected', Array.from(manufGridRowsSelected), manufGridRows)
 
-    useEffect(() => {
-        // init(preset)
-    }, [preset])
+    // const [presetSaveTo_old,setPresetSaveTo_old] = useState(preset)
+    // useEffect(() => {
+    //     console.log('ManufGridView useEffect')
+    //     // setManufGridCols(gridColNames)
+    // }, [])
 
-    const init = async (preset: string) => {
-        setManufGridCols(gridColNames)
-        const presetData: any[] = await loadPreset(preset)
-        setManufGridRows(presetToRows(presetData))
-        setManufGridRowsSelected(presetToSelected(presetData))
-    }
-console.log(init)
+    // useEffect(() => {
+    //     // preset && init()
+    // }, [preset])
+
+    // useEffect(() => {
+    //     // console.log('setManufGridRowsSelected reset')
+    //     // setManufGridRowsSelected(new Set<number>())
+    // }, [manufGridRows])
+
+    // const init = async () => {
+    //     console.log('ManufGridView init')
+    //     // setManufGridCols(gridColNames)
+    //     const presetData: any[] = await loadPreset(preset)
+    //     if (presetData.length == 0)
+    //         return
+
+    //     const manufs = presetData[0].preset_data.manuf
+    //     setManufGridRows(manufs)
+    //     // setManufGridRowsSelected(presetToSelected(manufs))
+    //     // setManufGridRowsSelected(new Set<number>())
+    //     setPresetSaveTo_old(preset)
+    // }
 
     const rowKeyGetter = (row: any) => { return row.key }
     
     const deleteItem = () => {
         const rows: any[] = manufGridRows.filter(row => !manufGridRowsSelected.has(row.key))
         setManufGridRows(rows)
-        setManufGridRowsSelected(new Set<number>)
+        setManufGridRowsSelected(new Set<number>())
     }
 
     const nextKey = () => {
@@ -136,12 +152,13 @@ console.log(init)
     const onRowsChange = (rows: any, data: any) => {
         console.log(rows, data)
         setManufGridRows(rows)
+        setManufGridRowsSelected(new Set([]))
     }
 
-    const saveItems = async () => {
-        const r = await postPreset(preset1, manufGridRows)
-        console.log('r',r)
-    }
+    // const saveItems = async () => {
+    //     const r = await postPreset(presetSaveTo_old, manufGridRows)
+    //     console.log('r',r)
+    // }
 
     return (
         <div>
@@ -167,27 +184,26 @@ console.log(init)
                 />
             </button>
             {/* <div style={{width: '10px'}}/> */}
-            <button
+            {/* <button
                 style={{ marginLeft: '8px', cursor: 'pointer' }}
-                title="Save"
+                title="Save Preset"
                 onClick={saveItems}
-            >Save</button>&nbsp;
+            >Сохранить как</button>&nbsp;
             <InputString
                     size={5}
                     placeholder="preset ?"
-                    value={preset1}
-                    setValue={setPreset1}/>
+                    value={presetSaveTo_old}
+                    setValue={setPresetSaveTo_old}/> */}
             <Grid
                 width="300px"
                 height="400px"
-                cols={manufGridCols}
+                cols={cols}
                 rows={manufGridRows}
                 rowKeyGetter={rowKeyGetter}
                 onRowsChange={onRowsChange}
                 selectedRows={manufGridRowsSelected}
                 onSelectedRowsChange={setManufGridRowsSelected}
             />
-
         </div>
     )
 }

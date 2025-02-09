@@ -22,7 +22,6 @@ interface IGridProps {
     width?: string, 
     maxColWidth?: number,
     selectedRows?: Set<number>
-    // onRowSelect?:   (rows: Set<number>) => void,
     onSelectedRowsChange?: (rows: Set<number>) => void,
 }
 
@@ -94,13 +93,10 @@ function Grid(props: IGridProps) {
             onRowsChange={onRowsChange}
             rowKeyGetter={props.rowKeyGetter}
             onCellClick={props.onCellClick}
-            selectedRows={selectedRows}
-            // onSelectedRowsChange={props.onSelectedRowsChange}
+            selectedRows={props.selectedRows}
             onSelectedRowsChange={(selectedRows: Set<number>) => { 
                 console.log('Selected rows changed', selectedRows)
                 setSelectedRows(selectedRows)
-                // if (props.onRowSelect)
-                //     props.onRowSelect(selectedRows)
                 if (props.onSelectedRowsChange)
                     props.onSelectedRowsChange(selectedRows)
             }}
