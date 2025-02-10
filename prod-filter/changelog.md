@@ -3,6 +3,7 @@
 ### Added
 
 - grid filtering select added
+- presets added
 
 ### Changed
 
