@@ -18,6 +18,7 @@ import ManufGridView from "./ManufGridView";
 import { usePresetContext } from "../contexts/PresetContext";
 import { presetDataGet, presetDataPost } from "../tools/presettools";
 import NameGridView from "./NameGridView";
+import PresetView from "./PresetView";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -300,6 +301,7 @@ const MainWindow = () => {
                     <TabList>
                         <Tab key='1' tabIndex='1'>Data</Tab>
                         <Tab key='2' tabIndex='2'>Data Filter</Tab>
+                        <Tab key='3' tabIndex='2'>Presets</Tab>
                     </TabList>
                     <TabPanel key='1'>
                         <div style={{/*width: '100%',*/ height: '100%', }}>
@@ -366,6 +368,9 @@ const MainWindow = () => {
                                 <NameGridView/>
                             </div>
                         </div>
+                    </TabPanel>
+                    <TabPanel key='3'>
+                        <PresetView/>
                     </TabPanel>
                 </Tabs>
             </div>
