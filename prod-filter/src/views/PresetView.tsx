@@ -43,9 +43,9 @@ const PresetView: React.FC<IPresetGridView> = ({}) => {
         return {app_id: packageJson.name, preset_id: 'new-preset', preset_data: '{}'}
     }
 
-    const keyExistsIn = (row: IPresetRow, rows: IPresetRow[], ): boolean => {
-        return true
-    }
+    // const keyExistsIn = (row: IPresetRow, rows: IPresetRow[], ): boolean => {
+    //     return true
+    // }
 
     const keyNotExistsIn = (row: IPresetRow, rows: IPresetRow[]): boolean => {
         return !rows.some(existingRow => 
