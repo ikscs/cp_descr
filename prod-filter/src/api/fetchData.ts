@@ -3,9 +3,11 @@ import AppContext from '../contexts/AppContext';
 interface IFetchBody {
     backend_point?: string,
     from?: string,
+    dest?: string,
     fields?: string,
     order?: string,
     where?: object,
+    values?: any[],
     user?: string,
     query?: string,
 }
