@@ -266,6 +266,11 @@ const MainWindow = () => {
         })
     }
 
+    const openInNewTab = (url: string) => {
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+        if (newWindow) newWindow.opener = null
+      }
+
     return (
         <CookiesProvider>
 
@@ -451,7 +456,10 @@ const MainWindow = () => {
                 value={textareaValue}
                 style={{width:600, height:200, }} 
             />
-
+            
+            <br/><button onClick={() => openInNewTab('https://stackoverflow.com')}>openInNewTab</button>
+            <br/><button onClick={() => openInNewTab('https://rise.theweb.place/back/f1.php?f=cp3.get_cp_product_r2&p=ERC')}>openInNewTab</button>
+            
             <Footer 
                 text={footerText}
                 backgroundColor={footerColor}
