@@ -20,6 +20,7 @@ import { presetDataGet, presetDataPost } from "../tools/presettools";
 import NameGridView from "./NameGridView";
 import PresetView from "./PresetView";
 import RawDataView from "./RawDataView";
+import ArticleGridView from "./ArticleGridView";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -46,6 +47,8 @@ const MainWindow = () => {
         preset, setPreset, 
         manufGridRowsSelected, setManufGridRowsSelected,
         manufGridRows, setManufGridRows,
+        articleGridRows, setArticleGridRows,
+        articleGridRowsSelected, setArticleGridRowsSelected,
         nameGridRows, setNameGridRows,
         nameGridRowsSelected, setNameGridRowsSelected,
         /*manufGridCols, setManufGridCols,*/
@@ -143,12 +146,16 @@ const MainWindow = () => {
                 .filter(data => manufGridRowsSelected?.has(data.key))
                 .map(data => data.value) : [];
 
+            const articleList: string[] = manufGridEnabled ? articleGridRows
+                .filter(data => articleGridRowsSelected?.has(data.key))
+                .map(data => data.value) : [];
+
             const nameList: string[] = manufGridEnabled ? nameGridRows
                 .filter(data => nameGridRowsSelected?.has(data.key))
                 .map(data => data.value) : [];
 
             const data = await getGridRows(subj == emptySubj, subr, manufFilter, articleFilter, 
-                gridLimit, manufList, nameList, dataSource)
+                gridLimit, manufList, articleList, nameList, dataSource)
             
             setTextareaValue(data.query)
             if (!data.ok) {
@@ -210,10 +217,13 @@ const MainWindow = () => {
         setPreset(value)
         const {
             manufRows, manufSelected, 
+            articleRows, articleSelected, 
             nameRows, nameSelected, 
         } = await presetDataGet(value)
         setManufGridRows(manufRows)
         setManufGridRowsSelected(new Set(manufSelected))
+        setArticleGridRows(articleRows)
+        setArticleGridRowsSelected(new Set(articleSelected))
         setNameGridRows(nameRows)
         setNameGridRowsSelected(new Set(nameSelected))
     setCookie('preset', value, { path: '/' })
@@ -224,6 +234,8 @@ const MainWindow = () => {
         setArticleFilter('')
         setGridRows([])
         setTextareaValue('')
+        setManufGridEnabled(false)
+        setTabFilterColor('white')
     }
 
     useEffect(() => {
@@ -234,6 +246,7 @@ const MainWindow = () => {
         await longExec(async() => {
             await presetDataPost(preset, 
                 manufGridRows, manufGridRowsSelected,
+                articleGridRows, articleGridRowsSelected,
                 nameGridRows, nameGridRowsSelected,
             )
         })
@@ -246,6 +259,7 @@ const MainWindow = () => {
 
             const r = await presetDataPost(presetSaveTo, 
                 manufGridRows, manufGridRowsSelected,
+                articleGridRows, articleGridRowsSelected,
                 nameGridRows, nameGridRowsSelected,
             )
             console.log('r',r)
@@ -413,6 +427,8 @@ const MainWindow = () => {
                                     // preset={preset}
                                     // setPreset={setPreset}
                                 />
+                                <S/>
+                                <ArticleGridView/>
                                 <S/>
                                 <NameGridView/>
                             </div>

@@ -29,6 +29,7 @@ export const presetDataGet___ = async (preset: string): Promise<{manufs: IManufP
 
 export const presetDataGet = async (preset: string): Promise<{
         manufRows: any[], manufSelected: Set<number>,
+        articleRows: any[], articleSelected: Set<number>,
         nameRows: any[], nameSelected: Set<number>,
     }> => {
     console.log('presetDataGet')
@@ -42,6 +43,7 @@ export const presetDataGet = async (preset: string): Promise<{
     if (presetData.length == 0 || !(presetData[0].preset_data))
         return {
             manufRows: [], manufSelected: new Set([]),
+            articleRows: [], articleSelected: new Set([]),
             nameRows: [], nameSelected: new Set([]),
         }
 
@@ -49,12 +51,17 @@ export const presetDataGet = async (preset: string): Promise<{
     const manufKeys = manufRows.filter((e:any)=>e.selected??false).map((e:any)=>e.key)
     const manufSelected = new Set<number>(manufKeys)
 
+    const articleRows = presetData[0].preset_data.article||[]
+    const articleKeys = articleRows.filter((e:any)=>e.selected??false).map((e:any)=>e.key)
+    const articleSelected = new Set<number>(articleKeys)
+
     const nameRows = presetData[0].preset_data.name||[]
     const nameKeys = nameRows.filter((e:any)=>e.selected??false).map((e:any)=>e.key)
     const nameSelected = new Set<number>(nameKeys)
 
     return {
         manufRows, manufSelected,
+        articleRows, articleSelected,
         nameRows, nameSelected,
     }
 }
@@ -63,12 +70,13 @@ const qq = (s: string) => `''${s}''`
 
 export const presetDataPost = async (preset: string, 
         manufRows: any[], manufSelected: Set<number>,
+        articleRows: any[], articleSelected: Set<number>,
         nameRows: any[], nameSelected: Set<number>,
 ) => {
     console.log('presetDataPost')
     
-    if (manufRows.length == 0)
-        return
+    // if (manufRows.length == 0)
+    //     return
 
     const count = await getCount({
         from: 'cp3.perm_preset',
@@ -76,8 +84,9 @@ export const presetDataPost = async (preset: string,
     })
 
     const manufRowsToSave = manufRows.map(item => ({...item, selected: manufSelected.has(item.key)}));
+    const articleRowsToSave = articleRows.map(item => ({...item, selected: articleSelected.has(item.key)}));
     const nameRowsToSave = nameRows.map(item => ({...item, selected: nameSelected.has(item.key)}));
-    const objToSave = {manuf: manufRowsToSave, name: nameRowsToSave}
+    const objToSave = {manuf: manufRowsToSave, article: articleRowsToSave, name: nameRowsToSave}
 
     const fetchParam = count == 0 ? {
         backend_point: AppContext.backend_point_insert,

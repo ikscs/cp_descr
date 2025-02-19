@@ -6,6 +6,9 @@ interface IPresetContext {
   manufGridRows: any[];  setManufGridRows: (a: any[])=>void;
   manufGridCols: any[];  setManufGridCols: (a: any[])=>void;
   manufGridRowsSelected: Set<number>;  setManufGridRowsSelected: (set_: Set<number>)=>void;
+  articleGridRows: any[];  setArticleGridRows: (a: any[])=>void;
+  articleGridCols: any[];  setArticleGridCols: (a: any[])=>void;
+  articleGridRowsSelected: Set<number>;  setArticleGridRowsSelected: (set_: Set<number>)=>void;
   nameGridRows: any[];  setNameGridRows: (a: any[])=>void;
   nameGridCols: any[];  setNameGridCols: (a: any[])=>void;
   nameGridRowsSelected: Set<number>;  setNameGridRowsSelected: (set_: Set<number>)=>void;
@@ -18,6 +21,9 @@ export const PresetProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [manufGridRows, setManufGridRows] = useState<any[]>([]) 
   const [manufGridCols, setManufGridCols] = useState<any[]>([]) 
   const [manufGridRowsSelected, setManufGridRowsSelected] = useState<Set<number>>(new Set())
+  const [articleGridRows, setArticleGridRows] = useState<any[]>([]) 
+  const [articleGridCols, setArticleGridCols] = useState<any[]>([]) 
+  const [articleGridRowsSelected, setArticleGridRowsSelected] = useState<Set<number>>(new Set())
   const [nameGridRows, setNameGridRows] = useState<any[]>([]) 
   const [nameGridCols, setNameGridCols] = useState<any[]>([]) 
   const [nameGridRowsSelected, setNameGridRowsSelected] = useState<Set<number>>(new Set())
@@ -29,6 +35,9 @@ export const PresetProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         manufGridRows, setManufGridRows,
         manufGridCols, setManufGridCols,
         manufGridRowsSelected, setManufGridRowsSelected,
+        articleGridRows, setArticleGridRows,
+        articleGridCols, setArticleGridCols,
+        articleGridRowsSelected, setArticleGridRowsSelected,
         nameGridRows, setNameGridRows,
         nameGridCols, setNameGridCols,
         nameGridRowsSelected, setNameGridRowsSelected,

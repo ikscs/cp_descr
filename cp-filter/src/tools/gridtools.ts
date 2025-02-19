@@ -56,6 +56,7 @@ const getGridRows = async (withoutTree: boolean,
     articleFilter: string, 
     gridLimit?: number, 
     manufs?: string[],
+    articles?: string[],
     names?: string[],
     dataSource?: string,
 ) => {
@@ -88,6 +89,7 @@ WHERE
     ${andManufFilter}
     ${andArticleFilter}
     ${makeInList('manuf', manufs??[])}
+    ${makeLikeList('article', articles??[])}
     ${makeLikeList('name', names??[])}
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
