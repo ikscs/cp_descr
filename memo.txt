@@ -3,3 +3,6 @@ npm create vite@latest
 
 rem > react
 rem > typescript
+
+
+https://nuancesprog.ru/p/16589/
