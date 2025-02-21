@@ -1,7 +1,7 @@
 {
   "name": "cp-filter",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,6 +16,7 @@
     "react-cookie": "^7.2.2",
     "react-data-grid": "^7.0.0-beta.47",
     "react-dom": "^18.3.1",
+    "react-hotkeys-hook": "^4.6.1",
     "react-icons": "^5.4.0",
     "react-select": "^5.10.0",
     "react-tabs": "^6.1.0",

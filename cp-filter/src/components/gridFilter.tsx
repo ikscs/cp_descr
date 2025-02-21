@@ -23,6 +23,8 @@ interface IGridProps {
     onCellClick?: (row: any) => void,
     selectedRows?: Set<number>,
     onSelectedRowsChange?: (set: ReadonlySet<number>) => any,
+    onSelectedCellChange?: (cellInfo: any) => void,
+
     height?: string, 
     width?: string, 
     maxColWidth?: number,
@@ -163,6 +165,7 @@ function Grid(props: IGridProps) {
                 colName: cellInfo.column.name 
             }
         });
+        props.onSelectedCellChange && props.onSelectedCellChange(cellInfo)
     }
     
     const getSelectedPosition = () => {

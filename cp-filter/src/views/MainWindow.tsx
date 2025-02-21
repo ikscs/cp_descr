@@ -5,7 +5,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import AppContext from "../contexts/AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "../tools/treetools"
-import { getGridCols, getGridRows, toExcel } from '../tools/gridtools'
+import { getGridCols, getGridRows, productFind, toExcel } from '../tools/gridtools'
 import '../components/footer.css'
 import Footer from "../components/Footer"
 import Combo, { IValueLabel } from "../components/combo"
@@ -21,18 +21,19 @@ import NameGridView from "./NameGridView";
 import PresetView from "./PresetView";
 import RawDataView from "./RawDataView";
 import ArticleGridView from "./ArticleGridView";
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
 const emptySubj = 'emptySubj'
-const drfaultRole = 0
+const defaultRole = 0
 
 const S = () => (<div style={{width: '10px'}}/>)
 
 const H4 = (props: any) => (<h4 style={{margin: 8}}>{props.text}</h4>)
 
 const dataSourceOptions = [
-    {label: 'Все поставщики', value:'cp3.vcp_product_org'},
+    {label: 'Все субъекты', value:'cp3.vcp_product_org'},
     {label: 'ikscs', value:'cp3.ikscs'},
     {label: 'cp', value:'cp3.vcp_product_org_rated'},
 ]
@@ -77,6 +78,11 @@ const MainWindow = () => {
     const [rawSubjectId,setRawSubjectId] = useState('')
     const [rawProductId,setRawProductId] = useState('')
 
+    const [manufToGoogle, setManufToGoogle] = useState('')
+    const [articleToGoogle, setArticleToGoogle] = useState('')
+
+    const [tabIndex, setTabIndex] = useState(0);
+
     console.log('MainWindow', user)
     const init = async () => {
         
@@ -95,7 +101,7 @@ const MainWindow = () => {
             order: 'subject_role',
         }, 'subject_role','description'))
 
-        setSubr(drfaultRole)
+        setSubr(defaultRole)
 
         setPresetOptions(await getData({
             from: 'cp3.perm_preset', 
@@ -109,8 +115,11 @@ const MainWindow = () => {
         const queryParameters = new URLSearchParams(window.location.search)
         const preset_ = queryParameters.get('preset')
         console.log('preset', preset_)
-        onComboPresetChange({value: !!preset_ ? preset_ : '1'}) // default preset
-    }
+        // onComboPresetChange({value: !!preset_ ? preset_ : '1'}) // default preset
+        preset_ && onComboPresetChange({value: preset_}) // no default preset
+        setTabFilterColor(!!preset_ ? 'yellow' : 'white')
+        setManufGridEnabled(!!preset_)
+}
     
     const initSubjects = async (subr: number) => {
         setSubjectOptions(await getData({
@@ -139,6 +148,8 @@ const MainWindow = () => {
     }
 
     const initGrid = async () => {
+        setTabIndex(0)
+        setGridRows([])
         await longExec(async() => {
             subj != emptySubj && await putTreeSelected(treeSelected, subr, subj)
 
@@ -266,10 +277,48 @@ const MainWindow = () => {
         })
     }
 
+    const getSubrLabel = (v: number): string => {
+        const found = roleOptions.find((opt) => opt.value == v);
+        return found?.label || 'No Data'
+    }
+
     const openInNewTab = (url: string) => {
         const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
         if (newWindow) newWindow.opener = null
-      }
+    }
+
+    // react-hotkeys
+    // react-hot-keys
+    // react-hotkeys-hook
+    // useHotkeys('ctrl+k', () => setCount(count + 1), [count])
+    useHotkeys('ctrl+shift+g', () => openInNewTab('https://www.google.com/search?q=' + articleToGoogle))
+    useHotkeys('ctrl+shift+f', async () => {
+        const found = await productFind(manufToGoogle,articleToGoogle)
+        if (found.ok) {
+            const dict: { [id: string]: string; } = {
+                ikscs: 'https://ikscs.in.ua/store/product/view/',
+                mc: 'https://mc.in.ua/store/product/view/',
+            }
+            const schema = found.schema || 'ikscs'
+            const url = dict[schema] + found.category_id + '/' + found.product_id
+            console.log('(url',url)
+            openInNewTab(url)
+        } else {
+            alert(`Cannot find ${manufToGoogle} / ${articleToGoogle}}`)
+        }
+    })
+    useHotkeys('F9', async () => {initGrid()})
+    
+    const onCellClick = (row: any) => {
+        console.log(row.row.article)
+        // setArticleToGoogle(row.row.article)
+    }
+    
+    const onSelectedCellChange = (cellInfo: any) => {
+        setManufToGoogle(cellInfo.row.manuf)
+        setArticleToGoogle(cellInfo.row.article)
+    }
+
 
     return (
         <CookiesProvider>
@@ -297,6 +346,10 @@ const MainWindow = () => {
                     options={dataSourceOptions}
                     onChange={({value,label}) => {
                         setFooterText(label)
+                        if (value == 'cp3.ikscs') {
+                            setSubr(0)
+                            initSubjects(0)
+                        }
                         setDataSource(value)
                     }}
                     title="DataSource"
@@ -305,9 +358,10 @@ const MainWindow = () => {
                 <Combo
                     placeholder="Role"
                     options={roleOptions}
-                    // defaultChoice={{
-                    //     value: drfaultRole, 
-                    //     label: roleOptions.find(option => option.value === drfaultRole)?.label || ''}}
+                    defaultChoice={{
+                        value: subr,
+                        label: getSubrLabel(subr), 
+                    }}
                     onChange={({value,label}) => {
                         setFooterText(label)
                         setSubr(value)
@@ -337,7 +391,7 @@ const MainWindow = () => {
                     value={manufFilter}
                     setValue={setManufFilter}/>
                 <InputString
-                    size={5}
+                    size={10}
                     placeholder="Article ?"
                     value={articleFilter}
                     setValue={setArticleFilter}/>
@@ -347,7 +401,7 @@ const MainWindow = () => {
                     value={gridLimit}
                     setValue={setGridLimit}/>
                 <S/>
-                <button onClick={ initGrid }>Выбрать</button>
+                <button title={'F9'} onClick={ initGrid }>Выбрать</button>
                 <button onClick={clearAll}>Очистить</button>
                 <button onClick={ () => toExcel(gridCols,gridRows)}>Excel</button>
                 <S/>
@@ -361,10 +415,13 @@ const MainWindow = () => {
                         width='300px'
                     />
                 </div>
-                <Tabs>
+                <Tabs selectedIndex={tabIndex} onSelect={(index) => setTabIndex(index)}>
                     <TabList>
                         <Tab key='1' tabIndex='1'>Data</Tab>
-                        <Tab key='2' tabIndex='2' style={{backgroundColor: tabFilterColor}}>Data Filter</Tab>
+                        <Tab key='2' tabIndex='2' style={{
+                            backgroundColor: tabFilterColor,
+                            // backgroundClip: 'initial'
+                        }}>Data Filter</Tab>
                         <Tab key='3' tabIndex='3'>Presets</Tab>
                         <Tab key='4' tabIndex='4'>Raw Data</Tab>
                     </TabList>
@@ -374,8 +431,9 @@ const MainWindow = () => {
                                 cols={gridCols}
                                 rows={gridRows}
                                 rowKeyGetter={rowKeyGetter}
-                                // onCellClick={onCellClick}
+                                onCellClick={onCellClick}
                                 onSelectedRowsChange={onRowSelect}
+                                onSelectedCellChange={onSelectedCellChange}
                             />
                         </div>
                     </TabPanel>
@@ -457,8 +515,10 @@ const MainWindow = () => {
                 style={{width:600, height:200, }} 
             />
             
+            {/* 
             <br/><button onClick={() => openInNewTab('https://stackoverflow.com')}>openInNewTab</button>
-            <br/><button onClick={() => openInNewTab('https://rise.theweb.place/back/f1.php?f=cp3.get_cp_product_r2&p=ERC')}>openInNewTab</button>
+            <br/><button onClick={() => openInNewTab('https://rise.theweb.place/back/f1.php?f=cp3.get_cp_product_r2&p=ERC')}>openInNewTab</button> 
+            */}
             
             <Footer 
                 text={footerText}

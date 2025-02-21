@@ -136,4 +136,38 @@ const toExcel = async (cols: any, rows: any) => {
     }
 }
 
-export { getGridCols, getGridRows, toExcel, }
+const productFind = async (manuf: string, manufacturer_code: string): Promise<{
+    ok: boolean,
+    schema?: string,
+    category_id?: string,
+    product_id?: string,
+}> => {
+    const result = await productFindFrom('ikscs.v_product', manuf, manufacturer_code)
+    return result.ok ? result :
+        await productFindFrom('mc.v_product', manuf, manufacturer_code)
+}
+
+const productFindFrom = async (from: string, manuf: string, manufacturer_code: string): Promise<{
+    ok: boolean,
+    schema?: string,
+    category_id?: string,
+    product_id?: string,
+}> => {
+    const data = await fetchData({
+        from,
+        fields: 'category_id,product_id',
+        where: {manuf,manufacturer_code},
+    })
+    if (data.length > 0) {
+        return {
+            ok: true,
+            schema: from.split('.')[0],
+            category_id: data[0].category_id, 
+            product_id: data[0].product_id,
+        }
+    } else {
+        return {ok: false}
+    }
+}
+
+export { getGridCols, getGridRows, toExcel, productFind, }
