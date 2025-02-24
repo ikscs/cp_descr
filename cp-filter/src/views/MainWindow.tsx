@@ -287,6 +287,22 @@ const MainWindow = () => {
         if (newWindow) newWindow.opener = null
     }
 
+    const searchGoogle = () => openInNewTab('https://www.google.com/search?q=' + articleToGoogle)
+    const searchJoomla = async () => {
+        const found = await productFind(manufToGoogle,articleToGoogle)
+        if (found.ok) {
+            const dict: { [id: string]: string; } = {
+                ikscs: 'https://ikscs.in.ua/store/product/view/',
+                mc: 'https://mc.in.ua/store/product/view/',
+            }
+            const schema = found.schema || 'ikscs'
+            const url = dict[schema] + found.category_id + '/' + found.product_id
+            console.log('(url',url)
+            openInNewTab(url)
+        } else {
+            alert(`Cannot find ${manufToGoogle} / ${articleToGoogle}}`)
+        }
+    }
     // react-hotkeys
     // react-hot-keys
     // react-hotkeys-hook
@@ -404,6 +420,8 @@ const MainWindow = () => {
                 <button title={'F9'} onClick={ initGrid }>Выбрать</button>
                 <button onClick={clearAll}>Очистить</button>
                 <button onClick={ () => toExcel(gridCols,gridRows)}>Excel</button>
+                <button title={'Search Google (ctrl+shift+g)'} onClick={ searchGoogle }>G</button>
+                <button title={'Search Joomla (ctrl+shift+f)'} onClick={ searchJoomla }>F</button>
                 <S/>
             </div> 
             
