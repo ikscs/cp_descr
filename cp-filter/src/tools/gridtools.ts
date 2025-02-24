@@ -61,7 +61,8 @@ const getGridRows = async (withoutTree: boolean,
     dataSource?: string,
 ) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
-    const andArticleFilter = articleFilter && `AND article ilike ''%${articleFilter}%''`
+    // const andArticleFilter = articleFilter && `AND article ilike ''%${articleFilter}%''`
+    const andArticleFilter = articleFilter && `AND (article ilike ''%${articleFilter}%'' OR name ilike ''%${articleFilter}%'' )`
     const query = 
 `
 SELECT
