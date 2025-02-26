@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface IPresetContext {
-  preset: string;
-  setPreset: React.Dispatch<React.SetStateAction<string>>;
+  preset: string; setPreset: React.Dispatch<React.SetStateAction<string>>;
   manufGridRows: any[];  setManufGridRows: (a: any[])=>void;
   manufGridCols: any[];  setManufGridCols: (a: any[])=>void;
   manufGridRowsSelected: Set<number>;  setManufGridRowsSelected: (set_: Set<number>)=>void;
@@ -12,6 +11,7 @@ interface IPresetContext {
   nameGridRows: any[];  setNameGridRows: (a: any[])=>void;
   nameGridCols: any[];  setNameGridCols: (a: any[])=>void;
   nameGridRowsSelected: Set<number>;  setNameGridRowsSelected: (set_: Set<number>)=>void;
+  presetDataSource: string; setPresetDataSource: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const PresetContext = createContext<IPresetContext | undefined>(undefined);
@@ -27,11 +27,11 @@ export const PresetProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [nameGridRows, setNameGridRows] = useState<any[]>([]) 
   const [nameGridCols, setNameGridCols] = useState<any[]>([]) 
   const [nameGridRowsSelected, setNameGridRowsSelected] = useState<Set<number>>(new Set())
+  const [presetDataSource,setPresetDataSource] = useState<string>('');
 
   return (
     <PresetContext.Provider value={{ 
-        preset,
-        setPreset,
+        preset, setPreset,
         manufGridRows, setManufGridRows,
         manufGridCols, setManufGridCols,
         manufGridRowsSelected, setManufGridRowsSelected,
@@ -41,6 +41,7 @@ export const PresetProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         nameGridRows, setNameGridRows,
         nameGridCols, setNameGridCols,
         nameGridRowsSelected, setNameGridRowsSelected,
+        presetDataSource,setPresetDataSource,
       }}>
       {children}
     </PresetContext.Provider>
@@ -54,3 +55,9 @@ export const usePresetContext = () => {
   }
   return context;
 };
+
+export const dataSourceOptions = [
+  {label: 'Все субъекты', value:'cp3.vcp_product_org'},
+  {label: 'ikscs', value:'cp3.ikscs'},
+  {label: 'cp', value:'cp3.vcp_product_org_rated'},
+]

@@ -32,6 +32,9 @@ const gridColNames: IGridColumn[] = [
     { key: 'subject_id', name: 'subject_id', width: 100, filterType: 'select', },
     { key: 'manuf_org', name: 'manuf_org', width: 200, filterType: 'select', },
     { key: 'article_org', name: 'article_org', width: 200, filterType: 'textbox', },
+    { key: 'subject_role_org', name: 'subject_role_org', width: 200, filterType: 'textbox', },
+    { key: 'subject_id_org', name: 'subject_id_org', width: 200, filterType: 'textbox', },
+    { key: 'product_id_org', name: 'product_id_org', width: 200, filterType: 'textbox', },
 ]
 
 const getGridCols = () => {
@@ -63,6 +66,9 @@ const getGridRows = async (withoutTree: boolean,
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
     // const andArticleFilter = articleFilter && `AND article ilike ''%${articleFilter}%''`
     const andArticleFilter = articleFilter && `AND (article ilike ''%${articleFilter}%'' OR name ilike ''%${articleFilter}%'' )`
+    const subject_role_org = dataSource == 'cp3.ikscs' ? 'subject_role_org' : 'null AS subject_role_org'
+    const subject_id_org = dataSource == 'cp3.ikscs' ? 'subject_id_org' : 'null AS subject_id_org'
+    const product_id_org = dataSource == 'cp3.ikscs' ? 'product_id_org' : 'null AS product_id_org'
     const query = 
 `
 SELECT
@@ -77,13 +83,13 @@ SELECT
 	name,
     price_sell,
     price_buy,
---    product_exists
-     ${dataSource == 'cp3.vcp_product_org' ? 'product_exists' : 'true AS product_exists'}
---FROM cp3.vcp_product_org
+    ${dataSource == 'cp3.vcp_product_org' ? 'product_exists' : 'true AS product_exists'},
+    ${subject_role_org},
+    ${subject_id_org},
+    ${product_id_org}
 FROM ${dataSource || 'cp3.vcp_product_org'}
 ${withoutTree ? '' : 'JOIN temp_cp_group USING (subject_role, subject_id, product_group)'}
 WHERE 
---    product_exists 
      ${dataSource == 'cp3.vcp_product_org' ? 'product_exists' : 'true'}
 	AND qtty > 0
     ${withoutTree ? 'AND subject_role ='+ subrFilter : ''}

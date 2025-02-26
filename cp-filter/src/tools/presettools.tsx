@@ -28,6 +28,7 @@ export const presetDataGet___ = async (preset: string): Promise<{manufs: IManufP
 }
 
 export const presetDataGet = async (preset: string): Promise<{
+        presetDataSource: string,
         manufRows: any[], manufSelected: Set<number>,
         articleRows: any[], articleSelected: Set<number>,
         nameRows: any[], nameSelected: Set<number>,
@@ -42,10 +43,13 @@ export const presetDataGet = async (preset: string): Promise<{
 
     if (presetData.length == 0 || !(presetData[0].preset_data))
         return {
+            presetDataSource: '',
             manufRows: [], manufSelected: new Set([]),
             articleRows: [], articleSelected: new Set([]),
             nameRows: [], nameSelected: new Set([]),
         }
+
+    const presetDataSource = presetData[0].preset_data.presetDataSource || ''
 
     const manufRows = presetData[0].preset_data.manuf||[]
     const manufKeys = manufRows.filter((e:any)=>e.selected??false).map((e:any)=>e.key)
@@ -60,6 +64,7 @@ export const presetDataGet = async (preset: string): Promise<{
     const nameSelected = new Set<number>(nameKeys)
 
     return {
+        presetDataSource,
         manufRows, manufSelected,
         articleRows, articleSelected,
         nameRows, nameSelected,
@@ -68,25 +73,23 @@ export const presetDataGet = async (preset: string): Promise<{
 
 const qq = (s: string) => `''${s}''`
 
-export const presetDataPost = async (preset: string, 
+export const presetDataPost = async (preset: string,
+        presetDataSource: string,
         manufRows: any[], manufSelected: Set<number>,
         articleRows: any[], articleSelected: Set<number>,
         nameRows: any[], nameSelected: Set<number>,
 ) => {
     console.log('presetDataPost')
     
-    // if (manufRows.length == 0)
-    //     return
-
     const count = await getCount({
         from: 'cp3.perm_preset',
         where: {app_id: packageJson.name, preset_id: preset}
     })
 
-    const manufRowsToSave = manufRows.map(item => ({...item, selected: manufSelected.has(item.key)}));
-    const articleRowsToSave = articleRows.map(item => ({...item, selected: articleSelected.has(item.key)}));
-    const nameRowsToSave = nameRows.map(item => ({...item, selected: nameSelected.has(item.key)}));
-    const objToSave = {manuf: manufRowsToSave, article: articleRowsToSave, name: nameRowsToSave}
+    const manuf = manufRows.map(item => ({...item, selected: manufSelected.has(item.key)}));
+    const article = articleRows.map(item => ({...item, selected: articleSelected.has(item.key)}));
+    const name = nameRows.map(item => ({...item, selected: nameSelected.has(item.key)}));
+    const objToSave = {presetDataSource, manuf, article, name}
 
     const fetchParam = count == 0 ? {
         backend_point: AppContext.backend_point_insert,

@@ -15,13 +15,14 @@ import packageJson from '../../package.json';
 import { InputString,InputNumber } from "../components/Input"
 import Checkbox from "../components/checkbox";
 import ManufGridView from "./ManufGridView";
-import { usePresetContext } from "../contexts/PresetContext";
+import { usePresetContext, dataSourceOptions } from "../contexts/PresetContext";
 import { presetDataGet, presetDataPost } from "../tools/presettools";
 import NameGridView from "./NameGridView";
 import PresetView from "./PresetView";
 import RawDataView from "./RawDataView";
 import ArticleGridView from "./ArticleGridView";
 import { useHotkeys } from 'react-hotkeys-hook'
+import { imageFindUrl } from "../tools/imagetools";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -31,12 +32,6 @@ const defaultRole = 0
 const S = () => (<div style={{width: '10px'}}/>)
 
 const H4 = (props: any) => (<h4 style={{margin: 8}}>{props.text}</h4>)
-
-const dataSourceOptions = [
-    {label: 'Все субъекты', value:'cp3.vcp_product_org'},
-    {label: 'ikscs', value:'cp3.ikscs'},
-    {label: 'cp', value:'cp3.vcp_product_org_rated'},
-]
 
 const MainWindow = () => {
     const [cookies, setCookie] = useCookies(['user','userFullName','preset'])
@@ -52,6 +47,7 @@ const MainWindow = () => {
         articleGridRowsSelected, setArticleGridRowsSelected,
         nameGridRows, setNameGridRows,
         nameGridRowsSelected, setNameGridRowsSelected,
+        presetDataSource,setPresetDataSource,
         /*manufGridCols, setManufGridCols,*/
     } = usePresetContext();
 
@@ -70,9 +66,9 @@ const MainWindow = () => {
     const [footerColor, setFooterColor] = useState('navy');
     const [textareaValue, setTextareaValue] = useState('');
     const [footerText, setFooterText] = useState('')
-    const [manufGridEnabled, setManufGridEnabled] = useState<boolean>(true) 
+    const [presetEnabled, setPresetEnabled] = useState<boolean>(true) 
     const [presetSaveTo,setPresetSaveTo] = useState('')
-    const [tabFilterColor,setTabFilterColor] = useState('yellow')
+    // const [tabFilterColor,setTabFilterColor] = useState('yellow')
 
     const [rawSubjectRole,setRawSubjectRole] = useState(-1)
     const [rawSubjectId,setRawSubjectId] = useState('')
@@ -84,6 +80,7 @@ const MainWindow = () => {
     const [tabIndex, setTabIndex] = useState(0);
 
     console.log('MainWindow', user)
+
     const init = async () => {
         
         setUserOptions(await getData({
@@ -93,6 +90,7 @@ const MainWindow = () => {
         }, 'user_name','user_full_name'))
         
         setUser(cookies.user)
+        setDataSource(dataSourceOptions[1].value)
 
         setRoleOptions(await getData({
             from: 'cp3.cp_subject_role', 
@@ -117,8 +115,8 @@ const MainWindow = () => {
         console.log('preset', preset_)
         // onComboPresetChange({value: !!preset_ ? preset_ : '1'}) // default preset
         preset_ && onComboPresetChange({value: preset_}) // no default preset
-        setTabFilterColor(!!preset_ ? 'yellow' : 'white')
-        setManufGridEnabled(!!preset_)
+        // setTabFilterColor(!!preset_ ? 'yellow' : 'white')
+        setPresetEnabled(!!preset_)
 }
     
     const initSubjects = async (subr: number) => {
@@ -153,20 +151,20 @@ const MainWindow = () => {
         await longExec(async() => {
             subj != emptySubj && await putTreeSelected(treeSelected, subr, subj)
 
-            const manufList: string[] = manufGridEnabled ? manufGridRows
+            const manufList: string[] = presetEnabled ? manufGridRows
                 .filter(data => manufGridRowsSelected?.has(data.key))
                 .map(data => data.value) : [];
 
-            const articleList: string[] = manufGridEnabled ? articleGridRows
+            const articleList: string[] = presetEnabled ? articleGridRows
                 .filter(data => articleGridRowsSelected?.has(data.key))
                 .map(data => data.value) : [];
 
-            const nameList: string[] = manufGridEnabled ? nameGridRows
+            const nameList: string[] = presetEnabled ? nameGridRows
                 .filter(data => nameGridRowsSelected?.has(data.key))
                 .map(data => data.value) : [];
 
             const data = await getGridRows(subj == emptySubj, subr, manufFilter, articleFilter, 
-                gridLimit, manufList, articleList, nameList, dataSource)
+                gridLimit, manufList, articleList, nameList, presetEnabled ? presetDataSource : dataSource)
             
             setTextareaValue(data.query)
             if (!data.ok) {
@@ -198,9 +196,21 @@ const MainWindow = () => {
         console.log(value); //1
 
         const key = value.split('/')
-        setRawSubjectRole(parseInt(key[0]))
-        setRawSubjectId(key[1])
-        setRawProductId(key[2])
+
+        if (key[0] == '0') {
+            const row: any = gridRows.find((row: any) => 
+                row.subject_role == key[0] && 
+                row.subject_id == key[1] && 
+                row.product_id == key[2])
+            console.log(row)
+            row && setRawSubjectRole(row.subject_role_org)
+            row && setRawSubjectId(row.subject_id_org)
+            row && setRawProductId(row.product_id_org)
+        } else {
+            setRawSubjectRole(parseInt(key[0]))
+            setRawSubjectId(key[1])
+            setRawProductId(key[2])
+        }
     }
 
     const withErrorHandling = async (asyncFunc: () => Promise<void>) => {
@@ -227,17 +237,20 @@ const MainWindow = () => {
     const onComboPresetChange = async ({value}: { value: string }) => {
         setPreset(value)
         const {
+            presetDataSource,
             manufRows, manufSelected, 
             articleRows, articleSelected, 
-            nameRows, nameSelected, 
+            nameRows, nameSelected,
         } = await presetDataGet(value)
+
+        setPresetDataSource(presetDataSource)
         setManufGridRows(manufRows)
         setManufGridRowsSelected(new Set(manufSelected))
         setArticleGridRows(articleRows)
         setArticleGridRowsSelected(new Set(articleSelected))
         setNameGridRows(nameRows)
         setNameGridRowsSelected(new Set(nameSelected))
-    setCookie('preset', value, { path: '/' })
+        setCookie('preset', value, { path: '/' })
     }
 
     const clearAll = () => {
@@ -245,8 +258,8 @@ const MainWindow = () => {
         setArticleFilter('')
         setGridRows([])
         setTextareaValue('')
-        setManufGridEnabled(false)
-        setTabFilterColor('white')
+        setPresetEnabled(false)
+        // setTabFilterColor('white')
     }
 
     useEffect(() => {
@@ -255,7 +268,8 @@ const MainWindow = () => {
 
     const savePreset = async () => {
         await longExec(async() => {
-            await presetDataPost(preset, 
+            await presetDataPost(preset,
+                presetDataSource,
                 manufGridRows, manufGridRowsSelected,
                 articleGridRows, articleGridRowsSelected,
                 nameGridRows, nameGridRowsSelected,
@@ -269,6 +283,7 @@ const MainWindow = () => {
                throw new Error('Preset name is Empty');
 
             const r = await presetDataPost(presetSaveTo, 
+                presetDataSource,
                 manufGridRows, manufGridRowsSelected,
                 articleGridRows, articleGridRowsSelected,
                 nameGridRows, nameGridRowsSelected,
@@ -277,10 +292,15 @@ const MainWindow = () => {
         })
     }
 
-    const getSubrLabel = (v: number): string => {
-        const found = roleOptions.find((opt) => opt.value == v);
-        return found?.label || 'No Data'
+    const getDefaultChoice = (options: IValueLabel[], value: number | string) => {
+        const found = options.find((opt) => opt.value == value);
+        return found
     }
+
+    // const getSubrLabel = (v: number): string => {
+    //     const found = roleOptions.find((opt) => opt.value == v);
+    //     return found?.label || 'No Data'
+    // }
 
     const openInNewTab = (url: string) => {
         const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
@@ -288,6 +308,11 @@ const MainWindow = () => {
     }
 
     const searchGoogle = () => openInNewTab('https://www.google.com/search?q=' + articleToGoogle)
+    const searchHub = async () => {
+        // openInNewTab(`https://rise.theweb.place/p/0/${manufToGoogle}/${articleToGoogle}/${articleToGoogle}.webp`)
+        const url = await imageFindUrl(manufToGoogle,articleToGoogle)
+        openInNewTab(url == '' ? `https://www.google.com/search?q=${articleToGoogle}&udm=2` : url)
+    } 
     const searchJoomla = async () => {
         const found = await productFind(manufToGoogle,articleToGoogle)
         if (found.ok) {
@@ -360,11 +385,15 @@ const MainWindow = () => {
                 <Combo
                     placeholder="DataSource"
                     options={dataSourceOptions}
+                    defaultChoice={getDefaultChoice(dataSourceOptions, dataSource)}
                     onChange={({value,label}) => {
                         setFooterText(label)
                         if (value == 'cp3.ikscs') {
                             setSubr(0)
                             initSubjects(0)
+                        } else if (value == 'cp3.vcp_product_org_rated') {
+                            setSubr(2)
+                            initSubjects(2)
                         }
                         setDataSource(value)
                     }}
@@ -374,10 +403,7 @@ const MainWindow = () => {
                 <Combo
                     placeholder="Role"
                     options={roleOptions}
-                    defaultChoice={{
-                        value: subr,
-                        label: getSubrLabel(subr), 
-                    }}
+                    defaultChoice={getDefaultChoice(roleOptions, subr)}
                     onChange={({value,label}) => {
                         setFooterText(label)
                         setSubr(value)
@@ -422,6 +448,7 @@ const MainWindow = () => {
                 <button onClick={ () => toExcel(gridCols,gridRows)}>Excel</button>
                 <button title={'Search Google (ctrl+shift+g)'} onClick={ searchGoogle }>G</button>
                 <button title={'Search Joomla (ctrl+shift+f)'} onClick={ searchJoomla }>F</button>
+                <button title={'Search Image Hub (ctrl+shift+h)'} onClick={ searchHub }>H</button>
                 <S/>
             </div> 
             
@@ -437,9 +464,10 @@ const MainWindow = () => {
                     <TabList>
                         <Tab key='1' tabIndex='1'>Data</Tab>
                         <Tab key='2' tabIndex='2' style={{
-                            backgroundColor: tabFilterColor,
+                            // backgroundColor: tabFilterColor,
+                            // borderColor: '#aaa',
                             // backgroundClip: 'initial'
-                        }}>Data Filter</Tab>
+                        }}>Data Filter {presetEnabled ? '*' : ''}</Tab>
                         <Tab key='3' tabIndex='3'>Presets</Tab>
                         <Tab key='4' tabIndex='4'>Raw Data</Tab>
                     </TabList>
@@ -459,7 +487,6 @@ const MainWindow = () => {
                         <div style={{/*width: '100%',*/ height: '100%', }}>
                             
                             <div className='flexbox-container-single'>
-                            {/* <div style={{display: flex; align-items: center}}/> */}
                             <label>Пресет</label><S/>
                             <Combo
                                 placeholder='Unknown'
@@ -487,27 +514,32 @@ const MainWindow = () => {
 
                             <Checkbox
                                 label='Включить'
-                                checked={manufGridEnabled}
+                                checked={presetEnabled}
                                 onChange={(v) => {
-                                    setTabFilterColor(v ? 'yellow' : 'white')
-                                    setManufGridEnabled(v)
+                                    // setTabFilterColor(v ? 'yellow' : 'white')
+                                    setPresetEnabled(v)
                                 }}
                             />
+                            <br/>
+                            <div className='flexbox-container-single'>
+                                <label>DataSource</label><S/>
+                                <Combo
+                                    placeholder="DataSource"
+                                    options={dataSourceOptions}
+                                    defaultChoice={
+                                        getDefaultChoice(dataSourceOptions, presetDataSource)
+                                    }
+                                    title="DataSource"
+                                    // onChange={setPresetDataSource}
+                                    onChange={({value}) => {
+                                        setPresetDataSource(value)
+                                    }}
+                                />
+                            </div>
 
                             <div className='flexbox-container'>
                                 <S/>
-                                <ManufGridView 
-                                    // width="400px" 
-                                    // height="200px"
-                                    // manufGridRows={manufGridRows}
-                                    // setManufGridRows={setManufGridRows}
-                                    // manufGridCols={manufGridCols}
-                                    // setManufGridCols={setManufGridCols}
-                                    // manufGridRowsSelected={manufGridRowsSelected}
-                                    // setManufGridRowsSelected={setManufGridRowSelected}
-                                    // preset={preset}
-                                    // setPreset={setPreset}
-                                />
+                                <ManufGridView/>
                                 <S/>
                                 <ArticleGridView/>
                                 <S/>
