@@ -194,7 +194,7 @@ function Grid(props: IGridProps) {
             defaultColumnOptions={{
                 sortable: true,
                 resizable: true,
-                maxWidth: props.maxColWidth || 300,
+                maxWidth: props.maxColWidth || 1000,
                 // maxWidth: 300, // todo: setup
             }}
             direction ={ 'ltr'}
