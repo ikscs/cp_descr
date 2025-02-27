@@ -23,7 +23,7 @@ const gridColNames: IGridColumn[] = [
     { key: 'group', name: 'Group', width: 150, filterType: 'select' },
     { key: 'manuf', name: 'Manufacturer', width: 200, filterType: 'select', },
     { key: 'article', name: 'Article', width: 200, filterType: 'textbox', },
-    { key: 'name', name: 'Name', width: 200, filterType: 'textbox', editable: true, },
+    { key: 'name', name: 'Name', width: 400, filterType: 'textbox', editable: true, },
     { key: 'price_buy', name: 'price_buy', width: 100, filterType: 'textbox', },
     { key: 'price_sell', name: 'price_sell', width: 100, filterType: 'textbox', },
     { key: 'qtty', name: 'Quantity', width: 50, filterType: 'textbox', },

@@ -6,5 +6,16 @@
 
 ### Changed
 
+### Fixed
+
+## [0.2.3]
+
+### Added
+
+set datasource and subject role when preset loaded
+
+'autostart' preset option to run query immediatly
+
+### Changed
 
 ### Fixed

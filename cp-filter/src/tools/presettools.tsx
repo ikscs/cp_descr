@@ -32,6 +32,7 @@ export const presetDataGet = async (preset: string): Promise<{
         manufRows: any[], manufSelected: Set<number>,
         articleRows: any[], articleSelected: Set<number>,
         nameRows: any[], nameSelected: Set<number>,
+        autostart: boolean,
     }> => {
     console.log('presetDataGet')
 
@@ -47,6 +48,7 @@ export const presetDataGet = async (preset: string): Promise<{
             manufRows: [], manufSelected: new Set([]),
             articleRows: [], articleSelected: new Set([]),
             nameRows: [], nameSelected: new Set([]),
+            autostart: false,
         }
 
     const presetDataSource = presetData[0].preset_data.presetDataSource || ''
@@ -63,11 +65,14 @@ export const presetDataGet = async (preset: string): Promise<{
     const nameKeys = nameRows.filter((e:any)=>e.selected??false).map((e:any)=>e.key)
     const nameSelected = new Set<number>(nameKeys)
 
+    const autostart = presetData[0].preset_data.autostart || false
+
     return {
         presetDataSource,
         manufRows, manufSelected,
         articleRows, articleSelected,
         nameRows, nameSelected,
+        autostart,
     }
 }
 
@@ -78,6 +83,7 @@ export const presetDataPost = async (preset: string,
         manufRows: any[], manufSelected: Set<number>,
         articleRows: any[], articleSelected: Set<number>,
         nameRows: any[], nameSelected: Set<number>,
+        autostart: boolean,
 ) => {
     console.log('presetDataPost')
     
@@ -89,7 +95,7 @@ export const presetDataPost = async (preset: string,
     const manuf = manufRows.map(item => ({...item, selected: manufSelected.has(item.key)}));
     const article = articleRows.map(item => ({...item, selected: articleSelected.has(item.key)}));
     const name = nameRows.map(item => ({...item, selected: nameSelected.has(item.key)}));
-    const objToSave = {presetDataSource, manuf, article, name}
+    const objToSave = {presetDataSource, manuf, article, name, autostart,}
 
     const fetchParam = count == 0 ? {
         backend_point: AppContext.backend_point_insert,

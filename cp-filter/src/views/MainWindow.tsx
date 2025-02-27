@@ -48,6 +48,7 @@ const MainWindow = () => {
         nameGridRows, setNameGridRows,
         nameGridRowsSelected, setNameGridRowsSelected,
         presetDataSource,setPresetDataSource,
+        autostart, setAutostart,
         /*manufGridCols, setManufGridCols,*/
     } = usePresetContext();
 
@@ -60,7 +61,7 @@ const MainWindow = () => {
     const [treeSelected, setTreeSelected] = useState([])
     const [gridCols, setGridCols] = useState<any[]>([]);
     const [gridRows, setGridRows] = useState<[]>([]);
-    const [gridLimit, setGridLimit] = useState(10000);
+    const [gridLimit, setGridLimit] = useState(100000);
     const [manufFilter, setManufFilter] = useState('');
     const [articleFilter, setArticleFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
@@ -234,13 +235,28 @@ const MainWindow = () => {
         }
     };
 
-    const onComboPresetChange = async ({value}: { value: string }) => {
+    const setDataSourceAndRole = (dataSource: string) => {
+        if (dataSource == 'cp3.ikscs') {
+            setSubr(0)
+            initSubjects(0)
+        } else if (dataSource == 'cp3.vcp_product_org_rated') {
+            setSubr(2)
+            initSubjects(2)
+        } else {
+            setSubr(2)
+            initSubjects(2)
+        }
+        setDataSource(dataSource)
+    }
+
+        const onComboPresetChange = async ({value}: { value: string }) => {
         setPreset(value)
         const {
             presetDataSource,
             manufRows, manufSelected, 
             articleRows, articleSelected, 
             nameRows, nameSelected,
+            autostart,
         } = await presetDataGet(value)
 
         setPresetDataSource(presetDataSource)
@@ -251,6 +267,12 @@ const MainWindow = () => {
         setNameGridRows(nameRows)
         setNameGridRowsSelected(new Set(nameSelected))
         setCookie('preset', value, { path: '/' })
+
+        setDataSourceAndRole(presetDataSource)
+        setAutostart(autostart)
+        if (autostart) {
+            initGrid()
+        }
     }
 
     const clearAll = () => {
@@ -273,6 +295,7 @@ const MainWindow = () => {
                 manufGridRows, manufGridRowsSelected,
                 articleGridRows, articleGridRowsSelected,
                 nameGridRows, nameGridRowsSelected,
+                autostart,
             )
         })
     }
@@ -287,6 +310,7 @@ const MainWindow = () => {
                 manufGridRows, manufGridRowsSelected,
                 articleGridRows, articleGridRowsSelected,
                 nameGridRows, nameGridRowsSelected,
+                autostart,
             )
             console.log('r',r)
         })
@@ -358,6 +382,10 @@ const MainWindow = () => {
     const onSelectedCellChange = (cellInfo: any) => {
         setManufToGoogle(cellInfo.row.manuf)
         setArticleToGoogle(cellInfo.row.article)
+
+        setRawSubjectRole(cellInfo.row.subject_role_org || cellInfo.row.subject_role)
+        setRawSubjectId(cellInfo.row.subject_id_org || cellInfo.row.subject_id)
+        setRawProductId(cellInfo.row.product_id_org || cellInfo.row.product_id)
     }
 
 
@@ -388,14 +416,7 @@ const MainWindow = () => {
                     defaultChoice={getDefaultChoice(dataSourceOptions, dataSource)}
                     onChange={({value,label}) => {
                         setFooterText(label)
-                        if (value == 'cp3.ikscs') {
-                            setSubr(0)
-                            initSubjects(0)
-                        } else if (value == 'cp3.vcp_product_org_rated') {
-                            setSubr(2)
-                            initSubjects(2)
-                        }
-                        setDataSource(value)
+                        setDataSourceAndRole(value)
                     }}
                     title="DataSource"
                 />
@@ -535,6 +556,15 @@ const MainWindow = () => {
                                         setPresetDataSource(value)
                                     }}
                                 />
+                                <S/>
+                                <Checkbox
+                                    label='Автозапуск'
+                                    checked={autostart}
+                                    onChange={(v) => {
+                                        setAutostart(v)
+                                    }}
+                                />
+
                             </div>
 
                             <div className='flexbox-container'>

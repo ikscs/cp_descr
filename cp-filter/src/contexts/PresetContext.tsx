@@ -12,6 +12,7 @@ interface IPresetContext {
   nameGridCols: any[];  setNameGridCols: (a: any[])=>void;
   nameGridRowsSelected: Set<number>;  setNameGridRowsSelected: (set_: Set<number>)=>void;
   presetDataSource: string; setPresetDataSource: React.Dispatch<React.SetStateAction<string>>;
+  autostart: boolean; setAutostart: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PresetContext = createContext<IPresetContext | undefined>(undefined);
@@ -28,6 +29,7 @@ export const PresetProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [nameGridCols, setNameGridCols] = useState<any[]>([]) 
   const [nameGridRowsSelected, setNameGridRowsSelected] = useState<Set<number>>(new Set())
   const [presetDataSource,setPresetDataSource] = useState<string>('');
+  const [autostart, setAutostart] = useState<boolean>(false);
 
   return (
     <PresetContext.Provider value={{ 
@@ -42,6 +44,7 @@ export const PresetProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         nameGridCols, setNameGridCols,
         nameGridRowsSelected, setNameGridRowsSelected,
         presetDataSource,setPresetDataSource,
+        autostart, setAutostart,
       }}>
       {children}
     </PresetContext.Provider>
