@@ -299,6 +299,26 @@ const MainWindow = () => {
         init()
     }, [])
 
+    useEffect(() => { // hotkeys -- do not forget to remove event listener
+        const handleKeyDown = (event: any) => {
+            if (event.ctrlKey && event.shiftKey && event.key === 'H') {
+                searchHub()
+            } else if (event.ctrlKey && event.shiftKey && event.key === 'F') {
+                searchJoomla()
+            } else if (event.ctrlKey && event.shiftKey && event.key === 'G') {
+                searchGoogle()
+            } else if (event.key === 'F9') {
+                initGrid()
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
     const savePreset = async () => {
         await longExec(async() => {
             await presetDataPost(preset,
@@ -383,6 +403,10 @@ const MainWindow = () => {
             alert(`Cannot find ${manufToGoogle} / ${articleToGoogle}}`)
         }
     })
+    useHotkeys('ctrl+shift+h', async () => {
+        console.log('ctrl+shift+h')
+        await searchHub() 
+    })
     useHotkeys('F9', async () => {initGrid()})
     
     const onCellClick = (row: any) => {
@@ -463,7 +487,8 @@ const MainWindow = () => {
                     size={5}
                     placeholder="Manuf ?"
                     value={manufFilter}
-                    setValue={setManufFilter}/>
+                    setValue={setManufFilter}
+                    />
                 <InputString
                     size={10}
                     placeholder="Article, Name ?"

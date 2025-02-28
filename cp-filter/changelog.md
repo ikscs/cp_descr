@@ -20,6 +20,17 @@ set datasource and subject role when preset loaded
 
 ### Fixed
 
+## [0.3.1]
+
+### Added
+
+logger in tab
+
+### Changed
+
+forced hotkey capture
+
+### Fixed
 
 Volodymyr Mykhailov
 19:16
