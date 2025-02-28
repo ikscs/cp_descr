@@ -1,4 +1,5 @@
 import AppContext from './contexts/AppContext';
+import { LoggerProvider } from './contexts/LoggerContext';
 import { PresetProvider } from './contexts/PresetContext';
 import MainWindow from './views/MainWindow';
 
@@ -13,7 +14,9 @@ function App() {
   return (
     <div className="App" style={{position: 'absolute', top: 0, margin:10}}>
       <PresetProvider>
-        <MainWindow/>
+        <LoggerProvider>
+          <MainWindow/>
+        </LoggerProvider>
       </PresetProvider>
     </div>
   )

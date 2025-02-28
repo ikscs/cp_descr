@@ -23,6 +23,8 @@ import RawDataView from "./RawDataView";
 import ArticleGridView from "./ArticleGridView";
 import { useHotkeys } from 'react-hotkeys-hook'
 import { imageFindUrl } from "../tools/imagetools";
+import LoggerView from "./LoggerView";
+import { useLoggerContext } from "../contexts/LoggerContext";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -52,6 +54,8 @@ const MainWindow = () => {
         /*manufGridCols, setManufGridCols,*/
     } = usePresetContext();
 
+    const {loggerText, setLoggerText} = useLoggerContext();
+
     const [dataSource, setDataSource] = useState('');
     const [userOptions, setUserOptions] = useState<IValueLabel[]>([]);
     const [roleOptions, setRoleOptions] = useState<IValueLabel[]>([]);
@@ -65,7 +69,7 @@ const MainWindow = () => {
     const [manufFilter, setManufFilter] = useState('');
     const [articleFilter, setArticleFilter] = useState('');
     const [footerColor, setFooterColor] = useState('navy');
-    const [textareaValue, setTextareaValue] = useState('');
+    // const [textareaValue, setTextareaValue] = useState('');
     const [footerText, setFooterText] = useState('')
     const [presetEnabled, setPresetEnabled] = useState<boolean>(true) 
     const [presetSaveTo,setPresetSaveTo] = useState('')
@@ -167,13 +171,20 @@ const MainWindow = () => {
             const data = await getGridRows(subj == emptySubj, subr, manufFilter, articleFilter, 
                 gridLimit, manufList, articleList, nameList, presetEnabled ? presetDataSource : dataSource)
             
-            setTextareaValue(data.query)
+            // setTextareaValue(data.query)
+            log(data.query)
+
             if (!data.ok) {
                 throw new Error('Error fetching data') 
             }
             setGridRows(data.data)
         })
     }
+
+    const log = (text: string) => {
+        // text = text.replace(/(\'\')/gm, '\'\'')
+        setLoggerText(loggerText + text + '\n');
+    };
 
     const rowKeyGetter = (row: any) => {
         // return row.group +'/'+ row.manuf_org +'/'+ row.article_org
@@ -216,7 +227,7 @@ const MainWindow = () => {
 
     const withErrorHandling = async (asyncFunc: () => Promise<void>) => {
         try {
-            setTextareaValue('')
+            // setTextareaValue('')
             
             setFooterText('Running');
             setFooterColor('darkmagenta')
@@ -279,7 +290,7 @@ const MainWindow = () => {
         setManufFilter('')
         setArticleFilter('')
         setGridRows([])
-        setTextareaValue('')
+        // setTextareaValue('')
         setPresetEnabled(false)
         // setTabFilterColor('white')
     }
@@ -491,6 +502,7 @@ const MainWindow = () => {
                         }}>Data Filter {presetEnabled ? '*' : ''}</Tab>
                         <Tab key='3' tabIndex='3'>Presets</Tab>
                         <Tab key='4' tabIndex='4'>Raw Data</Tab>
+                        <Tab key='5' tabIndex='5'>Logger</Tab>
                     </TabList>
                     <TabPanel key='1'>
                         <div style={{/*width: '100%',*/ height: '100%', }}>
@@ -587,13 +599,16 @@ const MainWindow = () => {
                             product_id={rawProductId}
                         />
                     </TabPanel>
+                    <TabPanel key='5'>
+                        <LoggerView/>
+                    </TabPanel>
                 </Tabs>
             </div>
-            <textarea 
+            {/* false && (<textarea 
                 id='textarea'
                 value={textareaValue}
                 style={{width:600, height:200, }} 
-            />
+            />) */}
             
             {/* 
             <br/><button onClick={() => openInNewTab('https://stackoverflow.com')}>openInNewTab</button>

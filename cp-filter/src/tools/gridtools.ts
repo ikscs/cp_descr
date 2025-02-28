@@ -110,7 +110,7 @@ ${gridLimit && ('LIMIT ' + gridLimit)}
     }
 
     const data = await fetchData(fetchParam)
-    data.query = query
+    data.query = deqq(query)
     return data
 }
 
@@ -177,6 +177,10 @@ const productFindFrom = async (from: string, manuf: string, manufacturer_code: s
     } else {
         return {ok: false}
     }
+}
+
+const deqq = (query: string) => {
+    return query.replace(/''/g, "'")
 }
 
 export { getGridCols, getGridRows, toExcel, productFind, }
