@@ -8,6 +8,7 @@ import { treeToJson, getTreeData, putTreeSelected, } from "../tools/treetools"
 import { getGridCols, getGridRows, productFind, toExcel } from '../tools/gridtools'
 import '../components/footer.css'
 import Footer from "../components/Footer"
+// import FooterMulti from "../components/footer_multi";
 import Combo, { IValueLabel } from "../components/combo"
 import MultiSelectCheckbox from "../components/MultiSelectCheckbox"
 import Grid from "../components/gridFilter"
@@ -34,6 +35,14 @@ const defaultRole = 0
 const S = () => (<div style={{width: '10px'}}/>)
 
 const H4 = (props: any) => (<h4 style={{margin: 8}}>{props.text}</h4>)
+
+interface IFooterState {
+    status: string;
+    records: number;
+    selected: number;
+    info: string;
+    color: string;
+}
 
 const MainWindow = () => {
     const [cookies, setCookie] = useCookies(['user','userFullName','preset'])
@@ -126,12 +135,14 @@ const MainWindow = () => {
     }
     
     const initSubjects = async (subr: number) => {
-        setSubjectOptions(await getData({
+        const data = await getData({
             from: 'cp3.cp_subject', 
             fields: 'subject_id,name',
             order: 'subject_id',
             where: { subject_role: subr}
-        }, 'subject_id','name'))
+        }, 'subject_id','name')
+        data.unshift({value: emptySubj, label: 'All'})
+        setSubjectOptions(data)
     }
     
     const initTreeData = async (subr: number, subj: string) => {
@@ -155,6 +166,7 @@ const MainWindow = () => {
         setTabIndex(0)
         setGridRows([])
         await longExec(async() => {
+            // setFooterState({... footerState, status: 'Running', color: 'darkmagenta'})
             subj != emptySubj && await putTreeSelected(treeSelected, subr, subj)
 
             const manufList: string[] = presetEnabled ? manufGridRows
@@ -179,6 +191,7 @@ const MainWindow = () => {
                 throw new Error('Error fetching data') 
             }
             setGridRows(data.data)
+            // setFooterState({... footerState, records: data.records, selected: data.selected, info: '', color: 'navy'})  
         })
     }
 
@@ -232,16 +245,20 @@ const MainWindow = () => {
             
             setFooterText('Running');
             setFooterColor('darkmagenta')
+            // setFooterState({... footerState, status: 'Running', color: 'darkmagenta'})
             await asyncFunc();
             setFooterText('Ok');
             setFooterColor('navy')
+            // setFooterState({... footerState, status: 'Ok', color: 'navy', records: rows||0, info: ''})
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error('Error:', error);
                 setFooterText(error.message);
+                // setFooterState({... footerState, status: 'Error', color: 'red', info: error.message})
             } else {
                 console.error('Error: unknown error');
                 setFooterText('An unknown error occurred');
+                // setFooterState({... footerState, status: 'Error', color: 'red', info: 'An unknown error occurred'})
             }
             setFooterColor('red');
         }
@@ -426,7 +443,21 @@ const MainWindow = () => {
         setRawProductId(cellInfo.row.product_id_org || cellInfo.row.product_id)
     }
 
-
+    const [footerState, setFooterState] = useState<IFooterState>({
+        status: 'ожидание',
+        records: 0,
+        selected: 0,
+        info: '',
+        color: 'navy',
+    });
+    
+    const footerSections = [
+        { title: 'Статус', value: footerState.status, width: '200px' },
+        { title: 'Записей', value: footerState.records, width: '150px' },
+        { title: 'Отобрано', value: footerState.selected, width: '150px' },
+        { title: 'Info', value: footerState.info, width: '500px' },
+    ];
+   
     return (
         <CookiesProvider>
 
@@ -527,7 +558,7 @@ const MainWindow = () => {
                             // backgroundColor: tabFilterColor,
                             // borderColor: '#aaa',
                             // backgroundClip: 'initial'
-                        }}>Data Filter {presetEnabled ? '*' : ''}</Tab>
+                        }}>Data Filter {presetEnabled ? ' - ' + preset : ''}</Tab>
                         <Tab key='3' tabIndex='3'>Presets</Tab>
                         <Tab key='4' tabIndex='4'>Raw Data</Tab>
                         <Tab key='5' tabIndex='5'>Logger</Tab>
@@ -647,6 +678,10 @@ const MainWindow = () => {
                 text={footerText}
                 backgroundColor={footerColor}
             />
+            {/* <FooterMulti
+                sections={footerSections}
+                backgroundColor={footerState.color}
+            /> */}
             <S/><label>-</label><S/><label>-</label>
         </CookiesProvider>
     )
