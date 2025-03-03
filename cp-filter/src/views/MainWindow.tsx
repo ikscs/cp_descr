@@ -122,7 +122,7 @@ const MainWindow = () => {
         preset_ && onComboPresetChange({value: preset_}) // no default preset
         // setTabFilterColor(!!preset_ ? 'yellow' : 'white')
         setPresetEnabled(!!preset_)
-}
+    }
     
     const initSubjects = async (subr: number) => {
         setSubjectOptions(await getData({
@@ -260,7 +260,7 @@ const MainWindow = () => {
         setDataSource(dataSource)
     }
 
-        const onComboPresetChange = async ({value}: { value: string }) => {
+    const onComboPresetChange = async ({value}: { value: string }) => {
         setPreset(value)
         const {
             presetDataSource,
