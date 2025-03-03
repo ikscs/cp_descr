@@ -412,8 +412,9 @@ const MainWindow = () => {
     useHotkeys('F9', async () => {initGrid()})
     
     const onCellClick = (row: any) => {
-        console.log(row.row.article)
-        // setArticleToGoogle(row.row.article)
+        // console.log(row.row.article)
+        setManufToGoogle(row.row.manuf)
+        setArticleToGoogle(row.row.article)
     }
     
     const onSelectedCellChange = (cellInfo: any) => {
