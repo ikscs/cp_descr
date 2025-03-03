@@ -46,12 +46,17 @@ const makeInList = (field: string, list: string[]) => {
     return list.length == 0 ? '' : `AND ${field} IN (${list.map(e => '\'\'' + e + '\'\'').join(',')})`
 }
 
-const makeLikeList = (field: string, list: string[]) => {
+const makeLikeList = (field: string, list: string[], invertFlag: boolean) => {
     if (list.length == 0)
         return ''
+    if (invertFlag) {
+        const ll = list.map(item => `${field} not ilike '\'\%${item}%\'\'`)
+        return `AND (${ll.join(' AND ') })`
 
-    const ll = list.map(item => `${field} ilike '\'\%${item}%\'\'`)
-    return `AND (${ll.join(' OR ') })`
+    } else {
+        const ll = list.map(item => `${field} ilike '\'\%${item}%\'\'`)
+        return `AND (${ll.join(' OR ') })`
+    }
 }
 
 const getGridRows = async (withoutTree: boolean, 
@@ -61,6 +66,7 @@ const getGridRows = async (withoutTree: boolean,
     gridLimit?: number, 
     manufs?: string[],
     articles?: string[],
+    articleInvert?: boolean,
     names?: string[],
     dataSource?: string,
 ) => {
@@ -98,8 +104,8 @@ WHERE
     ${andManufFilter}
     ${andArticleFilter}
     ${makeInList('manuf', manufs??[])}
-    ${makeLikeList('article', articles??[])}
-    ${makeLikeList('name', names??[])}
+    ${makeLikeList('article', articles??[], articleInvert??false)}
+    ${makeLikeList('name', names??[], false)}
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
     const fetchParam = {

@@ -1,6 +1,7 @@
 import Grid from '../components/grid';
 import { IGridColumn } from '../tools/gridtools';
 import { usePresetContext } from '../contexts/PresetContext';
+import Checkbox from '../components/checkbox';
 
 interface IArticleGridView {
     // width: string
@@ -19,6 +20,7 @@ const ArticleGridView: React.FC<IArticleGridView> = ({}) => {
     const { 
         articleGridRowsSelected, setArticleGridRowsSelected,
         articleGridRows, setArticleGridRows,
+        articleInvert, setArticleInvert,
      } = usePresetContext();
 
     console.log('ArticleGridView articleGridRowsSelected', Array.from(articleGridRowsSelected), articleGridRows)
@@ -47,27 +49,37 @@ const ArticleGridView: React.FC<IArticleGridView> = ({}) => {
     }
 
     return (
-        <div>
-            <button
-                style={{ marginLeft: '8px', cursor: 'pointer' }}
-                title="Delete"
-                onClick={deleteItem}
+        <div> 
+            <div className='flexbox-container'>
+                <button
+                    style={{ marginLeft: '8px', cursor: 'pointer' }}
+                    title="Delete"
+                    onClick={deleteItem}
+                    >
+                    <img src="/src/assets/close.png" 
+                    alt="Delete" 
+                    style={{ width: '12px', height: '12px' }} 
+                    />
+                </button>
+                <button
+                    style={{ marginLeft: '8px', cursor: 'pointer' }}
+                    title="Add"
+                    onClick={addItem}
                 >
-                <img src="/src/assets/close.png" 
-                alt="Delete" 
-                style={{ width: '12px', height: '12px' }} 
+                    <img src="/src/assets/plus.png" 
+                    alt="Add" 
+                    style={{ width: '12px', height: '12px' }} 
+                    />
+                </button>
+                <div style={{width: '10px'}}/>
+                <Checkbox
+                    label='Инверсно'
+                    checked={articleInvert}
+                    onChange={(v) => {
+                        setArticleInvert(v)
+                    }}
                 />
-            </button>
-            <button
-                style={{ marginLeft: '8px', cursor: 'pointer' }}
-                title="Add"
-                onClick={addItem}
-            >
-                <img src="/src/assets/plus.png" 
-                alt="Add" 
-                style={{ width: '12px', height: '12px' }} 
-                />
-            </button>
+            </div>
             <Grid
                 width="300px"
                 height="400px"

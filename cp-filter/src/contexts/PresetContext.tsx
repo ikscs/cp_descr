@@ -8,6 +8,7 @@ interface IPresetContext {
   articleGridRows: any[];  setArticleGridRows: (a: any[])=>void;
   articleGridCols: any[];  setArticleGridCols: (a: any[])=>void;
   articleGridRowsSelected: Set<number>;  setArticleGridRowsSelected: (set_: Set<number>)=>void;
+  articleInvert: boolean; setArticleInvert: React.Dispatch<React.SetStateAction<boolean>>;
   nameGridRows: any[];  setNameGridRows: (a: any[])=>void;
   nameGridCols: any[];  setNameGridCols: (a: any[])=>void;
   nameGridRowsSelected: Set<number>;  setNameGridRowsSelected: (set_: Set<number>)=>void;
@@ -25,6 +26,7 @@ export const PresetProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [articleGridRows, setArticleGridRows] = useState<any[]>([]) 
   const [articleGridCols, setArticleGridCols] = useState<any[]>([]) 
   const [articleGridRowsSelected, setArticleGridRowsSelected] = useState<Set<number>>(new Set())
+  const [articleInvert, setArticleInvert] = useState<boolean>(false);
   const [nameGridRows, setNameGridRows] = useState<any[]>([]) 
   const [nameGridCols, setNameGridCols] = useState<any[]>([]) 
   const [nameGridRowsSelected, setNameGridRowsSelected] = useState<Set<number>>(new Set())
@@ -40,6 +42,7 @@ export const PresetProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         articleGridRows, setArticleGridRows,
         articleGridCols, setArticleGridCols,
         articleGridRowsSelected, setArticleGridRowsSelected,
+        articleInvert, setArticleInvert,
         nameGridRows, setNameGridRows,
         nameGridCols, setNameGridCols,
         nameGridRowsSelected, setNameGridRowsSelected,

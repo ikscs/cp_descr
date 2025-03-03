@@ -47,6 +47,7 @@ const MainWindow = () => {
         manufGridRows, setManufGridRows,
         articleGridRows, setArticleGridRows,
         articleGridRowsSelected, setArticleGridRowsSelected,
+        articleInvert, setArticleInvert,
         nameGridRows, setNameGridRows,
         nameGridRowsSelected, setNameGridRowsSelected,
         presetDataSource,setPresetDataSource,
@@ -169,7 +170,7 @@ const MainWindow = () => {
                 .map(data => data.value) : [];
 
             const data = await getGridRows(subj == emptySubj, subr, manufFilter, articleFilter, 
-                gridLimit, manufList, articleList, nameList, presetEnabled ? presetDataSource : dataSource)
+                gridLimit, manufList, articleList, articleInvert, nameList, presetEnabled ? presetDataSource : dataSource)
             
             // setTextareaValue(data.query)
             log(data.query)
@@ -265,7 +266,7 @@ const MainWindow = () => {
         const {
             presetDataSource,
             manufRows, manufSelected, 
-            articleRows, articleSelected, 
+            articleRows, articleSelected, articleInvert,
             nameRows, nameSelected,
             autostart,
         } = await presetDataGet(value)
@@ -275,6 +276,7 @@ const MainWindow = () => {
         setManufGridRowsSelected(new Set(manufSelected))
         setArticleGridRows(articleRows)
         setArticleGridRowsSelected(new Set(articleSelected))
+        setArticleInvert(articleInvert)
         setNameGridRows(nameRows)
         setNameGridRowsSelected(new Set(nameSelected))
         setCookie('preset', value, { path: '/' })
@@ -324,7 +326,7 @@ const MainWindow = () => {
             await presetDataPost(preset,
                 presetDataSource,
                 manufGridRows, manufGridRowsSelected,
-                articleGridRows, articleGridRowsSelected,
+                articleGridRows, articleGridRowsSelected, articleInvert,
                 nameGridRows, nameGridRowsSelected,
                 autostart,
             )
@@ -339,7 +341,7 @@ const MainWindow = () => {
             const r = await presetDataPost(presetSaveTo, 
                 presetDataSource,
                 manufGridRows, manufGridRowsSelected,
-                articleGridRows, articleGridRowsSelected,
+                articleGridRows, articleGridRowsSelected, articleInvert,
                 nameGridRows, nameGridRowsSelected,
                 autostart,
             )

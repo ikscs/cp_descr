@@ -30,7 +30,7 @@ export const presetDataGet___ = async (preset: string): Promise<{manufs: IManufP
 export const presetDataGet = async (preset: string): Promise<{
         presetDataSource: string,
         manufRows: any[], manufSelected: Set<number>,
-        articleRows: any[], articleSelected: Set<number>,
+        articleRows: any[], articleSelected: Set<number>, articleInvert: boolean,
         nameRows: any[], nameSelected: Set<number>,
         autostart: boolean,
     }> => {
@@ -46,7 +46,7 @@ export const presetDataGet = async (preset: string): Promise<{
         return {
             presetDataSource: '',
             manufRows: [], manufSelected: new Set([]),
-            articleRows: [], articleSelected: new Set([]),
+            articleRows: [], articleSelected: new Set([]), articleInvert: false,
             nameRows: [], nameSelected: new Set([]),
             autostart: false,
         }
@@ -60,6 +60,7 @@ export const presetDataGet = async (preset: string): Promise<{
     const articleRows = presetData[0].preset_data.article||[]
     const articleKeys = articleRows.filter((e:any)=>e.selected??false).map((e:any)=>e.key)
     const articleSelected = new Set<number>(articleKeys)
+    const articleInvert = presetData[0].preset_data.articleInvert || false
 
     const nameRows = presetData[0].preset_data.name||[]
     const nameKeys = nameRows.filter((e:any)=>e.selected??false).map((e:any)=>e.key)
@@ -70,7 +71,7 @@ export const presetDataGet = async (preset: string): Promise<{
     return {
         presetDataSource,
         manufRows, manufSelected,
-        articleRows, articleSelected,
+        articleRows, articleSelected, articleInvert,
         nameRows, nameSelected,
         autostart,
     }
@@ -81,7 +82,7 @@ const qq = (s: string) => `''${s}''`
 export const presetDataPost = async (preset: string,
         presetDataSource: string,
         manufRows: any[], manufSelected: Set<number>,
-        articleRows: any[], articleSelected: Set<number>,
+        articleRows: any[], articleSelected: Set<number>, articleInvert: boolean,
         nameRows: any[], nameSelected: Set<number>,
         autostart: boolean,
 ) => {
@@ -95,7 +96,7 @@ export const presetDataPost = async (preset: string,
     const manuf = manufRows.map(item => ({...item, selected: manufSelected.has(item.key)}));
     const article = articleRows.map(item => ({...item, selected: articleSelected.has(item.key)}));
     const name = nameRows.map(item => ({...item, selected: nameSelected.has(item.key)}));
-    const objToSave = {presetDataSource, manuf, article, name, autostart,}
+    const objToSave = {presetDataSource, manuf, article, articleInvert, name, autostart,}
 
     const fetchParam = count == 0 ? {
         backend_point: AppContext.backend_point_insert,
