@@ -69,6 +69,7 @@ const getGridRows = async (withoutTree: boolean,
     articleInvert?: boolean,
     names?: string[],
     dataSource?: string,
+    presetQuery?: string,
 ) => {
     const andManufFilter = manufFilter && `AND manuf ilike ''%${manufFilter}%''`
     // const andArticleFilter = articleFilter && `AND article ilike ''%${articleFilter}%''`
@@ -76,25 +77,28 @@ const getGridRows = async (withoutTree: boolean,
     const subject_role_org = dataSource == 'cp3.ikscs' ? 'subject_role_org' : 'null AS subject_role_org'
     const subject_id_org = dataSource == 'cp3.ikscs' ? 'subject_id_org' : 'null AS subject_id_org'
     const product_id_org = dataSource == 'cp3.ikscs' ? 'product_id_org' : 'null AS product_id_org'
-    const query = 
+    console.log('presetQuery',presetQuery)
+    const query = doubleq(presetQuery??'') ||
+    // const query = 
 `
 SELECT
-    subject_role,
-    subject_id,
-    product_group,
-    COALESCE(group_name,product_group) AS group,
-    product_id,
+	subject_role,
+	subject_id,
+ 	product_group,
+ 	COALESCE(group_name,product_group) AS group,
+ 	product_id,
 	manuf_org,
 	article_org,
 	manuf,
 	article,
 	name,
-    price_sell,
-    price_buy,
-    ${dataSource == 'cp3.vcp_product_org' ? 'product_exists' : 'true AS product_exists'},
-    ${subject_role_org},
-    ${subject_id_org},
-    ${product_id_org}
+	price_sell,
+	price_buy,
+	qtty,
+	${dataSource == 'cp3.vcp_product_org' ? 'product_exists' : 'true AS product_exists'},
+	${subject_role_org},
+	${subject_id_org},
+	${product_id_org}
 FROM ${dataSource || 'cp3.vcp_product_org'}
 ${withoutTree ? '' : 'JOIN temp_cp_group USING (subject_role, subject_id, product_group)'}
 WHERE 
@@ -187,6 +191,12 @@ const productFindFrom = async (from: string, manuf: string, manufacturer_code: s
 
 const deqq = (query: string) => {
     return query.replace(/''/g, "'")
+}
+
+const qq = (s: string) => `''${s}''`
+
+const doubleq = (query: string) => {
+    return query.replace(/'/g, "''")
 }
 
 export { getGridCols, getGridRows, toExcel, productFind, }

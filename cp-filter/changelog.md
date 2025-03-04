@@ -35,3 +35,13 @@ forced hotkey capture
 Volodymyr Mykhailov
 19:16
 https://rise.theweb.place/v/transp.php
+
+## [0.4.1]
+
+### Added
+
+preset query
+
+### Changed
+
+### Fixed

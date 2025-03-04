@@ -26,6 +26,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { imageFindUrl } from "../tools/imagetools";
 import LoggerView from "./LoggerView";
 import { useLoggerContext } from "../contexts/LoggerContext";
+import QueryEditView from "./QueryEditView";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -61,6 +62,7 @@ const MainWindow = () => {
         nameGridRowsSelected, setNameGridRowsSelected,
         presetDataSource,setPresetDataSource,
         autostart, setAutostart,
+        presetQuery, setPresetQuery,
         /*manufGridCols, setManufGridCols,*/
     } = usePresetContext();
 
@@ -93,7 +95,8 @@ const MainWindow = () => {
     const [articleToGoogle, setArticleToGoogle] = useState('')
 
     const [tabIndex, setTabIndex] = useState(0);
-
+    const [lastQuery, setLastQuery] = useState('')
+    
     console.log('MainWindow', user)
 
     const init = async () => {
@@ -182,10 +185,13 @@ const MainWindow = () => {
                 .map(data => data.value) : [];
 
             const data = await getGridRows(subj == emptySubj, subr, manufFilter, articleFilter, 
-                gridLimit, manufList, articleList, articleInvert, nameList, presetEnabled ? presetDataSource : dataSource)
+                gridLimit, manufList, articleList, articleInvert, nameList, 
+                presetEnabled ? presetDataSource : dataSource,
+                presetEnabled ? presetQuery : ''
+            )
             
-            // setTextareaValue(data.query)
             log(data.query)
+            setLastQuery(data.query)
 
             if (!data.ok) {
                 throw new Error('Error fetching data') 
@@ -286,6 +292,7 @@ const MainWindow = () => {
             articleRows, articleSelected, articleInvert,
             nameRows, nameSelected,
             autostart,
+            presetQuery
         } = await presetDataGet(value)
 
         setPresetDataSource(presetDataSource)
@@ -300,6 +307,7 @@ const MainWindow = () => {
 
         setDataSourceAndRole(presetDataSource)
         setAutostart(autostart)
+        setPresetQuery(presetQuery)
         if (autostart) {
             initGrid()
         }
@@ -346,6 +354,7 @@ const MainWindow = () => {
                 articleGridRows, articleGridRowsSelected, articleInvert,
                 nameGridRows, nameGridRowsSelected,
                 autostart,
+                presetQuery,
             )
         })
     }
@@ -361,6 +370,7 @@ const MainWindow = () => {
                 articleGridRows, articleGridRowsSelected, articleInvert,
                 nameGridRows, nameGridRowsSelected,
                 autostart,
+                presetQuery,
             )
             console.log('r',r)
         })
@@ -457,6 +467,7 @@ const MainWindow = () => {
         { title: 'Отобрано', value: footerState.selected, width: '150px' },
         { title: 'Info', value: footerState.info, width: '500px' },
     ];
+    // console.log(setFooterState, footerSections)
    
     return (
         <CookiesProvider>
@@ -645,6 +656,8 @@ const MainWindow = () => {
                                 <ArticleGridView/>
                                 <S/>
                                 <NameGridView/>
+                                <S/>
+                                <QueryEditView sourceQuery={lastQuery}/>
                             </div>
                         </div>
                     </TabPanel>

@@ -33,6 +33,7 @@ export const presetDataGet = async (preset: string): Promise<{
         articleRows: any[], articleSelected: Set<number>, articleInvert: boolean,
         nameRows: any[], nameSelected: Set<number>,
         autostart: boolean,
+        presetQuery: string,
     }> => {
     console.log('presetDataGet')
 
@@ -49,6 +50,7 @@ export const presetDataGet = async (preset: string): Promise<{
             articleRows: [], articleSelected: new Set([]), articleInvert: false,
             nameRows: [], nameSelected: new Set([]),
             autostart: false,
+            presetQuery: '',
         }
 
     const presetDataSource = presetData[0].preset_data.presetDataSource || ''
@@ -68,12 +70,15 @@ export const presetDataGet = async (preset: string): Promise<{
 
     const autostart = presetData[0].preset_data.autostart || false
 
+    const presetQuery = presetData[0].preset_data.presetQuery || ''
+
     return {
         presetDataSource,
         manufRows, manufSelected,
         articleRows, articleSelected, articleInvert,
         nameRows, nameSelected,
         autostart,
+        presetQuery,
     }
 }
 
@@ -85,6 +90,7 @@ export const presetDataPost = async (preset: string,
         articleRows: any[], articleSelected: Set<number>, articleInvert: boolean,
         nameRows: any[], nameSelected: Set<number>,
         autostart: boolean,
+        presetQuery: string,
 ) => {
     console.log('presetDataPost')
     
@@ -96,7 +102,8 @@ export const presetDataPost = async (preset: string,
     const manuf = manufRows.map(item => ({...item, selected: manufSelected.has(item.key)}));
     const article = articleRows.map(item => ({...item, selected: articleSelected.has(item.key)}));
     const name = nameRows.map(item => ({...item, selected: nameSelected.has(item.key)}));
-    const objToSave = {presetDataSource, manuf, article, articleInvert, name, autostart,}
+    const objToSave = {presetDataSource, manuf, article, articleInvert, name, autostart, 
+        presetQuery: doubleq(presetQuery), }
 
     const fetchParam = count == 0 ? {
         backend_point: AppContext.backend_point_insert,
@@ -113,4 +120,8 @@ export const presetDataPost = async (preset: string,
     console.log(fetchParam)
     const result = await fetchData(fetchParam)
     return `Number of affected rows ${result||-1}`
+}
+
+const doubleq = (query: string) => {
+    return query.replace(/'/g, "''''")
 }
