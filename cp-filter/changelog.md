@@ -45,3 +45,31 @@ preset query
 ### Changed
 
 ### Fixed
+
+## [0.5.1]
+
+### Added
+
+preset flags - not implemented
+
+### Changed
+
+### Fixed
+
+### Todo
+
+yarn add chart.js react-chartjs-2
+
+Userfront
+
+## [0.5.2]
+
+### Added
+
+preset flags - implemented
+
+### Changed
+
+### Fixed
+
+autostart

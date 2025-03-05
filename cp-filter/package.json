@@ -1,7 +1,7 @@
 {
   "name": "cp-filter",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.5.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "chart.js": "^4.4.8",
     "classnames": "^2.5.1",
     "react": "^18.3.1",
     "react-accessible-treeview": "^2.11.0",
+    "react-chartjs-2": "^5.3.0",
     "react-cookie": "^7.2.2",
     "react-data-grid": "^7.0.0-beta.47",
     "react-dom": "^18.3.1",
