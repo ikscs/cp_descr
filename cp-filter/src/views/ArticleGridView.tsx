@@ -1,7 +1,7 @@
 import Grid from '../components/grid';
-import { IGridColumn } from '../tools/gridtools';
+// import { IGridColumn } from '../tools/gridtools';
 import { usePresetContext } from '../contexts/PresetContext';
-import Checkbox from '../components/checkbox';
+// import Checkbox from '../components/checkbox';
 import { SelectCellFormatter } from 'react-data-grid';
 
 interface IArticleGridView {
@@ -9,12 +9,12 @@ interface IArticleGridView {
     // height: string
 }
 
-interface IArtileRow {
-    key: number;
-    notFlag: boolean;
-    andFlag: boolean;
-    value: string;
-}
+// interface IArtileRow {
+//     key: number;
+//     notFlag: boolean;
+//     andFlag: boolean;
+//     value: string;
+// }
 
 const articleCols = [
     { key: 'key', name: 'key', width: 30, frozen: true, resizable: false,},
@@ -51,10 +51,10 @@ const articleCols = [
 
 // https://www.flaticon.com/free-icons/close
 
-const cols: IGridColumn[] = [
-    { key: 'key', name: 'key', width: 40, },
-    { key: 'value', name: 'article', width: 200, editable: true, },
-]
+// const cols: IGridColumn[] = [
+//     { key: 'key', name: 'key', width: 40, },
+//     { key: 'value', name: 'article', width: 200, editable: true, },
+// ]
 
 const ArticleGridView: React.FC<IArticleGridView> = ({}) => {
 
@@ -112,7 +112,7 @@ const ArticleGridView: React.FC<IArticleGridView> = ({}) => {
                     style={{ width: '12px', height: '12px' }} 
                     />
                 </button>
-                <div style={{width: '10px'}}/>
+                {/* <div style={{width: '10px'}}/>
                 <Checkbox
                     label='Инверсно'
                     checked={articleInvert}
@@ -120,7 +120,7 @@ const ArticleGridView: React.FC<IArticleGridView> = ({}) => {
                         setArticleInvert(v)
                     }}
                     disabled={true}
-                />
+                /> */}
             </div>
             <Grid
                 width="300px"
