@@ -5,7 +5,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import AppContext from "../contexts/AppContext"
 import { treeToJson, getTreeData, putTreeSelected, } from "../tools/treetools"
-import { getGridCols, getGridRows, productFind, toExcel } from '../tools/gridtools'
+import { getGridCols, getGridRows, IFlaggedValue, productFind, toExcel } from '../tools/gridtools'
 import '../components/footer.css'
 import Footer from "../components/Footer"
 // import FooterMulti from "../components/footer_multi";
@@ -27,6 +27,8 @@ import { imageFindUrl } from "../tools/imagetools";
 import LoggerView from "./LoggerView";
 import { useLoggerContext } from "../contexts/LoggerContext";
 import QueryEditView from "./QueryEditView";
+import MyLineChart from "../temp/MyLineChart";
+import MyLineChart2 from "../temp/MyLineChart2";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -37,13 +39,13 @@ const S = () => (<div style={{width: '10px'}}/>)
 
 const H4 = (props: any) => (<h4 style={{margin: 8}}>{props.text}</h4>)
 
-interface IFooterState {
-    status: string;
-    records: number;
-    selected: number;
-    info: string;
-    color: string;
-}
+// interface IFooterState {
+//     status: string;
+//     records: number;
+//     selected: number;
+//     info: string;
+//     color: string;
+// }
 
 const MainWindow = () => {
     const [cookies, setCookie] = useCookies(['user','userFullName','preset'])
@@ -176,9 +178,9 @@ const MainWindow = () => {
                 .filter(data => manufGridRowsSelected?.has(data.key))
                 .map(data => data.value) : [];
 
-            const articleList: string[] = presetEnabled ? articleGridRows
+            const articleList: IFlaggedValue[] = presetEnabled ? articleGridRows
                 .filter(data => articleGridRowsSelected?.has(data.key))
-                .map(data => data.value) : [];
+                .map(data => data ) : [];
 
             const nameList: string[] = presetEnabled ? nameGridRows
                 .filter(data => nameGridRowsSelected?.has(data.key))
@@ -285,7 +287,6 @@ const MainWindow = () => {
     }
 
     const onComboPresetChange = async ({value}: { value: string }) => {
-        setPreset(value)
         const {
             presetDataSource,
             manufRows, manufSelected, 
@@ -295,6 +296,7 @@ const MainWindow = () => {
             presetQuery
         } = await presetDataGet(value)
 
+        setPreset(value)
         setPresetDataSource(presetDataSource)
         setManufGridRows(manufRows)
         setManufGridRowsSelected(new Set(manufSelected))
@@ -308,9 +310,6 @@ const MainWindow = () => {
         setDataSourceAndRole(presetDataSource)
         setAutostart(autostart)
         setPresetQuery(presetQuery)
-        if (autostart) {
-            initGrid()
-        }
     }
 
     const clearAll = () => {
@@ -325,6 +324,12 @@ const MainWindow = () => {
     useEffect(() => {
         init()
     }, [])
+
+    useEffect(() => {
+        if (autostart) {
+            initGrid()
+        }
+    }, [preset])
 
     useEffect(() => { // hotkeys -- do not forget to remove event listener
         const handleKeyDown = (event: any) => {
@@ -453,20 +458,20 @@ const MainWindow = () => {
         setRawProductId(cellInfo.row.product_id_org || cellInfo.row.product_id)
     }
 
-    const [footerState, setFooterState] = useState<IFooterState>({
-        status: 'ожидание',
-        records: 0,
-        selected: 0,
-        info: '',
-        color: 'navy',
-    });
+    // const [footerState, setFooterState] = useState<IFooterState>({
+    //     status: 'ожидание',
+    //     records: 0,
+    //     selected: 0,
+    //     info: '',
+    //     color: 'navy',
+    // });
     
-    const footerSections = [
-        { title: 'Статус', value: footerState.status, width: '200px' },
-        { title: 'Записей', value: footerState.records, width: '150px' },
-        { title: 'Отобрано', value: footerState.selected, width: '150px' },
-        { title: 'Info', value: footerState.info, width: '500px' },
-    ];
+    // const footerSections = [
+    //     { title: 'Статус', value: footerState.status, width: '200px' },
+    //     { title: 'Записей', value: footerState.records, width: '150px' },
+    //     { title: 'Отобрано', value: footerState.selected, width: '150px' },
+    //     { title: 'Info', value: footerState.info, width: '500px' },
+    // ];
     // console.log(setFooterState, footerSections)
    
     return (
@@ -573,6 +578,7 @@ const MainWindow = () => {
                         <Tab key='3' tabIndex='3'>Presets</Tab>
                         <Tab key='4' tabIndex='4'>Raw Data</Tab>
                         <Tab key='5' tabIndex='5'>Logger</Tab>
+                        <Tab key='6' tabIndex='6'>Charts</Tab>
                     </TabList>
                     <TabPanel key='1'>
                         <div style={{/*width: '100%',*/ height: '100%', }}>
@@ -674,13 +680,13 @@ const MainWindow = () => {
                     <TabPanel key='5'>
                         <LoggerView/>
                     </TabPanel>
+                    <TabPanel key='6'>
+                        <MyLineChart/>
+                        <S/><S/>
+                        <MyLineChart2/>
+                    </TabPanel>
                 </Tabs>
             </div>
-            {/* false && (<textarea 
-                id='textarea'
-                value={textareaValue}
-                style={{width:600, height:200, }} 
-            />) */}
             
             {/* 
             <br/><button onClick={() => openInNewTab('https://stackoverflow.com')}>openInNewTab</button>
