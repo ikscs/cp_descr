@@ -25,7 +25,7 @@ interface IManufGridView {
 
 const cols: IGridColumn[] = [
     { key: 'key', name: 'key', width: 40, },
-    { key: 'value', name: 'manuf', width: 200, editable: true, },
+    { key: 'value', name: 'manuf', width: 150, editable: true, },
 ]
 
 // export const loadPreset = async (preset: string) => {
@@ -195,7 +195,7 @@ const ManufGridView: React.FC<IManufGridView> = ({
                     value={presetSaveTo_old}
                     setValue={setPresetSaveTo_old}/> */}
             <Grid
-                width="300px"
+                width="250px"
                 height="400px"
                 cols={cols}
                 rows={manufGridRows}

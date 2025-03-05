@@ -2,11 +2,52 @@ import Grid from '../components/grid';
 import { IGridColumn } from '../tools/gridtools';
 import { usePresetContext } from '../contexts/PresetContext';
 import Checkbox from '../components/checkbox';
+import { SelectCellFormatter } from 'react-data-grid';
 
 interface IArticleGridView {
     // width: string
     // height: string
 }
+
+interface IArtileRow {
+    key: number;
+    notFlag: boolean;
+    andFlag: boolean;
+    value: string;
+}
+
+const articleCols = [
+    { key: 'key', name: 'key', width: 30, frozen: true, resizable: false,},
+    {
+        key: 'notFlag',
+        name: 'Not',
+        renderCell(p: any) {
+            return (
+                <SelectCellFormatter
+                    value={p.row.notFlag}
+                    onChange={() => { p.onRowChange({ ...p.row, notFlag: !p.row.notFlag }) }}
+                    tabIndex={p.tabIndex}
+                />
+            )
+        },
+    },
+    {
+        key: 'andFlag',
+        name: 'And',
+        renderCell(p: any) {
+            return (
+                <SelectCellFormatter
+                    value={p.row.andFlag}
+                    onChange={() => { p.onRowChange({ ...p.row, andFlag: !p.row.andFlag }); }}
+                    tabIndex={p.tabIndex}
+                />
+            )
+        },
+    },
+    { key: 'value', name: 'Article', width: 200,  editable: true, },
+]
+
+
 
 // https://www.flaticon.com/free-icons/close
 
@@ -78,12 +119,14 @@ const ArticleGridView: React.FC<IArticleGridView> = ({}) => {
                     onChange={(v) => {
                         setArticleInvert(v)
                     }}
+                    disabled={true}
                 />
             </div>
             <Grid
                 width="300px"
                 height="400px"
-                cols={cols}
+                cols={articleCols}
+                // cols={cols}
                 rows={articleGridRows}
                 rowKeyGetter={rowKeyGetter}
                 onRowsChange={onRowsChange}
