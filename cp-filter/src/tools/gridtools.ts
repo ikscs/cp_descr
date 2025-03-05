@@ -59,13 +59,39 @@ const makeLikeList = (field: string, list: string[], invertFlag: boolean) => {
     }
 }
 
+const snot = (notFlag: boolean) => notFlag ? ' not ' : ''
+
+const makeOrList = (field: string, list: any[] ) => {
+    const lf = list.filter( item => !item.andFlag)
+    if (lf.length == 0)
+        return ''
+
+    const ll = lf.map(item => `${field} ${snot(item.notFlag)} ilike '\'\%${item.value}%\'\'`)
+    return `AND (${ll.join(' OR ') })`
+}
+
+const makeAndList = (field: string, list: any[] ) => {
+    const lf = list.filter( item => item.andFlag)
+    if (lf.length == 0)
+        return ''
+
+    const ll = lf.map(item => `${field} ${snot(item.notFlag)} ilike '\'\%${item.value}%\'\'`)
+    return `AND (${ll.join(' AND ') })`
+}
+
+export interface IFlaggedValue {
+    value: string,
+    andFlag: boolean,
+    notFlag: boolean,
+}
+
 const getGridRows = async (withoutTree: boolean, 
     subrFilter: number, 
     manufFilter: string, 
     articleFilter: string, 
     gridLimit?: number, 
     manufs?: string[],
-    articles?: string[],
+    articles?: IFlaggedValue[],
     articleInvert?: boolean,
     names?: string[],
     dataSource?: string,
@@ -108,10 +134,13 @@ WHERE
     ${andManufFilter}
     ${andArticleFilter}
     ${makeInList('manuf', manufs??[])}
-    ${makeLikeList('article', articles??[], articleInvert??false)}
+    ${makeOrList('article', articles??[])}
+    ${makeAndList('article', articles??[])}
     ${makeLikeList('name', names??[], false)}
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
+//     ${makeLikeList('article', articles??[], articleInvert??false)}
+
     const fetchParam = {
         backend_point: AppContext.backend_point_query,
         user: AppContext.userName,
@@ -193,7 +222,7 @@ const deqq = (query: string) => {
     return query.replace(/''/g, "'")
 }
 
-const qq = (s: string) => `''${s}''`
+// const qq = (s: string) => `''${s}''`
 
 const doubleq = (query: string) => {
     return query.replace(/'/g, "''")
