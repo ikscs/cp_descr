@@ -29,6 +29,7 @@ import { useLoggerContext } from "../contexts/LoggerContext";
 import QueryEditView from "./QueryEditView";
 import MyLineChart from "../temp/MyLineChart";
 import MyLineChart2 from "../temp/MyLineChart2";
+import MUIExample from "../temp/MUIExample";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -684,6 +685,8 @@ const MainWindow = () => {
                         <MyLineChart/>
                         <S/><S/>
                         <MyLineChart2/>
+                        <S/><S/>
+                        <MUIExample/>
                     </TabPanel>
                 </Tabs>
             </div>
