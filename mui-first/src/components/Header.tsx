@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
+import IconButtonExt from './IconButtonExt';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onLogout: () => void;
+  login: string;
+}
+
+const Header: React.FC<HeaderProps> = ({ onLogout, login }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -22,13 +27,14 @@ const Header: React.FC = () => {
   };
 
   const handleLogout = () => {
-    console.log('Logout clicked');
+    onLogout();
   };
 
   return (
     <AppBar position="fixed" sx={{ zIndex: 1100, top: 0 }}>
       <Toolbar>
-        <IconButton
+        <IconButtonExt
+          tooltipTitle="Открыть меню"
           size="large"
           edge="start"
           color="inherit"
@@ -37,13 +43,14 @@ const Header: React.FC = () => {
           onClick={handleClick}
         >
           <MenuIcon />
-        </IconButton>
+        </IconButtonExt>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Название вашего приложения
         </Typography>
-        <IconButton color="inherit" onClick={handleLogout} edge="end">
+        <Typography variant="body1" sx={{ mr: 2 }}>{login}</Typography>
+        <IconButtonExt tooltipTitle="Выйти" color="inherit" onClick={handleLogout} edge="end">
           <LogoutIcon />
-        </IconButton>
+        </IconButtonExt>
         <Menu
           id="basic-menu"
           anchorEl={anchorEl}
@@ -54,10 +61,19 @@ const Header: React.FC = () => {
               'aria-labelledby': 'basic-button',
             },
           }}
+          sx={{
+            mt: '45px',
+            '& .MuiPaper-root': {
+              backgroundColor: 'inherit',
+              color: 'white',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+            },
+          }}
         >
-          <MenuItem onClick={handleClose} component={Link} to="/dashboard">Панель управления</MenuItem>
-          <MenuItem onClick={handleClose} component={Link} to="/reports">Отчеты</MenuItem>
-          <MenuItem onClick={handleClose}>Настройки</MenuItem>
+          <MenuItem onClick={handleClose} component={Link} to="/" sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' } }}>Начальная страница</MenuItem>
+          <MenuItem onClick={handleClose} component={Link} to="/dashboard" sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' } }}>Панель управления</MenuItem>
+          <MenuItem onClick={handleClose} component={Link} to="/reports" sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' } }}>Отчеты</MenuItem>
+          <MenuItem onClick={handleClose} sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' } }}>Настройки</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

@@ -1,24 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import ContactsView from './ContactsView';
+import SendEmail from './SendEmail'; // Добавляем импорт
 
 const Footer: React.FC = () => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [sendEmailOpen, setSendEmailOpen] = useState(false); // Добавляем состояние
+
+  const handleContactsClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleContactsClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSendEmailClick = () => {
+    setSendEmailOpen(true);
+  };
+
+  const handleSendEmailClose = () => {
+    setSendEmailOpen(false);
+  };
+
   return (
-    <Box component="footer" sx={{ bgcolor: 'background.paper', py: 6, position: 'fixed', bottom: 0, width: '100%', zIndex: 1100 }}>
-      <Container maxWidth="lg">
-        <Typography variant="body2" color="text.secondary" align="center">
+    <AppBar position="fixed" sx={{ top: 'auto', bottom: 0, width: '100%' }}>
+      <Toolbar>
+        <Typography variant="body2" color="inherit" sx={{ flexGrow: 1, textAlign: 'center' }}>
           {'© '}
           {new Date().getFullYear()}
           {' '}
           Название вашего приложения
           {'.'}
         </Typography>
-        <Typography variant="subtitle1" align="center" color="text.secondary" component="p">
-          Контакты | Помощь | Обратная связь | Условия использования
+        <Typography variant="subtitle1" color="inherit" sx={{ textAlign: 'center' }}>
+          <span style={{ cursor: 'pointer' }} onClick={handleContactsClick}>Контакты</span> |
+          <span style={{ cursor: 'pointer' }} onClick={handleSendEmailClick}> Обратная связь</span> | Помощь | Условия использования
         </Typography>
-      </Container>
-    </Box>
+      </Toolbar>
+      <ContactsView anchorEl={anchorEl} onClose={handleContactsClose} />
+      <SendEmail open={sendEmailOpen} onClose={handleSendEmailClose} /> {/* Добавляем SendEmail */}
+    </AppBar>
   );
 };
 

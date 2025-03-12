@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, TextField, Button, Typography } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, TextField, Button, Typography, IconButton, InputAdornment, Tooltip } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 interface LoginFormProps {
   open: boolean;
@@ -10,6 +12,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ open, onLogin }) => {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
     if (!login) {
@@ -20,8 +23,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ open, onLogin }) => {
       setError('Password cannot be empty');
       return;
     }
-    setError(''); // Clear previous errors
-    onLogin(login, password, setError); // Pass setError callback
+    setError('');
+    onLogin(login, password, setError);
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -38,12 +45,29 @@ const LoginForm: React.FC<LoginFormProps> = ({ open, onLogin }) => {
         />
         <TextField
           label="Password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           fullWidth
           margin="normal"
           required
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title={showPassword ? 'Скрыть пароль' : 'Показать пароль'}>
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleTogglePasswordVisibility}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            },
+          }}
         />
         <Button onClick={handleLogin} variant="contained" color="primary">
           Login
