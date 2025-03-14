@@ -9,6 +9,9 @@ import TextareaAutosize from '@mui/material/TextareaAutosize';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import emailjs from 'emailjs-com';
 import Typography from '@mui/material/Typography';
+import { fetchData } from '../api/fetchData';
+import { api } from '../api/api';
+import packageJson from '../../package.json';
 
 interface SendEmailProps {
   open: boolean;
@@ -19,6 +22,8 @@ interface FormValues {
   subject: string;
   message: string;
 }
+
+const emailTo = 'alexander.lavrikov@gmail.com';
 
 const SendEmail: React.FC<SendEmailProps> = ({ open, onClose }) => {
   const { register, handleSubmit } = useForm<FormValues>();
@@ -46,8 +51,22 @@ const SendEmail: React.FC<SendEmailProps> = ({ open, onClose }) => {
     }
   };
 
+  const apiSendEmail = async (data: FormValues) => {
+    const response = await fetchData({
+      backend_point: api.backend_point_query,
+      query: `CALL public.send_email_ikscs(''${emailTo}'', ''${packageJson.name} / ${data.subject}'', ''${data.message}'')`,
+      // CALL public.send_email_ikscs(_to, _topic, '<h2>'||_topic||'</h2>'||_text);
+    });
+    if (response.ok) {
+      onClose();
+    } else {
+      setError('Ошибка отправки сообщения. Попробуйте позже.');
+    } 
+  }
+
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    sendEmail(data);
+    // sendEmail(data);
+    apiSendEmail(data);
   };
 
   return (
