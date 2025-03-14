@@ -1,0 +1,9 @@
+.half-screen-carousel {
+    height: 50vh;
+  }
+  
+  .carousel-image {
+    max-height: 50vh;
+    object-fit: contain;
+  }
+  
