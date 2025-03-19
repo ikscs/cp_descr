@@ -85,6 +85,7 @@ export interface IFlaggedValue {
     notFlag: boolean,
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getGridRows = async (withoutTree: boolean, 
     subrFilter: number, 
     manufFilter: string, 
@@ -92,7 +93,7 @@ const getGridRows = async (withoutTree: boolean,
     gridLimit?: number, 
     manufs?: string[],
     articles?: IFlaggedValue[],
-    articleInvert?: boolean,
+    _articleInvert?: boolean,
     names?: string[],
     dataSource?: string,
     presetQuery?: string,

@@ -61,7 +61,7 @@ const ArticleGridView: React.FC<IArticleGridView> = ({}) => {
     const { 
         articleGridRowsSelected, setArticleGridRowsSelected,
         articleGridRows, setArticleGridRows,
-        articleInvert, setArticleInvert,
+        // articleInvert, setArticleInvert,
      } = usePresetContext();
 
     console.log('ArticleGridView articleGridRowsSelected', Array.from(articleGridRowsSelected), articleGridRows)
