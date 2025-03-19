@@ -541,7 +541,7 @@ const MainWindow = () => {
                     setValue={setManufFilter}
                     />
                 <InputString
-                    size={10}
+                    size={30}
                     placeholder="Article, Name ?"
                     value={articleFilter}
                     setValue={setArticleFilter}/>
