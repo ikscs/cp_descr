@@ -73,3 +73,14 @@ preset flags - implemented
 ### Fixed
 
 autostart
+
+## [0.5.3]
+
+### Added
+
+### Changed
+
+article filter size enlarged
+logo replaced
+
+### Fixed
