@@ -19,7 +19,7 @@ function App() {
         if (tokens && tokens.accessToken) {
             console.log('Tokens:', tokens);
             console.log('User:', user);
-            navigate('/'); // Перенаправляем после успешного входа
+            navigate('/dashboard');
         } else {
             console.log('No tokens');
         }
@@ -49,6 +49,7 @@ function App() {
         
                 <Routes>
                 <Route path="/users" element={<Users />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/" element={<Dashboard />} />
                 </Routes>
             </div>
