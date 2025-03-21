@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import { User } from '../../api/fetchUsers';
@@ -8,13 +8,13 @@ import { fetchRoles } from '../../api/fetchRoles';
 
 interface UserFormProps {
     user?: User;
-    onUpdate: (user: User) => void;
-    onCreate: (user: User) => void;
+    onSave: (values: User) => void;
+    onCancel: () => void;
+    title?: string;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ user, onUpdate, onCreate }) => {
-    // const availableRoles = ['admin', 'editor', 'viewer', 'user', 'member'];
-    const [availableRoles, setAvailableRoles] = useState<string[]>([]); // State for roles
+const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel, title = "Форма пользователя"  }) => {
+    const [availableRoles, setAvailableRoles] = useState<string[]>([]);
 
     useEffect(() => {
         const loadRoles = async () => {
@@ -28,6 +28,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onUpdate, onCreate }) => {
 
         loadRoles();
     }, []);
+
     const initialValues: User = user || {
         username: '',
         email: '',
@@ -41,16 +42,16 @@ const UserForm: React.FC<UserFormProps> = ({ user, onUpdate, onCreate }) => {
         password: user
             ? Yup.string().min(6, 'Пароль должен быть не менее 6 символов').optional()
             : Yup.string().min(6, 'Пароль должен быть не менее 6 символов').required('Обязательно'),
-        userId: Yup.number().required('Обязательно'), // Change userId validation to number
+        userId: Yup.number().required('Обязательно'),
     });
 
-    const handleSubmit = (values: User) => {
-        if (user && user.userId) {
-            onUpdate({ ...user, ...values });
-        } else {
-            onCreate(values);
-        }
-    };
+    // const handleSubmit = (values: User) => {
+    //     onFormChange(values);
+    // };
+
+    // useEffect(() => {
+    //     onFormChange(initialValues);
+    // }, []);
 
     const inputStyle = {
         width: '200px',
@@ -69,12 +70,13 @@ const UserForm: React.FC<UserFormProps> = ({ user, onUpdate, onCreate }) => {
     };
 
     return (
-        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={(values) => onSave(values)}>
             {({ values }) => (
                 <Form>
+                    <h3>{title}</h3> 
                     <div>
                         <label htmlFor="userId" style={labelStyle}>ID пользователя:</label>
-                        <Field id="userId" name="userId" type="number" placeholder="ID пользователя" style={inputStyle} /> {/* Change type to number */}
+                        <Field id="userId" name="userId" type="number" placeholder="ID пользователя" style={inputStyle} />
                         <ErrorMessage name="userId" component="div" className="error-message" />
                     </div>
 
@@ -98,8 +100,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onUpdate, onCreate }) => {
 
                     <div>
                         <label style={labelStyle}>Роли:</label>
+                        <div style={{ marginLeft: '130px'}}>
                         <FieldArray name={`authorization.${tenantId}.roles`}>
-                            {({ push, remove, /*form*/ }) => (
+                            {({ push, remove, form }) => (
                                 <div>
                                     {availableRoles.map((role) => (
                                         <div key={role}>
@@ -126,8 +129,11 @@ const UserForm: React.FC<UserFormProps> = ({ user, onUpdate, onCreate }) => {
                             )}
                         </FieldArray>
                     </div>
-
-                    <button type="submit">Обновить</button>
+                    </div>
+                    <div className="modal-buttons">
+                        <button type="button" className="modal-button" onClick={onCancel}>Отмена</button>
+                        <button type="submit" className="modal-button">Записать</button>
+                    </div>
                 </Form>
             )}
         </Formik>

@@ -20,12 +20,22 @@
     min-width: 300px; /* Минимальная ширина модального окна */
 }
 
-.modal-close-button {
-    margin-top: 10px; /* Добавляем отступ для кнопки */
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.modal-button {
     padding: 8px 16px;
-    border: none;
-    background-color: #007bff;
-    color: white;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    color: #333;
     border-radius: 4px;
     cursor: pointer;
+    margin-left: 10px;
+}
+
+.modal-button:hover {
+    background-color: #e0e0e0;
 }
