@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import { User } from '../../api/fetchUsers';
-import { tenantId } from '../../globals';
+import { tenantId } from '../../globals_VITE';
 import './UserForm.css';
 import { fetchRoles } from '../../api/fetchRoles';
 
@@ -102,7 +102,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel, title = "Ф
                         <label style={labelStyle}>Роли:</label>
                         <div style={{ marginLeft: '130px'}}>
                         <FieldArray name={`authorization.${tenantId}.roles`}>
-                            {({ push, remove, form }) => (
+                            {({ push, remove, /*form*/ }) => (
                                 <div>
                                     {availableRoles.map((role) => (
                                         <div key={role}>

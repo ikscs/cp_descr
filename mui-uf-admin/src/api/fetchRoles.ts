@@ -1,4 +1,4 @@
-import { tenantId, apiKey } from '../globals';
+import { tenantId, apiKey } from '../globals_VITE';
 
 interface Role {
     name: string;

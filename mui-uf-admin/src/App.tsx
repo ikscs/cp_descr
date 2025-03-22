@@ -19,7 +19,7 @@ function App() {
         if (tokens && tokens.accessToken) {
             console.log('Tokens:', tokens);
             console.log('User:', user);
-            navigate('/dashboard');
+            navigate('/');
         } else {
             console.log('No tokens');
         }
@@ -39,18 +39,19 @@ function App() {
                 <nav>
                 <ul>
                     <li>
-                    <Link to="/">Dashboard</Link>
+                        <Link to="/dashboard">Dashboard</Link>
                     </li>
                     <li>
-                    <Link to="/users">Users</Link>
+                        <Link to="/users">Users</Link>
                     </li>
                 </ul>
                 </nav>
         
                 <Routes>
-                <Route path="/users" element={<Users />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/login" element={<Users />} />
+                    <Route path="/users" element={<Users />} />
+                    {/* <Route path="/" element={<Dashboard />} /> */}
                 </Routes>
             </div>
         );

@@ -6,7 +6,7 @@ import { fetchUsers, User } from '../../api/fetchUsers';
 import { updateUser } from '../../api/updateUser';
 import { createUser } from '../../api/createUser';
 import { deleteUser } from '../../api/deleteUser';
-import { tenantId, apiKey } from '../../globals';
+import { tenantId, apiKey } from '../../globals_VITE';
 import { updateUserRoles } from '../../api/updateUserRoles';
 
 const UserList: React.FC = () => {
@@ -14,7 +14,7 @@ const UserList: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [error, setError] = useState<Error | null>(null);
-    const [userToDelete, setUserToDelete] = useState<number | null>(null);
+    // const [userToDelete, setUserToDelete] = useState<number | null>(null);
 
     const getUsers = async () => {
         try {
@@ -48,7 +48,7 @@ const UserList: React.FC = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedUser(null);
-        setUserToDelete(null);
+        // setUserToDelete(null);
     };
 
     const handleUserUpdate = async (updatedUser: User) => {
