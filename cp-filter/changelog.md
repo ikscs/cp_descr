@@ -84,3 +84,13 @@ article filter size enlarged
 logo replaced
 
 ### Fixed
+
+## [0.5.4]
+
+### Added
+
+### Changed
+
+### Fixed
+
+grid width 100%
