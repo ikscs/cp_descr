@@ -583,7 +583,9 @@ const MainWindow = () => {
                     </TabList>
                     <TabPanel key='1'>
                         <div style={{/*width: '100%',*/ height: '100%', }}>
-                            <Grid width="1500px"
+                            <Grid 
+                                // width="1500px"
+                                width="100%"
                                 cols={gridCols}
                                 rows={gridRows}
                                 rowKeyGetter={rowKeyGetter}
