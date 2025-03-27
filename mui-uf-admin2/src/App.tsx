@@ -1,11 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate,  } from 'react-router-dom';
 import { useUserfront, LoginForm, SignupForm } from '@userfront/react';
 import Users from './pages/Users';
-import Dashboard from './pages/Dashboard';
-import { Button, Box, List, ListItem } from '@mui/material';
+// import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/DashboardView';
+import { Button, Box, Typography } from '@mui/material';
+
+import MainMenu from './components/Shared/MainMenu2';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PeopleIcon from '@mui/icons-material/People';
+import HomeIcon from '@mui/icons-material/Home';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import BadgeIcon from '@mui/icons-material/Badge';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import { MenuItem } from './components/Shared/MainMenu2';
+import RoleList from './components/Roles/RoleList';
 
 function App() {
+  // const menuItems = [
+  //   { text: 'Панель управления', path: '/dashboard', icon: <DashboardIcon /> },
+  //   { text: 'Пользователи', path: '/users', icon: <PeopleIcon /> },
+  //   // Add more menu items as needed
+  // ];
+  const menuItems: MenuItem[] = [
+    {
+      text: 'Главная',
+      path: '/',
+      icon: <HomeIcon />,
+    },
+    {
+      text: 'Панель управления',
+      path: '/dashboard',
+      icon: <DashboardIcon />,
+    },
+    {
+      text: 'Администрирование',
+      icon: <AdminPanelSettingsIcon />,
+      items: [
+        { text: 'Пользователи', path: '/users', icon: <PeopleIcon /> },
+        { text: 'Роли', path: '/roles', icon: <BadgeIcon /> },
+      ],
+    },
+    {
+      text: 'Отчеты',
+      path: '/reports',
+      icon: <BarChartIcon />,
+    },
+  ];
   const { tokens, user, logout } = useUserfront();
   const [showLogin, setShowLogin] = useState(true);
   const navigate = useNavigate();
@@ -32,21 +73,25 @@ function App() {
   if (tokens && tokens.accessToken) {
     return (
       <Box>
-        <p>Пользователь: {user?.email}</p>
-        <Button onClick={handleLogout}>Выйти</Button>
-        <nav>
-          <List>
-            <ListItem>
-              <Link to="/dashboard">Dashboard</Link>
-            </ListItem>
-            <ListItem>
-              <Link to="/users">Users</Link>
-            </ListItem>
-          </List>
-        </nav>
+        <Box display="flex" alignItems="center" justifyContent="space-between" padding="1rem">
+          
+          <Box display="flex" >
+            <MainMenu menuItems={menuItems} />
+            <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', marginLeft: '1rem', marginTop: '0.5rem'}}>
+              Админ-панель
+            </Typography>
+          </Box>
+
+          <Box display="flex" alignItems="center"> {/* Added display: flex and alignItems: center */}
+            <Typography variant="body1">Пользователь: {user?.email}</Typography>
+            <Button onClick={handleLogout} variant="contained" sx={{ marginLeft: '1rem' }}>Выйти</Button>
+          </Box>
+        </Box>
+
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/roles" element={<RoleList />} />
           <Route path="/" element={<Users />} />
         </Routes>
       </Box>

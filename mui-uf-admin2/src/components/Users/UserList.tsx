@@ -10,7 +10,6 @@ import {
   Box,
   Button,
   Modal,
-  Typography,
   Alert,
   CircularProgress,
 } from '@mui/material';
@@ -169,6 +168,7 @@ const UserList: React.FC = () => {
           columns={columns}
           pageSizeOptions={[5, 10, 25]}
           autoHeight
+          sx={{ maxWidth: '80%' }}
         />
       )}
 

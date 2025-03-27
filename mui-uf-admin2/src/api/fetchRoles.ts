@@ -1,6 +1,6 @@
 import { tenantId, apiKey } from '../globals_VITE';
 
-interface Role {
+export interface Role {
     name: string;
 }
 
