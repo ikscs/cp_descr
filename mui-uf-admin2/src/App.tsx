@@ -5,6 +5,7 @@ import Users from './pages/Users';
 // import Dashboard from './pages/Dashboard';
 import Dashboard from './pages/DashboardView';
 import { Button, Box, Typography } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import MainMenu from './components/Shared/MainMenu2';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -15,6 +16,9 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { MenuItem } from './components/Shared/MainMenu2';
 import RoleList from './components/Roles/RoleList';
+import GeneralSettings from './pages/Settings/GeneralSettings';
+import ReportListSettings from './pages/Settings/ReportListSettings';
+import ReportList from './pages/Reports/ReportList';
 
 function App() {
   // const menuItems = [
@@ -45,6 +49,14 @@ function App() {
       text: 'Отчеты',
       path: '/reports',
       icon: <BarChartIcon />,
+    },
+    {
+      text: 'Настройки', // Added "Настройки" menu item
+      icon: <SettingsIcon />, // Use the Settings icon
+      items: [
+        { text: 'Общее', path: '/settings/general' },
+        { text: 'Редактор отчетов', path: '/settings/report-list' },
+      ],
     },
   ];
   const { tokens, user, logout } = useUserfront();
@@ -92,6 +104,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/roles" element={<RoleList />} />
+          <Route path="/reports" element={<ReportList />} />
+          <Route path="/settings/general" element={<GeneralSettings />} /> {/* Route for General Settings */}
+          <Route path="/settings/report-list" element={<ReportListSettings />} /> {/* Route for Report List Settings */}
           <Route path="/" element={<Users />} />
         </Routes>
       </Box>

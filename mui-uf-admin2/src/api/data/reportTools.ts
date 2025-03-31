@@ -2,15 +2,14 @@
 import { backend, fetchData, IFetchResponse, postData } from './fetchData';
 import packageJson from '../../../package.json';
 import { getCount, getMax } from './dataTools';
+import { Parameter } from '../../pages/Reports/QueryParam';
+import { string } from 'yup';
 
 export interface Report {
   id: number;
   name: string;
   description: string;
-  params?: {
-    name: string;
-    type: 'text' | 'numeric' | 'datetime';
-  }[];
+  params: Parameter[];
   // config?: Object,
   config?: string,
   query: string;
@@ -26,12 +25,29 @@ export const getReports = async (): Promise<Report[]> => {
       order: 'report_name',
     };
     const response: IFetchResponse = (await fetchData(params));
+    const stringToParams = (config: string): Parameter[] => {
+      try {
+        const parsedConfig = JSON.parse(config);
+        return parsedConfig.map((param: any) => ({
+          name: param.name,
+          type: param.type,
+          value: param.value,
+          required: param.required || false,
+          options: param.options || [],
+        }));
+      }
+      catch (error) {
+        console.error('Error parsing report config:', error);
+        return [];
+      }
+    }
     return response.map((row: any) => ({
         id: row.report_id,
         name: row.report_name,
         description: row.report_description,
         config: row.report_config,
         query: row.query,
+        params: stringToParams(row.report_config),
     }));
   } catch (err) {
     console.error('Error fetching initial reports:', err);
