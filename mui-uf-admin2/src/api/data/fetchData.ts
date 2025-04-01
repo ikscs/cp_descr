@@ -1,4 +1,4 @@
-import { number } from "yup";
+// import { number } from "yup";
 
 export const backend = {
     backend_url: 'https://rise.theweb.place/back',

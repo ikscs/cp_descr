@@ -1,9 +1,9 @@
 // src/api/data/reportTools.ts
 import { backend, fetchData, IFetchResponse, postData } from './fetchData';
 import packageJson from '../../../package.json';
-import { getCount, getMax } from './dataTools';
+import { getMax } from './dataTools';
 import { Parameter } from '../../pages/Reports/QueryParam';
-import { string } from 'yup';
+// import { string } from 'yup';
 
 export interface Report {
   id: number;
@@ -83,7 +83,7 @@ export const createReport = async (report: Report): Promise<Report | null> => {
   }
 };
 
-const _updateReport = async (report: Report): Promise<Report | null> => {
+export const _updateReport = async (report: Report): Promise<Report | null> => {
   try {
     const params = {
         backend_point: backend.backend_point_update,

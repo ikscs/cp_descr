@@ -28,7 +28,7 @@ import {
   deleteReport,
   Report,
 } from '../../api/data/reportTools';
-import { QueryEdit, QueryParam, ReportConfig, ReportDescriptor } from '../Reports/QueryEdit'; // Import QueryEdit
+import { QueryEdit, ReportConfig, ReportDescriptor } from '../Reports/QueryEdit'; // Import QueryEdit
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const ReporListEdit: React.FC = () => {
@@ -40,7 +40,7 @@ const ReporListEdit: React.FC = () => {
   const [reportDescription, setReportDescription] = useState<string>('');
   const [reportQuery, setReportQuery] = useState<string>('');
   const [reportConfig, setReportConfig] = useState<string | undefined>('');
-  const [configError, setConfigError] = useState<string | null>(null);
+  // const [configError, setConfigError] = useState<string | null>(null); // Removed unused state
   const [openQueryEditDialog, setOpenQueryEditDialog] = useState<boolean>(false); // New state for QueryEdit dialog
 
   useEffect(() => {
@@ -281,8 +281,8 @@ const ReporListEdit: React.FC = () => {
             onChange={(e) => {
               setReportConfig(e.target.value)
             }}
-            error={!!configError}
-            helperText={configError}
+            // error={!!configError} // Removed unused prop
+            // helperText={configError} // Removed unused prop
           />
         </DialogContent>
         <DialogActions>

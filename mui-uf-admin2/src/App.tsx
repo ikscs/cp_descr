@@ -20,12 +20,12 @@ import ReportListSettings from './pages/Settings/ReportListSettings';
 import ReportList from './pages/Reports/ReportList';
 
 // Helper function to check if the user has the 'admin' role
-const hasAdminRole = (user: any): boolean => {
-  if (!user || !user.data || !user.data.roles) {
-    return false;
-  }
-  return user.data.roles.includes('admin');
-};
+// const hasAdminRole = (user: any): boolean => {
+//     if (!user || !user.data || !user.data.roles) {
+//       return false;
+//     }
+//     return user.data.roles.includes('admin');
+// };
 
 // Protected Route Component
 const ProtectedRoute = ({

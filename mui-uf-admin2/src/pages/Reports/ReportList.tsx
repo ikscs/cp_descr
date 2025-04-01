@@ -16,14 +16,14 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
+  // DialogActions,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ExcelIcon from '@mui/icons-material/FileDownload';
 import { getReports, Report } from '../../api/data/reportTools';
 import { backend, fetchData } from '../../api/data/fetchData';
-import { IGridColumn, toExcel } from '../../api/tools/toExcel';
-import QueryParam, { Parameter } from './QueryParam'; // Import QueryParam component
+import { /*IGridColumn,*/ toExcel } from '../../api/tools/toExcel';
+import QueryParam, { /*Parameter*/ } from './QueryParam';
 import packageJson from '../../../package.json';
 
 interface ReportExecutionResult {
@@ -262,12 +262,13 @@ const ReportList: React.FC = () => {
 
 export default ReportList;
 
-function makeColumns(data: { [key: string]: any; }[]): IGridColumn[] {
-  if (data.length === 0) return [];
-  const columns = Object.keys(data[0]);
-  const result: IGridColumn[] = [];
-  columns.forEach((col) => {
-    result.push({ key: col, name: col, width: 20 });
-  });
-  return result;
-}
+// function makeColumns(data: { [key: string]: any; }[]): IGridColumn[] {
+//   if (data.length === 0) 
+//     return [];
+//   const columns = Object.keys(data[0]);
+//   const result: IGridColumn[] = [];
+//   columns.forEach((col) => {
+//     result.push({ key: col, name: col, width: 20 });
+//   });
+//   return result;
+// }

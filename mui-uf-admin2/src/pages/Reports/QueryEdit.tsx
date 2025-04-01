@@ -214,7 +214,7 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
   const [tabValue, setTabValue] = useState(0);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
