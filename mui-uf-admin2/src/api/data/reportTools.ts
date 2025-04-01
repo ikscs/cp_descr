@@ -23,6 +23,7 @@ export const getReports = async (): Promise<Report[]> => {
       from: REPORT_TABLE,
       fields: 'report_id, report_name, report_description, query, report_config', 
       order: 'report_name',
+      where: {app_id: packageJson.name},
     };
     const response: IFetchResponse = (await fetchData(params));
     const stringToParams = (config: string): Parameter[] => {

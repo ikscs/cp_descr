@@ -7,6 +7,7 @@ export const backend = {
     backend_point_insert: '/f5.php?func=cp3.js_insert_b',
     backend_point_upsert: '/f5.php?func=cp3.js_upsert_b',
     backend_point_update: '/f5.php?func=cp3.js_update_b',
+    backend_point_report:  '/f5.php?func=cp3.js_report_b',
 }
 
 interface IFetchBody {
