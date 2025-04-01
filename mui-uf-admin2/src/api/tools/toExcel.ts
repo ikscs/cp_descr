@@ -12,7 +12,7 @@ export interface IGridColumn {
     // dataSource?: string,
 }
 
-export const toExcel = async (cols: IGridColumn[], rows: any) => {
+export const toExcel = async (cols: IGridColumn[], rows: any, name: string) => {
     console.log('toExcel', rows)
 
     const exportCols = cols.map((col: any) => {
@@ -33,7 +33,7 @@ export const toExcel = async (cols: IGridColumn[], rows: any) => {
             // schema: columnsDefinition,
             // https://gitlab.com/catamphetamine/write-excel-file#browser
             // when no fileName is given results in blob
-            fileName: `temp_data.xlsx`,
+            fileName: `${name}.xlsx`, // `temp_data.xlsx`,
         });
         console.log("xlsxBlob", xlsxBlob);
     } catch (error) {
