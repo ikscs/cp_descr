@@ -21,6 +21,7 @@ export interface MenuItem {
   path?: string;
   icon?: React.ReactElement;
   items?: MenuItem[];
+  role?: string;
 }
 
 interface MainMenuProps {
