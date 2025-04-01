@@ -1,3 +1,4 @@
+// d:\dvl\ikscs\react\vp-descr\mui-uf-admin2\src\pages\Reports\QueryParam.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -17,31 +18,33 @@ import { Report } from '../../api/data/reportTools';
 
 interface QueryParamProps {
   report: Report;
-  onExecute: (params: { [key: string]: string | number | boolean }) => void;
+  onExecute: (params: { name: string; value: string | number | boolean }[]) => void; // Changed onExecute type
+  onClose: () => void;
 }
 
 export interface Parameter {
   name: string;
-  type: 'text' | 'numeric' | 'select' | 'checkbox' | 'datetime';
+  type: 'text' | 'number' | 'select' | 'boolean' | 'datetime';
   value: string | number | boolean;
   required: boolean;
   options?: string[]; // For select type
 }
 
-const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute }) => {
+const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) => {
   const [parameters, setParameters] = useState<Parameter[]>([]);
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    // Initialize parameters based on report.params
-    if (report.params) {
-      const initialParams = report.params.map((param) => ({
+    // Initialize parameters based on report.config
+    const config = report.config ? JSON.parse(report.config) : null;
+    if (config && config.params) {
+      const initialParams = config.params.map((param: any) => ({
         name: param.name,
         type: param.type,
         value:
-          param.type === 'numeric'
+          param.type === 'number'
             ? 0
-            : param.type === 'checkbox'
+            : param.type === 'boolean'
             ? false
             : '', // Default values
         required: param.required || false,
@@ -81,7 +84,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute }) => {
           errors[param.name] = 'Обязательное поле';
           isValid = false;
         } else if (
-          param.type === 'numeric' &&
+          param.type === 'number' &&
           (param.value === null || param.value === undefined || param.value.toString() === '')
         ) {
           errors[param.name] = 'Обязательное поле';
@@ -106,10 +109,13 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute }) => {
     }
 
     try {
-      const paramValues: { [key: string]: string | number | boolean } = {};
-      parameters.forEach((param) => {
-        paramValues[param.name] = param.value;
-      });
+      // Changed to create an array of { name, value } objects
+      const paramValues: { name: string; value: string | number | boolean }[] = parameters.map(
+        (param) => ({
+          name: param.name,
+          value: param.value,
+        })
+      );
       onExecute(paramValues);
     } catch (error) {
       console.error('Error executing report with parameters:', error);
@@ -118,7 +124,6 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute }) => {
 
   return (
     <Box mt={2}>
-      <Typography variant="h6">Параметры запроса</Typography>
       {parameters.length === 0 ? (
         <Typography>Отчет не имеет параметров</Typography>
       ) : (
@@ -137,7 +142,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute }) => {
                     helperText={validationErrors[param.name]}
                   />
                 )}
-                {param.type === 'numeric' && (
+                {param.type === 'number' && (
                   <TextField
                     label={param.name}
                     type="number"
@@ -176,7 +181,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute }) => {
                     )}
                   </>
                 )}
-                {param.type === 'checkbox' && (
+                {param.type === 'boolean' && (
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -194,7 +199,8 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute }) => {
           ))}
         </Grid>
       )}
-      <Box mt={2}>
+      <Box mt={2} display="flex" justifyContent="flex-end" gap={2}>
+        <Button onClick={onClose}>Отмена</Button>
         <Button
           variant="contained"
           color="primary"

@@ -1,3 +1,4 @@
+// d:\dvl\ikscs\react\vp-descr\mui-uf-admin2\src\pages\Reports\ReportList.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -12,29 +13,18 @@ import {
   IconButton,
   CircularProgress,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import ExcelIcon from '@mui/icons-material/FileDownload'; // Import Excel icon
-// import { handleExportToExcel } from '../../utils/exportToExcel'; // Import exportToExcel function
+import ExcelIcon from '@mui/icons-material/FileDownload';
 import { getReports, Report } from '../../api/data/reportTools';
-import { backend, fetchData, IFetchResponse } from '../../api/data/fetchData';
+import { backend, fetchData } from '../../api/data/fetchData';
 import { IGridColumn, toExcel } from '../../api/tools/toExcel';
-import { config } from 'process';
-
-
-const reportColumns: IGridColumn[] = 
-  [
-    { key: "subject_id", name: "ID", width: 40 },
-    { key: "subject_role", name: "Role", width: 10 },
-    { key: "name", name: "Name", width: 20 },
-  ]
-/*
-{ columns:   [
-    { key: "subject_id", name: "ID", width: 40 },
-    { key: "subject_role", name: "Role", width: 10 },
-    { key: "name", name: "Name", width: 20 },
-  ] } 
-*/
+import QueryParam, { Parameter } from './QueryParam'; // Import QueryParam component
+import packageJson from '../../../package.json';
 
 interface ReportExecutionResult {
   columns: string[];
@@ -48,6 +38,8 @@ const ReportList: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isParamDialogOpen, setIsParamDialogOpen] = useState<boolean>(false);
+  //const [reportParams, setReportParams] = useState<{ [key: string]: string | number | boolean }>({}); // Removed unused state
 
   useEffect(() => {
     const loadReports = async () => {
@@ -67,13 +59,39 @@ const ReportList: React.FC = () => {
   }, []);
 
   const handleExecuteReport = async (report: Report) => {
-    setIsExecuting(true);
     setSelectedReport(report);
+    const config = report.config ? JSON.parse(report.config) : null;
+    if (config && config.params && config.params.length > 0) {
+      setIsParamDialogOpen(true);
+      //setReportParams({}); // Removed unused state
+    } else {
+      await executeReport(report, []);
+    }
+  };
+
+  const handleParamDialogClose = () => {
+    setIsParamDialogOpen(false);
+    //setReportParams({}); // Removed unused state
+  };
+
+  // Changed to accept an array of { name, value } objects
+  const handleExecuteWithParams = async (params: { name: string; value: string | number | boolean }[]) => {
+    setIsParamDialogOpen(false);
+    // Convert the array of { name, value } to an object { key: value }
+    // const paramsObject: { [key: string]: string | number | boolean } = {};
+    // params.forEach(param => {
+    //   paramsObject[param.name] = param.value;
+    // });
+    await executeReport(selectedReport!, params);
+  };
+
+  const executeReport = async (report: Report, params: { name: string; value: string | number | boolean }[]) => {
+    setIsExecuting(true);
     setExecutionResult(null);
     setError(null);
 
     try {
-      const result = await executeReportQuery(report.query);
+      const result = await executeReportQuery(report.id, params);
       setExecutionResult(result);
     } catch (err) {
       console.error('Error executing report:', err);
@@ -84,17 +102,19 @@ const ReportList: React.FC = () => {
     }
   };
 
-  const executeReportQuery = async (query: string): Promise<ReportExecutionResult> => {
+  const executeReportQuery = async (id: number, params: { name: string; value: string | number | boolean }[]): Promise<ReportExecutionResult> => {
     try {
-      const params = {
-        backend_point: backend.backend_point_query,
-        query: query,
+      const paramsToSend = {
+        backend_point: backend.backend_point_report,
+        app_id: packageJson.name,
+        report_id: id,
+        parameters: params,
       };
-      const response: any/*IFetchResponse*/ = await fetchData(params);
+      const response: any = await fetchData(paramsToSend);
       if (response.length === 0) {
         return { columns: ['Сообщение'], rows: [['Нет данных']] };
       }
-      
+
       if (!response.ok)
         throw new Error(`Error executing report: ${response.status} - ${response.statusText}`);
 
@@ -116,16 +136,22 @@ const ReportList: React.FC = () => {
         });
         return rowData;
       });
-      // toExcel(reportColumns, data, /*selectedReport.name*/);
-      let columns: IGridColumn[] = [];
-      try {
-        columns = JSON.parse(selectedReport.config||'{}').columns;
-      } catch {
-        columns = makeColumns(data);
-      }
-      toExcel(columns, data);
+      // let columns: IGridColumn[] = [];
+      let columns = executionResult.columns.map((col, index) => ({
+        key: col,
+        name: executionResult.rows.length > 0 ? executionResult.rows[0][index] : col, // Use first row value as name
+        width: 20,
+      }));
+      // try {
+      //   columns = JSON.parse(selectedReport.config || '{}').columns;
+      // } catch {
+      //   columns = makeColumns(data);
+      // }
+      toExcel(columns, data, selectedReport.name);
     }
-  };  
+  };
+
+  const isErrorResult = executionResult && executionResult.columns.length === 1 && executionResult.columns[0] === 'Error';
 
   return (
     <Box>
@@ -186,10 +212,13 @@ const ReportList: React.FC = () => {
           <Typography variant="h6">
             Результат выполнения отчета: {selectedReport.name}
           </Typography>
-        <Button variant="contained" startIcon={<ExcelIcon />} onClick={() => handleExportToExcel()}>
-          Экспорт в Excel
-        </Button>
-          {executionResult.columns.length === 1 && executionResult.columns[0] === 'Error' ? (
+          {/* Conditionally render the export button */}
+          {!isErrorResult && (
+            <Button variant="contained" startIcon={<ExcelIcon />} onClick={() => handleExportToExcel()}>
+              Экспорт в Excel
+            </Button>
+          )}
+          {isErrorResult ? (
             <Typography color="error">
               {executionResult.rows[0][0]}
             </Typography>
@@ -217,6 +246,16 @@ const ReportList: React.FC = () => {
           )}
         </Box>
       )}
+
+      {/* Parameter Input Dialog */}
+      <Dialog open={isParamDialogOpen} onClose={handleParamDialogClose} fullWidth maxWidth="sm">
+        <DialogTitle>Параметры для отчета: {selectedReport?.name}</DialogTitle>
+        <DialogContent>
+          {selectedReport && selectedReport.params && (
+            <QueryParam report={selectedReport} onExecute={handleExecuteWithParams} onClose={handleParamDialogClose} />
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
@@ -231,6 +270,4 @@ function makeColumns(data: { [key: string]: any; }[]): IGridColumn[] {
     result.push({ key: col, name: col, width: 20 });
   });
   return result;
-  //{ key: "subject_id", name: "ID", width: 40 },
 }
-
