@@ -29,12 +29,16 @@ export const getReports = async (): Promise<Report[]> => {
     const stringToParams = (config: string): Parameter[] => {
       try {
         const parsedConfig = JSON.parse(config);
+        if (!Array.isArray(parsedConfig)) {
+          return [];
+        }         
         return parsedConfig.map((param: any) => ({
           name: param.name,
           type: param.type,
           value: param.value,
           required: param.required || false,
           options: param.options || [],
+          description: param.description || '',
         }));
       }
       catch (error) {
@@ -42,6 +46,7 @@ export const getReports = async (): Promise<Report[]> => {
         return [];
       }
     }
+    console.log('getReports response:', response);
     return response.map((row: any) => ({
         id: row.report_id,
         name: row.report_name,
@@ -83,7 +88,7 @@ export const createReport = async (report: Report): Promise<Report | null> => {
   }
 };
 
-export const _updateReport = async (report: Report): Promise<Report | null> => {
+const _updateReport = async (report: Report): Promise<Report | null> => {
   try {
     const params = {
         backend_point: backend.backend_point_update,

@@ -15,16 +15,18 @@ import {
   FormHelperText,
 } from '@mui/material';
 import { Report } from '../../api/data/reportTools';
+import { ParsedReport } from './ReportList';
 
 interface QueryParamProps {
-  report: Report;
+  report: ParsedReport;
   onExecute: (params: { name: string; value: string | number | boolean }[]) => void; // Changed onExecute type
   onClose: () => void;
 }
 
 export interface Parameter {
   name: string;
-  type: 'text' | 'number' | 'select' | 'boolean' | 'datetime';
+  description: string;
+  type: 'string' | 'number' | 'select' | 'boolean' | 'datetime' | 'date';
   value: string | number | boolean;
   required: boolean;
   options?: string[]; // For select type
@@ -36,10 +38,12 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
 
   useEffect(() => {
     // Initialize parameters based on report.config
-    const config = report.config ? JSON.parse(report.config) : null;
+    // const config = report.config ? JSON.parse(report.config) : null;
+    const config = report.config
     if (config && config.params) {
       const initialParams = config.params.map((param: any) => ({
         name: param.name,
+        description: param.description,
         type: param.type,
         value:
           param.type === 'number'
@@ -48,13 +52,13 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
             ? false
             : '', // Default values
         required: param.required || false,
-        options: param.options,
+        options: param.selectOptions,
       }));
       setParameters(initialParams);
     } else {
       setParameters([]);
     }
-  }, [report.params]);
+  }, [report.config?.params]);
 
   const handleParamChange = (
     index: number,
@@ -78,7 +82,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
     parameters.forEach((param) => {
       if (param.required) {
         if (
-          param.type === 'text' &&
+          param.type === 'string' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
           errors[param.name] = 'Обязательное поле';
@@ -91,6 +95,12 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
           isValid = false;
         } else if (
           param.type === 'select' &&
+          (param.value === null || param.value === undefined || param.value === '')
+        ) {
+          errors[param.name] = 'Обязательное поле';
+          isValid = false;
+        } else if (
+          param.type === 'date' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
           errors[param.name] = 'Обязательное поле';
@@ -131,9 +141,9 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
           {parameters.map((param, index) => (
             <Grid item xs={12} sm={6} key={index}>
               <FormControl fullWidth error={!!validationErrors[param.name]}>
-                {param.type === 'text' && (
+                {param.type === 'string' && (
                   <TextField
-                    label={param.name}
+                    label={param.description || param.name}
                     type="text"
                     value={param.value}
                     onChange={(e) => handleParamChange(index, e.target.value)}
@@ -144,7 +154,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
                 )}
                 {param.type === 'number' && (
                   <TextField
-                    label={param.name}
+                    label={param.description || param.name}
                     type="number"
                     value={param.value}
                     onChange={(e) =>
@@ -158,11 +168,11 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
                 {param.type === 'select' && (
                   <>
                     <InputLabel id={`select-label-${index}`}>
-                      {param.name}
+                      {param.description || param.name}
                     </InputLabel>
                     <Select
                       labelId={`select-label-${index}`}
-                      label={param.name}
+                      label={param.description || param.name}
                       value={param.value}
                       onChange={(e) =>
                         handleParamChange(index, e.target.value as string)
@@ -191,7 +201,21 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
                         }
                       />
                     }
-                    label={param.name}
+                    label={param.description || param.name}
+                  />
+                )}
+                {param.type === 'date' && (
+                  <TextField
+                    label={param.description || param.name}
+                    type="date"
+                    value={param.value}
+                    onChange={(e) => handleParamChange(index, e.target.value)}
+                    variant="outlined"
+                    required={param.required}
+                    helperText={validationErrors[param.name]}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 )}
               </FormControl>

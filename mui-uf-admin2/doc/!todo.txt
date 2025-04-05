@@ -1,0 +1,21 @@
+2025-04-05
+
+report list for edit
+  - create report as edit
+  - duplicate report
+  - filter
+
+report edit
+  - default value (expression?)
+  - testing launch
+  - validate params like ':param'
+
+report list for launch
+  - filter
+  - cookies 
+
+report edit / chart 
+  - filtered values
+
+report launch
+  - show error details

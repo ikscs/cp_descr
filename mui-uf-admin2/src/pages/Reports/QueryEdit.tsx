@@ -23,16 +23,21 @@ import {
   TableHead,
   TableRow,
   FormHelperText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import SelectOptions from './SelectOptions';
 
 // --- Interfaces ---
 
 export interface Param {
   name: string;
   description: string;
-  type: 'string' | 'number' | 'boolean' | 'select'; // Reverted to string literal union
+  type: 'string' | 'number' | 'boolean' | 'select' | 'date'; // Reverted to string literal union
   notNull: boolean;
   rules?: object;
   selectOptions?: string[];
@@ -53,7 +58,7 @@ type ColumnKey = keyof Column;
 // Mapped type to get the correct type for each ColumnKey
 type ColumnValue<K extends ColumnKey> = Column[K];
 
-interface Chart {
+export interface Chart {
   type: 'buble' | 'linear' | 'circular' | 'other';
   x_axis: { field: string };
   y_axis: { field: string };
@@ -213,6 +218,8 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
   );
   const [tabValue, setTabValue] = useState(0);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSelectOptionsDialogOpen, setIsSelectOptionsDialogOpen] = useState(false);
+  const [currentParamIndex, setCurrentParamIndex] = useState<number | null>(null);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -307,6 +314,24 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
     flexGrow: 1, // Added flexGrow: 1 here!
   };
 
+  const handleOpenSelectOptionsDialog = (index: number) => {
+    setCurrentParamIndex(index);
+    setIsSelectOptionsDialogOpen(true);
+  };
+
+  const handleCloseSelectOptionsDialog = () => {
+    setIsSelectOptionsDialogOpen(false);
+    setCurrentParamIndex(null);
+  };
+
+  const handleSaveSelectOptions = (newOptions: string[]) => {
+    if (currentParamIndex !== null) {
+      const newParams = [...reportData.report_config.params];
+      newParams[currentParamIndex].selectOptions = newOptions;
+      handleConfigChange('params', newParams);
+    }
+  };
+
   return (
     <Box sx={{p:2}}> {/* Добавлен отступ p: 2 */}
       <Typography variant="h6" gutterBottom>
@@ -387,10 +412,11 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
                           value={param.type}
                           onChange={(e) => handleParamChange(index, 'type', e.target.value as ParamValue<"type">)}
                         >
-                          <MenuItem value="string">String</MenuItem>
-                          <MenuItem value="number">Number</MenuItem>
                           <MenuItem value="boolean">Boolean</MenuItem>
+                          <MenuItem value="date">Date</MenuItem>
+                          <MenuItem value="number">Number</MenuItem>
                           <MenuItem value="select">Select</MenuItem>
+                          <MenuItem value="string">String</MenuItem>
                         </Select>
                       </TableCell>
                       <TableCell>
@@ -403,6 +429,11 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
                         <IconButton onClick={() => handleDeleteParam(index)}>
                           <DeleteIcon />
                         </IconButton>
+                        {param.type === 'select' && (
+                          <IconButton onClick={() => handleOpenSelectOptionsDialog(index)}>
+                            <EditIcon />
+                          </IconButton>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -524,6 +555,19 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
           Save Report
         </Button>
       </Box>
+      {/* Select Options Dialog */}
+      <Dialog open={isSelectOptionsDialogOpen} onClose={handleCloseSelectOptionsDialog}>
+        <DialogTitle>Edit Select Options</DialogTitle>
+        <DialogContent>
+          {currentParamIndex !== null && (
+            <SelectOptions
+              options={reportData.report_config.params[currentParamIndex].selectOptions || []}
+              onSave={handleSaveSelectOptions}
+              onClose={handleCloseSelectOptionsDialog}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
