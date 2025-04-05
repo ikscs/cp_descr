@@ -24,7 +24,6 @@ import { backend, fetchData } from '../../api/data/fetchData';
 import { toExcel } from '../../api/tools/toExcel';
 import QueryParam from './QueryParam';
 import packageJson from '../../../package.json';
-// import TestLineChart from '../Charts/TestLineChart';
 import LineChart from '../Charts/LineChart';
 
 interface ReportExecutionResult {
@@ -56,14 +55,19 @@ export interface ParsedReport {
       y_axis: { field: string };
       body_fields: string[];
     };
-  }
-};
+  };
+}
 
 const ReportToParsedReport = (report: Report): ParsedReport => {
   return {
     ...report,
     config: report.config ? JSON.parse(report.config) : null,
   };
+};
+
+interface ChartData {
+  xAxisValues: string[];
+  datasets: { label: string; data: number[] }[];
 }
 
 const ReportList: React.FC = () => {
@@ -75,11 +79,7 @@ const ReportList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isParamDialogOpen, setIsParamDialogOpen] = useState<boolean>(false);
   const [isChartDialogOpen, setIsChartDialogOpen] = useState<boolean>(false);
-  const [chartData, setChartData] = useState<{
-    xAxisValues: string[];
-    yAxisValues: number[];
-    yAxisLabel: string;
-  } | null>(null);
+  const [chartData, setChartData] = useState<ChartData | null>(null);
 
   useEffect(() => {
     const loadReports = async () => {
@@ -115,12 +115,17 @@ const ReportList: React.FC = () => {
     setIsParamDialogOpen(false);
   };
 
-  const handleExecuteWithParams = async (params: { name: string; value: string | number | boolean }[]) => {
+  const handleExecuteWithParams = async (
+    params: { name: string; value: string | number | boolean }[]
+  ) => {
     setIsParamDialogOpen(false);
     await executeReport(selectedReport!, params);
   };
 
-  const executeReport = async (report: ParsedReport, params: { name: string; value: string | number | boolean }[]) => {
+  const executeReport = async (
+    report: ParsedReport,
+    params: { name: string; value: string | number | boolean }[]
+  ) => {
     setIsExecuting(true);
     setExecutionResult(null);
     setError(null);
@@ -131,13 +136,19 @@ const ReportList: React.FC = () => {
     } catch (err) {
       console.error('Error executing report:', err);
       setError('Ошибка при выполнении отчета');
-      setExecutionResult({ columns: ['Error'], rows: [[`Error executing report: ${err}`]] });
+      setExecutionResult({
+        columns: ['Error'],
+        rows: [[`Error executing report: ${err}`]],
+      });
     } finally {
       setIsExecuting(false);
     }
   };
 
-  const executeReportQuery = async (id: number, params: { name: string; value: string | number | boolean }[]): Promise<ReportExecutionResult> => {
+  const executeReportQuery = async (
+    id: number,
+    params: { name: string; value: string | number | boolean }[]
+  ): Promise<ReportExecutionResult> => {
     try {
       const paramsToSend = {
         backend_point: backend.backend_point_report,
@@ -151,7 +162,9 @@ const ReportList: React.FC = () => {
       }
 
       if (!response.ok)
-        throw new Error(`Error executing report: ${response.status} - ${response.statusText}`);
+        throw new Error(
+          `Error executing report: ${response.status} - ${response.statusText}`
+        );
 
       const data = response.data;
       const columns = Object.keys(data[0]);
@@ -173,7 +186,10 @@ const ReportList: React.FC = () => {
       });
       let columns = executionResult.columns.map((col, index) => ({
         key: col,
-        name: executionResult.rows.length > 0 ? executionResult.rows[0][index] : col,
+        name:
+          executionResult.rows.length > 0
+            ? executionResult.rows[0][index]
+            : col,
         width: 20,
       }));
       toExcel(columns, data, selectedReport.name);
@@ -182,28 +198,42 @@ const ReportList: React.FC = () => {
 
   const handleOpenChartDialog = () => {
     if (executionResult && selectedReport) {
-      // const config = selectedReport.config ? JSON.parse(selectedReport.config) : null;
       const config = selectedReport.config;
       const chartConfig = config?.chart;
-  
-      if (chartConfig && chartConfig.x_axis && chartConfig.y_axis) {
+
+      if (
+        chartConfig &&
+        chartConfig.x_axis &&
+        chartConfig.y_axis &&
+        chartConfig.body_fields
+      ) {
         const xAxisField = chartConfig.x_axis.field;
-        const yAxisField = chartConfig.y_axis.field;
-  
-        // Find the indices of the x and y axis fields in the columns
+        const yAxisFields = chartConfig.body_fields;
+
         const xAxisIndex = executionResult.columns.indexOf(xAxisField);
-        const yAxisIndex = executionResult.columns.indexOf(yAxisField);
-  
-        if (xAxisIndex !== -1 && yAxisIndex !== -1) {
-          const xAxisValues = executionResult.rows.map((row) => row[xAxisIndex]?.toString() || '');
-          const yAxisValues = executionResult.rows.map((row) => Number(row[yAxisIndex]));
-          const yAxisLabel = yAxisField;
-  
-          setChartData({ xAxisValues, yAxisValues, yAxisLabel });
+        const yAxisIndices = yAxisFields.map((field) =>
+          executionResult.columns.indexOf(field)
+        );
+
+        if (xAxisIndex !== -1 && yAxisIndices.every((index) => index !== -1)) {
+          const xAxisValues = executionResult.rows.map(
+            (row) => row[xAxisIndex]?.toString() || ''
+          );
+          const datasets = yAxisIndices.map((yAxisIndex, index) => ({
+            label: yAxisFields[index],
+            // Number(null) returns 0, so we need to check for null or undefined
+            // and return null instead of 0
+            data: executionResult.rows.map((row) => {
+              const value = row[yAxisIndex];
+              return value === null || value === undefined ? value : Number(value);
+            }),
+          }));
+
+          setChartData({ xAxisValues, datasets });
           setIsChartDialogOpen(true);
         } else {
-          console.error(`Fields ${xAxisField} or ${yAxisField} not found in columns`);
-          setError(`Fields ${xAxisField} or ${yAxisField} not found in columns`);
+          console.error(`Fields not found in columns`);
+          setError(`Fields not found in columns`);
         }
       } else {
         console.error('Chart configuration or axis fields are missing');
@@ -211,25 +241,15 @@ const ReportList: React.FC = () => {
       }
     }
   };
-  
-  const _handleOpenChartDialog = () => {
-    if (executionResult) {
-      // Assuming the first column is the x-axis and the second is the y-axis
-      const xAxisValues = executionResult.rows.map((row) => row[0].toString());
-      const yAxisValues = executionResult.rows.map((row) =>
-        Number(row[1])
-      );
-      const yAxisLabel = executionResult.columns[1];
-      setChartData({ xAxisValues, yAxisValues, yAxisLabel });
-      setIsChartDialogOpen(true);
-    }
-  };
 
   const handleCloseChartDialog = () => {
     setIsChartDialogOpen(false);
   };
 
-  const isErrorResult = executionResult && executionResult.columns.length === 1 && executionResult.columns[0] === 'Error';
+  const isErrorResult =
+    executionResult &&
+    executionResult.columns.length === 1 &&
+    executionResult.columns[0] === 'Error';
 
   return (
     <Box>
@@ -290,23 +310,28 @@ const ReportList: React.FC = () => {
           <Typography variant="h6">
             Результат выполнения отчета: {selectedReport.name}
           </Typography>
-          <Box mt={2} display="flex" gap={2}> {/* Container for buttons */}
-            {/* Conditionally render the export button */}
+          <Box mt={2} display="flex" gap={2}>
             {!isErrorResult && (
               <>
-                <Button variant="contained" startIcon={<ExcelIcon />} onClick={() => handleExportToExcel()}>
+                <Button
+                  variant="contained"
+                  startIcon={<ExcelIcon />}
+                  onClick={() => handleExportToExcel()}
+                >
                   Экспорт в Excel
                 </Button>
-                <Button variant="contained" startIcon={<ChartIcon />} onClick={handleOpenChartDialog}>
+                <Button
+                  variant="contained"
+                  startIcon={<ChartIcon />}
+                  onClick={handleOpenChartDialog}
+                >
                   График
                 </Button>
               </>
             )}
           </Box>
           {isErrorResult ? (
-            <Typography color="error">
-              {executionResult.rows[0][0]}
-            </Typography>
+            <Typography color="error">{executionResult.rows[0][0]}</Typography>
           ) : (
             <TableContainer component={Paper}>
               <Table>
@@ -333,43 +358,52 @@ const ReportList: React.FC = () => {
       )}
 
       {/* Parameter Input Dialog */}
-      <Dialog open={isParamDialogOpen} onClose={handleParamDialogClose} fullWidth maxWidth="sm">
-        <DialogTitle>Параметры для отчета: {selectedReport?.name}</DialogTitle>
+      <Dialog
+        open={isParamDialogOpen}
+        onClose={handleParamDialogClose}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          Параметры для отчета: {selectedReport?.name}
+        </DialogTitle>
         <DialogContent>
-          {selectedReport && selectedReport.config && selectedReport.config.params && (
-            <QueryParam report={selectedReport} onExecute={handleExecuteWithParams} onClose={handleParamDialogClose} />
-          )}
+          {selectedReport &&
+            selectedReport.config &&
+            selectedReport.config.params && (
+              <QueryParam
+                report={selectedReport}
+                onExecute={handleExecuteWithParams}
+                onClose={handleParamDialogClose}
+              />
+            )}
         </DialogContent>
       </Dialog>
 
       {/* Chart Dialog */}
-      <Dialog open={isChartDialogOpen} onClose={handleCloseChartDialog} fullWidth maxWidth="md">
+      <Dialog
+        open={isChartDialogOpen}
+        onClose={handleCloseChartDialog}
+        fullWidth
+        maxWidth="md"
+      >
         <DialogTitle>График: {selectedReport?.name}</DialogTitle>
         <DialogContent>
           {chartData && (
             <LineChart
               reportName={selectedReport?.name || ''}
               xAxisValues={chartData.xAxisValues}
-              yAxisValues={chartData.yAxisValues}
-              yAxisLabel={chartData.yAxisLabel}
+              datasets={chartData.datasets}
               onClose={handleCloseChartDialog}
             />
           )}
         </DialogContent>
-      </Dialog>      
-      {/* <Dialog open={isChartDialogOpen} onClose={handleCloseChartDialog} fullWidth maxWidth="md">
-        <DialogTitle>График: {selectedReport?.name}</DialogTitle>
-        <DialogContent>
-          <TestLineChart/>
-          <Typography>Chart will be displayed here</Typography>
-        </DialogContent>
-      </Dialog> */}
+      </Dialog>
     </Box>
   );
 };
 
 export default ReportList;
-
 // function makeColumns(data: { [key: string]: any; }[]): IGridColumn[] {
 //   if (data.length === 0) 
 //     return [];

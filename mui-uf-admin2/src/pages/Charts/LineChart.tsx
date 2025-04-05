@@ -25,32 +25,35 @@ ChartJS.register(
   Legend
 );
 
+interface LineChartDataset {
+  label: string;
+  data: number[];
+  backgroundColor?: string;
+  borderColor?: string;
+}
+
 interface LineChartProps {
   reportName: string;
   xAxisValues: string[];
-  yAxisValues: number[];
-  yAxisLabel: string;
-  onClose: () => void; // Add a callback for closing the chart
+  datasets: LineChartDataset[];
+  onClose: () => void;
 }
 
 const LineChart: React.FC<LineChartProps> = ({
   reportName,
   xAxisValues,
-  yAxisValues,
-  yAxisLabel,
-  onClose, // Receive the onClose callback
+  datasets,
+  onClose,
 }) => {
-  const data: ChartData<'line'> = {
+  const chartData: ChartData<'line'> = {
     labels: xAxisValues,
-    datasets: [
-      {
-        label: yAxisLabel,
-        data: yAxisValues,
-        fill: false,
-        backgroundColor: 'rgb(255, 99, 132)',
-        borderColor: 'rgba(255, 99, 132, 0.2)',
-      },
-    ],
+    datasets: datasets.map((dataset, index) => ({
+      label: dataset.label,
+      data: dataset.data,
+      fill: false,
+      backgroundColor: dataset.backgroundColor || `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`,
+      borderColor: dataset.borderColor || `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.2)`,
+    })),
   };
 
   const options: ChartOptions<'line'> = {
@@ -82,7 +85,7 @@ const LineChart: React.FC<LineChartProps> = ({
           <CloseIcon />
         </IconButton>
       </Box>
-      <Line data={data} options={options} />
+      <Line data={chartData} options={options} />
     </Box>
   );
 };
