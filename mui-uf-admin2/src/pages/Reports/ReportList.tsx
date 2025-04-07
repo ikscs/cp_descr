@@ -1,3 +1,4 @@
+// ReportList.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -25,6 +26,7 @@ import { toExcel } from '../../api/tools/toExcel';
 import QueryParam from './QueryParam';
 import packageJson from '../../../package.json';
 import LineChart from '../Charts/LineChart';
+import ReportResult from './ReportResult'; // Import the new component
 
 interface ReportExecutionResult {
   columns: string[];
@@ -80,6 +82,7 @@ const ReportList: React.FC = () => {
   const [isParamDialogOpen, setIsParamDialogOpen] = useState<boolean>(false);
   const [isChartDialogOpen, setIsChartDialogOpen] = useState<boolean>(false);
   const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [isResultDialogOpen, setIsResultDialogOpen] = useState<boolean>(false); // New state for the result dialog
 
   useEffect(() => {
     const loadReports = async () => {
@@ -133,6 +136,7 @@ const ReportList: React.FC = () => {
     try {
       const result = await executeReportQuery(report.id, params);
       setExecutionResult(result);
+      setIsResultDialogOpen(true); // Open the result dialog
     } catch (err) {
       console.error('Error executing report:', err);
       setError('Ошибка при выполнении отчета');
@@ -140,6 +144,7 @@ const ReportList: React.FC = () => {
         columns: ['Error'],
         rows: [[`Error executing report: ${err}`]],
       });
+      setIsResultDialogOpen(true); // Open the result dialog even on error
     } finally {
       setIsExecuting(false);
     }
@@ -172,27 +177,6 @@ const ReportList: React.FC = () => {
       return { columns, rows };
     } catch (err) {
       throw err;
-    }
-  };
-
-  const handleExportToExcel = () => {
-    if (selectedReport && executionResult) {
-      const data = executionResult.rows.map((row) => {
-        const rowData: { [key: string]: any } = {};
-        executionResult.columns.forEach((column, index) => {
-          rowData[column] = row[index];
-        });
-        return rowData;
-      });
-      let columns = executionResult.columns.map((col, index) => ({
-        key: col,
-        name:
-          executionResult.rows.length > 0
-            ? executionResult.rows[0][index]
-            : col,
-        width: 20,
-      }));
-      toExcel(columns, data, selectedReport.name);
     }
   };
 
@@ -246,10 +230,9 @@ const ReportList: React.FC = () => {
     setIsChartDialogOpen(false);
   };
 
-  const isErrorResult =
-    executionResult &&
-    executionResult.columns.length === 1 &&
-    executionResult.columns[0] === 'Error';
+  const handleResultDialogClose = () => {
+    setIsResultDialogOpen(false);
+  };
 
   return (
     <Box>
@@ -304,59 +287,6 @@ const ReportList: React.FC = () => {
         </TableContainer>
       )}
 
-      {/* Display execution result */}
-      {selectedReport && executionResult && (
-        <Box mt={3}>
-          <Typography variant="h6">
-            Результат выполнения отчета: {selectedReport.name}
-          </Typography>
-          <Box mt={2} display="flex" gap={2}>
-            {!isErrorResult && (
-              <>
-                <Button
-                  variant="contained"
-                  startIcon={<ExcelIcon />}
-                  onClick={() => handleExportToExcel()}
-                >
-                  Экспорт в Excel
-                </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<ChartIcon />}
-                  onClick={handleOpenChartDialog}
-                >
-                  График
-                </Button>
-              </>
-            )}
-          </Box>
-          {isErrorResult ? (
-            <Typography color="error">{executionResult.rows[0][0]}</Typography>
-          ) : (
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {executionResult.columns.map((column, index) => (
-                      <TableCell key={index}>{column}</TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {executionResult.rows.map((row, rowIndex) => (
-                    <TableRow key={rowIndex}>
-                      {row.map((cell, cellIndex) => (
-                        <TableCell key={cellIndex}>{cell}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </Box>
-      )}
-
       {/* Parameter Input Dialog */}
       <Dialog
         open={isParamDialogOpen}
@@ -399,18 +329,21 @@ const ReportList: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Report Result Dialog */}
+      {selectedReport && executionResult && (
+        <ReportResult
+          report={selectedReport}
+          executionResult={executionResult}
+          open={isResultDialogOpen}
+          onClose={handleResultDialogClose}
+          chartData={chartData}
+          setChartData={setChartData}
+          handleOpenChartDialog={handleOpenChartDialog}
+        />
+      )}
     </Box>
   );
 };
 
 export default ReportList;
-// function makeColumns(data: { [key: string]: any; }[]): IGridColumn[] {
-//   if (data.length === 0) 
-//     return [];
-//   const columns = Object.keys(data[0]);
-//   const result: IGridColumn[] = [];
-//   columns.forEach((col) => {
-//     result.push({ key: col, name: col, width: 20 });
-//   });
-//   return result;
-// }
