@@ -154,7 +154,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/" element={<Users />} />
+          <Route path="/" element={<Dashboard />} />
         </Routes>
       </Box>
     );

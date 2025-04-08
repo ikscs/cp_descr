@@ -1,4 +1,3 @@
-// d:\dvl\ikscs\react\vp-descr\mui-uf-admin2\src\pages\Settings\ReporListEdit.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -14,11 +13,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  TextField,
   IconButton,
+  DialogActions,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+// import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import {
@@ -28,20 +26,15 @@ import {
   deleteReport,
   Report,
 } from '../../api/data/reportTools';
-import { QueryEdit, ReportConfig, ReportDescriptor } from '../Reports/QueryEdit'; // Import QueryEdit
+import { QueryEdit, ReportConfig, ReportDescriptor } from '../Reports/QueryEdit';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const ReporListEdit: React.FC = () => {
   const [reports, setReports] = useState<Report[]>([]);
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [reportName, setReportName] = useState<string>('');
-  const [reportDescription, setReportDescription] = useState<string>('');
-  const [reportQuery, setReportQuery] = useState<string>('');
-  const [reportConfig, setReportConfig] = useState<string | undefined>('');
-  // const [configError, setConfigError] = useState<string | null>(null); // Removed unused state
-  const [openQueryEditDialog, setOpenQueryEditDialog] = useState<boolean>(false); // New state for QueryEdit dialog
+  const [openQueryEditDialog, setOpenQueryEditDialog] = useState<boolean>(false);
+  const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] = useState<boolean>(false);
+  const [reportToDelete, setReportToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     const loadInitialReports = async () => {
@@ -52,87 +45,38 @@ const ReporListEdit: React.FC = () => {
     loadInitialReports();
   }, []);
 
-  useEffect(() => {
-    if (selectedReport) {
-      setReportName(selectedReport.name);
-      setReportDescription(selectedReport.description);
-      setReportQuery(selectedReport.query);
-      setReportConfig(selectedReport.config);
-    } else {
-      setReportName('');
-      setReportDescription('');
-      setReportQuery('');
-      setReportConfig('');
+  const handleDeleteReport = (reportId: number) => {
+    setReportToDelete(reportId);
+    setOpenConfirmDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (reportToDelete !== null) {
+      const success = await deleteReport(reportToDelete);
+      if (success) {
+        setReports(reports.filter((report) => report.id !== reportToDelete));
+      }
+      setReportToDelete(null);
+      setOpenConfirmDeleteDialog(false);
     }
-  }, [selectedReport]);
-
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedReport(null);
-    setIsEditMode(false);
-    setReportName('');
-    setReportDescription('');
-    setReportQuery('');
-    setReportConfig('');
-  };
-
-  const handleEditReport = (report: Report) => {
-    setSelectedReport(report);
-    setIsEditMode(true);
-    handleOpenDialog();
-  };
-
-  const handleDeleteReport = async (reportId: number) => {
-    const success = await deleteReport(reportId);
-    if (success) {
-      setReports(reports.filter((report) => report.id !== reportId));
-    }
+  const handleCancelDelete = () => {
+    setReportToDelete(null);
+    setOpenConfirmDeleteDialog(false);
   };
 
   const handleCreateReport = () => {
-    setSelectedReport(null);
-    setIsEditMode(false);
-    handleOpenDialog();
+    setSelectedReport({
+      id: -1,
+      name: '',
+      description: '',
+      query: '',
+      config: '',
+      params: [],
+    });
+    setOpenQueryEditDialog(true);
   };
-
-  const handleSaveReport = async () => {
-    if (isEditMode && selectedReport) {
-      const updatedReportData: Report = {
-        ...selectedReport,
-        name: reportName,
-        description: reportDescription,
-        query: reportQuery,
-        config: reportConfig,
-      };
-      const updatedReport = await updateReport(updatedReportData);
-      if (updatedReport) {
-        setReports(
-          reports.map((report) =>
-            report.id === updatedReport.id ? updatedReport : report
-          )
-        );
-      }
-    } else {
-      const newReportData = {
-        id: -1,
-        name: reportName,
-        description: reportDescription,
-        query: reportQuery,
-        params: [],
-      };
-      const newReport = await createReport(newReportData);
-      if (newReport) {
-        setReports([...reports, newReport]);
-      }
-    }
-    handleCloseDialog();
-  };
-
-  // --- New functions for QueryEdit ---
 
   const handleOpenQueryEditDialog = (report: Report) => {
     setSelectedReport(report);
@@ -151,16 +95,23 @@ const ReporListEdit: React.FC = () => {
         ...selectedReport,
         config: JSON.stringify(data.report_config),
         query: data.query,
-        name: data.report_name, // Add this line
-        description: data.report_description, // Add this line
+        name: data.report_name,
+        description: data.report_description,
       };
-      const updatedReport = await updateReport(updatedReportData);
-      if (updatedReport) {
-        setReports(
-          reports.map((report) =>
-            report.id === updatedReport.id ? updatedReport : report
-          )
-        );
+      if (selectedReport.id === -1) {
+        const newReport = await createReport(updatedReportData);
+        if (newReport) {
+          setReports([...reports, newReport]);
+        }
+      } else {
+        const updatedReport = await updateReport(updatedReportData);
+        if (updatedReport) {
+          setReports(
+            reports.map((report) =>
+              report.id === updatedReport.id ? updatedReport : report
+            )
+          );
+        }
       }
     }
     handleCloseQueryEditDialog();
@@ -223,9 +174,6 @@ const ReporListEdit: React.FC = () => {
                 <TableCell>{report.name}</TableCell>
                 <TableCell>{report.description}</TableCell>
                 <TableCell align="right">
-                  <IconButton onClick={() => handleEditReport(report)}>
-                    <EditIcon />
-                  </IconButton>
                   <IconButton onClick={() => handleOpenQueryEditDialog(report)}>
                     <SettingsIcon />
                   </IconButton>
@@ -239,58 +187,6 @@ const ReporListEdit: React.FC = () => {
         </Table>
       </TableContainer>
 
-      {/* Dialog for creating/editing report */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-        <DialogTitle>{isEditMode ? 'Редактировать отчет' : 'Создать отчет'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Название"
-            fullWidth
-            variant="standard"
-            value={reportName}
-            onChange={(e) => setReportName(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Описание"
-            fullWidth
-            variant="standard"
-            value={reportDescription}
-            onChange={(e) => setReportDescription(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="SQL Запрос"
-            fullWidth
-            multiline
-            rows={4}
-            variant="standard"
-            value={reportQuery}
-            onChange={(e) => setReportQuery(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Config (JSON)"
-            fullWidth
-            multiline
-            rows={4}
-            variant="standard"
-            value={reportConfig}
-            onChange={(e) => {
-              setReportConfig(e.target.value)
-            }}
-            // error={!!configError} // Removed unused prop
-            // helperText={configError} // Removed unused prop
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Отмена</Button>
-          <Button onClick={handleSaveReport}>Сохранить</Button>
-        </DialogActions>
-      </Dialog>
-
       {/* Dialog for QueryEdit */}
       <Dialog
         open={openQueryEditDialog}
@@ -299,7 +195,7 @@ const ReporListEdit: React.FC = () => {
         maxWidth="md"
       >
         <DialogTitle>Редактировать параметры отчета</DialogTitle>
-        <DialogContent sx={{ p: 0 }}> {/* Remove padding from DialogContent */}
+        <DialogContent sx={{ p: 0 }}>
           {selectedReport && (
             <QueryEdit
               initialData={{
@@ -311,10 +207,26 @@ const ReporListEdit: React.FC = () => {
                 report_config: getReportConfig(selectedReport),
               }}
               onSubmit={handleQueryEditSubmit}
-              onClose={handleCloseQueryEditDialog} // Pass onClose to QueryEdit
+              onClose={handleCloseQueryEditDialog}
             />
           )}
         </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog for Delete */}
+      <Dialog open={openConfirmDeleteDialog} onClose={handleCancelDelete}>
+        <DialogTitle>Подтверждение удаления</DialogTitle>
+        <DialogContent>
+          <Typography>Вы уверены, что хотите удалить этот отчет?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete}>
+            Отмена
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error">
+            Удалить
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

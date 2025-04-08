@@ -18,44 +18,45 @@ import {
 import ExcelIcon from '@mui/icons-material/FileDownload';
 import ChartIcon from '@mui/icons-material/BarChart';
 import { toExcel } from '../../api/tools/toExcel';
-import LineChart from '../Charts/LineChart';
+import { ChartData, ParsedReport } from './ReportList';
+// import LineChart from '../Charts/LineChart';
 
 interface ReportExecutionResult {
   columns: string[];
   rows: any[][];
 }
 
-interface ParsedReport {
-  id: number;
-  name: string;
-  description: string;
-  query: string;
-  config: {
-    params?: {
-      name: string;
-      description: string;
-      type: string;
-      notNull: boolean;
-      defaultValue: string | number | boolean;
-      selectOptions?: string[];
-    }[];
-    columns?: {
-      field: string;
-      width: number;
-    }[];
-    chart?: {
-      type: string;
-      x_axis: { field: string };
-      y_axis: { field: string };
-      body_fields: string[];
-    };
-  };
-}
+// interface ParsedReport {
+//   id: number;
+//   name: string;
+//   description: string;
+//   query: string;
+//   config: {
+//     params?: {
+//       name: string;
+//       description: string;
+//       type: string;
+//       notNull: boolean;
+//       defaultValue: string | number | boolean;
+//       selectOptions?: string[];
+//     }[];
+//     columns?: {
+//       field: string;
+//       width: number;
+//     }[];
+//     chart?: {
+//       type: string;
+//       x_axis: { field: string };
+//       y_axis: { field: string };
+//       body_fields: string[];
+//     };
+//   };
+// }
 
-interface ChartData {
-  xAxisValues: string[];
-  datasets: { label: string; data: number[] }[];
-}
+// interface ChartData {
+//   xAxisValues: string[];
+//   datasets: { label: string; data: (number | null | undefined)[] }[];
+// }
 
 interface ReportResultProps {
   report: ParsedReport;
@@ -65,6 +66,7 @@ interface ReportResultProps {
   chartData: ChartData | null;
   setChartData: React.Dispatch<React.SetStateAction<ChartData | null>>;
   handleOpenChartDialog: () => void;
+  onReopenParamDialog: () => void;
 }
 
 const ReportResult: React.FC<ReportResultProps> = ({
@@ -72,9 +74,10 @@ const ReportResult: React.FC<ReportResultProps> = ({
   executionResult,
   open,
   onClose,
-  chartData,
-  setChartData,
+  // chartData,
+  // setChartData,
   handleOpenChartDialog,
+  onReopenParamDialog,
 }) => {
   const isErrorResult =
     executionResult &&
@@ -124,6 +127,12 @@ const ReportResult: React.FC<ReportResultProps> = ({
                 onClick={handleOpenChartDialog}
               >
                 График
+              </Button>
+              <Button
+                variant="contained"
+                onClick={onReopenParamDialog}
+              >
+                Изменить параметры
               </Button>
             </>
           )}

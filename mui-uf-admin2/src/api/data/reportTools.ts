@@ -88,7 +88,7 @@ export const createReport = async (report: Report): Promise<Report | null> => {
   }
 };
 
-const _updateReport = async (report: Report): Promise<Report | null> => {
+export const _updateReport = async (report: Report): Promise<Report | null> => {
   try {
     const params = {
         backend_point: backend.backend_point_update,

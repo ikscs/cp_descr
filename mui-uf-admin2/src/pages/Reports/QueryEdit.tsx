@@ -1,4 +1,3 @@
-// d:\dvl\ikscs\react\vp-descr\mui-uf-admin2\src\pages\Reports\QueryEdit.tsx
 import React, { useState, useEffect } from 'react';
 import {
   TextField,
@@ -31,6 +30,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import SelectOptions from './SelectOptions';
+import QueryTest from './QueryTest';
 
 // --- Interfaces ---
 
@@ -220,6 +220,7 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSelectOptionsDialogOpen, setIsSelectOptionsDialogOpen] = useState(false);
   const [currentParamIndex, setCurrentParamIndex] = useState<number | null>(null);
+  const [isQueryTestDialogOpen, setIsQueryTestDialogOpen] = useState(false);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -252,7 +253,13 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
   const handleAddParam = () => {
     handleConfigChange('params', [
       ...reportData.report_config.params,
-      { name: '', description: '', type: 'string', notNull: false },
+      {
+        name: '',
+        description: '',
+        type: 'string',
+        notNull: false,
+        defaultValue: '', // <-- Add a default value here
+      },    
     ]);
   };
 
@@ -330,6 +337,14 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
       newParams[currentParamIndex].selectOptions = newOptions;
       handleConfigChange('params', newParams);
     }
+  };
+
+  const handleOpenQueryTestDialog = () => {
+    setIsQueryTestDialogOpen(true);
+  };
+
+  const handleCloseQueryTestDialog = () => {
+    setIsQueryTestDialogOpen(false);
   };
 
   return (
@@ -551,6 +566,9 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
         <Button variant="outlined" color="primary" onClick={onClose}>
           Закрыть
         </Button>
+        <Button variant="contained" color="primary" onClick={handleOpenQueryTestDialog}>
+          Тестовый отчет
+        </Button>
         <Button variant="contained" color="primary" onClick={handleSubmit}>
           Save Report
         </Button>
@@ -568,6 +586,12 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
           )}
         </DialogContent>
       </Dialog>
+      {/* Query Test Dialog */}
+      <QueryTest
+        _reportData={reportData}
+        open={isQueryTestDialogOpen}
+        onClose={handleCloseQueryTestDialog}
+      />
     </Box>
   );
 };

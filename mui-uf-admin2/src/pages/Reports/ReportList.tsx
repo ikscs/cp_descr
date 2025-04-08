@@ -12,23 +12,20 @@ import {
   Paper,
   IconButton,
   CircularProgress,
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
+  Alert,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import ExcelIcon from '@mui/icons-material/FileDownload';
-import ChartIcon from '@mui/icons-material/BarChart';
 import { getReports, Report } from '../../api/data/reportTools';
 import { backend, fetchData } from '../../api/data/fetchData';
-import { toExcel } from '../../api/tools/toExcel';
 import QueryParam from './QueryParam';
 import packageJson from '../../../package.json';
 import LineChart from '../Charts/LineChart';
-import ReportResult from './ReportResult'; // Import the new component
+import ReportResult from './ReportResult';
 
-interface ReportExecutionResult {
+export interface ReportExecutionResult {
   columns: string[];
   rows: any[][];
 }
@@ -52,7 +49,8 @@ export interface ParsedReport {
       width: number;
     }[];
     chart?: {
-      type: string;
+      // type: string;
+      type: 'buble' | 'linear' | 'circular' | 'other';
       x_axis: { field: string };
       y_axis: { field: string };
       body_fields: string[];
@@ -67,9 +65,9 @@ const ReportToParsedReport = (report: Report): ParsedReport => {
   };
 };
 
-interface ChartData {
+export interface ChartData {
   xAxisValues: string[];
-  datasets: { label: string; data: number[] }[];
+  datasets: { label: string; data: (number | null )[] }[];
 }
 
 const ReportList: React.FC = () => {
@@ -82,7 +80,9 @@ const ReportList: React.FC = () => {
   const [isParamDialogOpen, setIsParamDialogOpen] = useState<boolean>(false);
   const [isChartDialogOpen, setIsChartDialogOpen] = useState<boolean>(false);
   const [chartData, setChartData] = useState<ChartData | null>(null);
-  const [isResultDialogOpen, setIsResultDialogOpen] = useState<boolean>(false); // New state for the result dialog
+  const [isResultDialogOpen, setIsResultDialogOpen] = useState<boolean>(false);
+  const [queryParams, setQueryParams] = useState<{ name: string; value: string | number | boolean }[]>([]);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadReports = async () => {
@@ -90,9 +90,11 @@ const ReportList: React.FC = () => {
       try {
         const fetchedReports = await getReports();
         setReports(fetchedReports);
+        setFetchError(null);
       } catch (err) {
         console.error('Error fetching reports:', err);
-        setError('Ошибка при загрузке отчетов');
+        setFetchError('Ошибка при загрузке отчетов');
+        setReports([]);
       } finally {
         setIsLoading(false);
       }
@@ -105,7 +107,6 @@ const ReportList: React.FC = () => {
     setSelectedReport(ReportToParsedReport(report));
     setExecutionResult(null);
     setError(null);
-    console.log(report);
     const config = report.config ? JSON.parse(report.config) : null;
     if (config && config.params && config.params.length > 0) {
       setIsParamDialogOpen(true);
@@ -122,6 +123,7 @@ const ReportList: React.FC = () => {
     params: { name: string; value: string | number | boolean }[]
   ) => {
     setIsParamDialogOpen(false);
+    setQueryParams(params);
     await executeReport(selectedReport!, params);
   };
 
@@ -136,7 +138,7 @@ const ReportList: React.FC = () => {
     try {
       const result = await executeReportQuery(report.id, params);
       setExecutionResult(result);
-      setIsResultDialogOpen(true); // Open the result dialog
+      setIsResultDialogOpen(true);
     } catch (err) {
       console.error('Error executing report:', err);
       setError('Ошибка при выполнении отчета');
@@ -144,7 +146,7 @@ const ReportList: React.FC = () => {
         columns: ['Error'],
         rows: [[`Error executing report: ${err}`]],
       });
-      setIsResultDialogOpen(true); // Open the result dialog even on error
+      setIsResultDialogOpen(true);
     } finally {
       setIsExecuting(false);
     }
@@ -205,8 +207,6 @@ const ReportList: React.FC = () => {
           );
           const datasets = yAxisIndices.map((yAxisIndex, index) => ({
             label: yAxisFields[index],
-            // Number(null) returns 0, so we need to check for null or undefined
-            // and return null instead of 0
             data: executionResult.rows.map((row) => {
               const value = row[yAxisIndex];
               return value === null || value === undefined ? value : Number(value);
@@ -234,6 +234,11 @@ const ReportList: React.FC = () => {
     setIsResultDialogOpen(false);
   };
 
+  const handleReopenParamDialog = () => {
+    setIsResultDialogOpen(false);
+    setIsParamDialogOpen(true);
+  };
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -244,8 +249,8 @@ const ReportList: React.FC = () => {
         <Box display="flex" justifyContent="center" mt={2}>
           <CircularProgress />
         </Box>
-      ) : error ? (
-        <Typography color="error">{error}</Typography>
+      ) : fetchError ? (
+        <Alert severity="error">{fetchError}</Alert>
       ) : (
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -305,6 +310,7 @@ const ReportList: React.FC = () => {
                 report={selectedReport}
                 onExecute={handleExecuteWithParams}
                 onClose={handleParamDialogClose}
+                initialParams={queryParams}
               />
             )}
         </DialogContent>
@@ -325,6 +331,7 @@ const ReportList: React.FC = () => {
               xAxisValues={chartData.xAxisValues}
               datasets={chartData.datasets}
               onClose={handleCloseChartDialog}
+              onReopenParamDialog={handleReopenParamDialog}
             />
           )}
         </DialogContent>
@@ -340,7 +347,13 @@ const ReportList: React.FC = () => {
           chartData={chartData}
           setChartData={setChartData}
           handleOpenChartDialog={handleOpenChartDialog}
+          onReopenParamDialog={handleReopenParamDialog}
         />
+      )}
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
       )}
     </Box>
   );

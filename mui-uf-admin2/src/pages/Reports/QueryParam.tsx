@@ -14,13 +14,14 @@ import {
   FormControlLabel,
   FormHelperText,
 } from '@mui/material';
-import { Report } from '../../api/data/reportTools';
+//import { Report } from '../../api/data/reportTools';
 import { ParsedReport } from './ReportList';
 
 interface QueryParamProps {
   report: ParsedReport;
   onExecute: (params: { name: string; value: string | number | boolean }[]) => void; // Changed onExecute type
   onClose: () => void;
+  initialParams?: { name: string; value: string | number | boolean }[];
 }
 
 export interface Parameter {
@@ -32,7 +33,7 @@ export interface Parameter {
   options?: string[]; // For select type
 }
 
-const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) => {
+const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, initialParams }) => {
   const [parameters, setParameters] = useState<Parameter[]>([]);
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
@@ -41,7 +42,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
     // const config = report.config ? JSON.parse(report.config) : null;
     const config = report.config
     if (config && config.params) {
-      const initialParams = config.params.map((param: any) => ({
+      const initialParamsFromConfig = config.params.map((param: any) => ({
         name: param.name,
         description: param.description,
         type: param.type,
@@ -54,11 +55,24 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose }) =
         required: param.required || false,
         options: param.selectOptions,
       }));
-      setParameters(initialParams);
+
+      if (initialParams && initialParams.length > 0) {
+        const mergedParams = initialParamsFromConfig.map((paramFromConfig) => {
+          const matchingParam = initialParams.find(
+            (param) => param.name === paramFromConfig.name
+          );
+          return matchingParam
+            ? { ...paramFromConfig, value: matchingParam.value }
+            : paramFromConfig;
+        });
+        setParameters(mergedParams);
+      } else {
+        setParameters(initialParamsFromConfig);
+      }
     } else {
       setParameters([]);
     }
-  }, [report.config?.params]);
+  }, [report.config?.params, initialParams]);
 
   const handleParamChange = (
     index: number,
