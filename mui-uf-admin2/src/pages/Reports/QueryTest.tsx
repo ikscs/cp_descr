@@ -271,8 +271,8 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
                 (row) => row[xAxisIndex]?.toString() ?? '' // Ensure string conversion
             );
             const datasets = yAxisIndices.map((yAxisIndex, index) => ({
-                // label: yAxisValueFields[index], // Use the field name as label
-                label: labels[index],
+                label: yAxisValueFields[index], // Use the field name as label
+                // todo: label: labels[index],
                 data: executionResult.rows.map((row) => {
                     const value = row[yAxisIndex];
                     // Convert to number, handle null/undefined explicitly
