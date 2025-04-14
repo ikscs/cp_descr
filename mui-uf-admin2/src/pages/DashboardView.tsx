@@ -6,6 +6,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 // Импортируем Grid из @mui/material
 import { Box, Grid } from '@mui/material';
 import './DashboardView.css'; // Убедитесь, что стили не конфликтуют с Grid
+import VideoPlayer from '../components/VideoPlayer';
 
 const images = [
   'https://picsum.photos/640/480?random=111',
@@ -14,7 +15,16 @@ const images = [
   'https://loremflickr.com/640/480?random=3344',
   'https://picsum.photos/640/480?random=22331',
   'https://loremflickr.com/640/480?random=4455',
-  // ... (остальные изображения)
+  'https://picsum.photos/640/480?random=22332',
+  'https://loremflickr.com/640/480?random=5665',
+  'https://picsum.photos/640/480?random=22333',
+  'https://loremflickr.com/640/480?random=6677',
+  'https://picsum.photos/640/480?random=22334',
+  'https://loremflickr.com/640/480?random=7887',
+  'https://picsum.photos/640/480?random=22335',
+  'https://loremflickr.com/640/480?random=8998',
+  'https://picsum.photos/640/480?random=22336',
+  'https://loremflickr.com/640/480?random=9009',
   'https://picsum.photos/640/480?random=22337',
   'https://loremflickr.com/640/480?random=10110',
 ];
@@ -38,13 +48,21 @@ const DashboardView: React.FC = () => {
           {/* Обернем видео в Box для возможного дополнительного стайлинга */}
           <Box sx={{ maxWidth: '100%', height: 'auto' }}>
              {/* Лучше использовать относительные пути или переменные окружения для путей к файлам */}
-            <video src="/Google_Mio_SizzleGIF_3840x2160.mp4" autoPlay loop muted width="100%" />
+            <video src="/Google_Mio_SizzleGIF_3840x2160.mp4" autoPlay loop muted width="100%"  />
              {/* Добавил muted, чтобы видео не начинало играть со звуком автоматически */}
              {/* Установил width="100%", чтобы видео адаптировалось к ширине колонки */}
           </Box>
            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Видео 2</Typography>
            <Box sx={{ maxWidth: '100%', height: 'auto' }}>
-            <video src="/Google_Mio_SizzleGIF_3840x2160.mp4" autoPlay loop muted width="100%" />
+            {/* <video src="/Google_Mio_SizzleGIF_3840x2160.mp4" autoPlay loop muted width="100%" /> */}
+            <VideoPlayer
+              src="/Google_Mio_SizzleGIF_3840x2160.mp4"
+              autoPlay
+              loop
+              muted
+              width="100%"
+              playbackRate={1.5} // <-- Передаем состояние скорости как проп
+            />
           </Box>
         </Grid>
 
