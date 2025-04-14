@@ -245,7 +245,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
       ) {
         const xAxisField = chartConfig.x_axis.field;
         const yAxisValueFields = chartConfig.body_fields; // These are the fields for the lines
-        const labels = ['11', '12', '13',];
+        const labels = chartConfig.y_axis.field.split(',') || yAxisValueFields;
 
         const xAxisIndex = executionResult.columns.indexOf(xAxisField);
         const yAxisIndices = yAxisValueFields.map((field) =>
@@ -271,8 +271,8 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
                 (row) => row[xAxisIndex]?.toString() ?? '' // Ensure string conversion
             );
             const datasets = yAxisIndices.map((yAxisIndex, index) => ({
-                label: yAxisValueFields[index], // Use the field name as label
-                // todo: label: labels[index],
+                // label: yAxisValueFields[index], // Use the field name as label
+                label: labels[index],
                 data: executionResult.rows.map((row) => {
                     const value = row[yAxisIndex];
                     // Convert to number, handle null/undefined explicitly
@@ -389,7 +389,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
         fullWidth
         maxWidth="lg" // Use lg for potentially wider charts
       >
-        <DialogTitle sx={{ pb: 0 }}>График: {reportData.name}</DialogTitle>
+        {/* <DialogTitle sx={{ pb: 0 }}>График: {reportData.name}</DialogTitle> */}
         <DialogContent>
           {/* LineChart component expects data and options */}
           {/* Wrap LineChart in a Box to ensure it takes height */}

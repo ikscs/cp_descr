@@ -92,6 +92,7 @@ const LineChart: React.FC<LineChartProps> = ({
       title: {
         display: true,
         text: reportName,
+        font: { size: 22 }, // Increase font size for better readability
       },
       tooltip: {
         mode: 'index', // Show tooltips for all datasets at the same x-index
@@ -116,6 +117,7 @@ const LineChart: React.FC<LineChartProps> = ({
           display: true,
           // You might want to add a y-axis title if applicable
           // text: 'Y Axis Label'
+          text: 'Y Axis Label'
         }
       },
     },

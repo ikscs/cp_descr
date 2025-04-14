@@ -294,6 +294,7 @@ const ReportList: React.FC = () => {
       ) {
         const xAxisField = chartConfig.x_axis.field;
         const yAxisValueFields = chartConfig.body_fields; // These are the fields for the lines
+        const labels = chartConfig.y_axis.field.split(',') || yAxisValueFields;
 
         const xAxisIndex = executionResult.columns.indexOf(xAxisField);
         const yAxisIndices = yAxisValueFields.map((field) =>
@@ -319,7 +320,8 @@ const ReportList: React.FC = () => {
                 (row) => row[xAxisIndex]?.toString() ?? '' // Ensure string conversion, handle null/undefined
             );
             const datasets = yAxisIndices.map((yAxisIndex, index) => ({
-                label: yAxisValueFields[index], // Use the field name as label
+                // label: yAxisValueFields[index], // Use the field name as label
+                label: labels[index],
                 data: executionResult.rows.map((row) => {
                     const value = row[yAxisIndex];
                     // Convert to number, handle null/undefined explicitly
@@ -493,7 +495,7 @@ const ReportList: React.FC = () => {
         fullWidth
         maxWidth="lg" // Use lg for potentially wider charts
       >
-        <DialogTitle sx={{ pb: 0 }}>График: {selectedReport?.name}</DialogTitle>
+        {/* <DialogTitle sx={{ pb: 0 }}>График: {selectedReport?.name}</DialogTitle> */}
         <DialogContent>
           {chartData && selectedReport ? ( // Ensure chartData and selectedReport are available
              <Box sx={{ height: '60vh', minHeight: '400px', position: 'relative' }}>
