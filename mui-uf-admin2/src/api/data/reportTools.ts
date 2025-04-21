@@ -1,9 +1,11 @@
 // src/api/data/reportTools.ts
-import { backend, fetchData, IFetchResponse, postData } from './fetchData';
+import { getBackend, fetchData, IFetchResponse, postData } from './fetchData';
 import packageJson from '../../../package.json';
 import { getMax } from './dataTools';
 import { Parameter } from '../../pages/Reports/QueryParam';
 // import { string } from 'yup';
+import { IWhereClause } from './genericApiTypes';
+// import { get } from 'http';
 
 export interface Report {
   id: number;
@@ -16,14 +18,26 @@ export interface Report {
 }
 
 const REPORT_TABLE = 'cp3.perm_report'; 
+// const REPORT_TABLE = 'public.perm_report'; 
 
-export const getReports = async (): Promise<Report[]> => {
+const backend = getBackend()
+
+export const getReports = async (report_id?: number): Promise<Report[]> => {
   try {
+    const where: IWhereClause = {
+      app_id: packageJson.name,
+    };
+    
+    if (report_id !== undefined) {
+      where.report_id = report_id; // Добавляем фильтр по ID, если он передан
+    }
+
     const params = {
       from: REPORT_TABLE,
       fields: 'report_id, report_name, report_description, query, report_config', 
       order: 'report_name',
-      where: {app_id: packageJson.name},
+      // where: {app_id: packageJson.name},
+      where,
     };
     const response: IFetchResponse = (await fetchData(params));
     const stringToParams = (config: string): Parameter[] => {
@@ -62,19 +76,22 @@ export const getReports = async (): Promise<Report[]> => {
 };
 
 const qq = (s: string) => `''${s}''`
+// const q2 = (s: string) => s.replace(/'/g, "''")
+const q4 = (s: string) => s.replace(/'/g, "''''")
+export const q2 = (s: string) => s
 
 export const createReport = async (report: Report): Promise<Report | null> => {
   try {
     const _max = await getMax({
         field: 'report_id',
-        from: 'cp3.perm_report',
+        from: REPORT_TABLE,
         where: {app_id: packageJson.name}
     })
     report.id = _max + 1;
 
     const postParam = {
         backend_point: backend.backend_point_insert,
-        dest: 'cp3.perm_report',
+        dest: REPORT_TABLE,
         fields: 'app_id,report_id,report_name,report_description,query,report_config',
         values: [[qq(packageJson.name), report.id, qq(report.name), qq(report.description), qq(report.query), qq(report.config||'')]]
     }
@@ -92,7 +109,7 @@ export const _updateReport = async (report: Report): Promise<Report | null> => {
   try {
     const params = {
         backend_point: backend.backend_point_update,
-        dest: 'cp3.perm_report',
+        dest: REPORT_TABLE,
         fields: 'report_name,report_description,query',
         set: {
             report_name: qq(report.name),
@@ -113,12 +130,19 @@ export const _updateReport = async (report: Report): Promise<Report | null> => {
 export const updateReport = async (report: Report): Promise<Report | null> => {
     try {
         const updateQuery = 
-        `UPDATE cp3.perm_report SET 
+        `UPDATE ${REPORT_TABLE} SET 
             report_name = ''${report.name}'', 
             report_description = ''${report.description}'',
-            query = ''${report.query}'',
+            query = ''${q4(report.query)}'',
             report_config = ''${report.config||''}''
         WHERE app_id = ''${packageJson.name}'' AND report_id = ${report.id};`
+
+        // `UPDATE cp3.perm_report SET 
+        //     report_name = '${report.name}', 
+        //     report_description = '${report.description}',
+        //     query = '${report.query}',
+        //     report_config = '${report.config||''}'
+        // WHERE app_id = '${packageJson.name}' AND report_id = ${report.id};`
 
         const result = await postData({
             backend_point: backend.backend_point_query,
@@ -136,7 +160,7 @@ export const updateReport = async (report: Report): Promise<Report | null> => {
 export const deleteReport = async (reportId: number): Promise<boolean> => {
   try {
     const deleteQuery = 
-        `DELETE FROM cp3.perm_report WHERE app_id = ''${packageJson.name}'' AND report_id = ${reportId};`
+        `DELETE FROM ${REPORT_TABLE} WHERE app_id = ''${packageJson.name}'' AND report_id = ${reportId};`
     const result = await postData({
         backend_point: backend.backend_point_query,
         query: deleteQuery, 

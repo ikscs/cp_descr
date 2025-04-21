@@ -14,6 +14,11 @@ const getApiKey = () => {
     }
   };
 
+  const getBackendType = () => {
+    return import.meta.env.VITE_BACKEND_TYPE || 'unknown';
+  };
+  
   export const tenantId = import.meta.env.VITE_USERFRONT_TENANT_ID;
   export const apiKey = getApiKey();
   export const basename = getBaseName();
+  export const backendType = getBackendType;

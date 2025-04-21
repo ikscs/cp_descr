@@ -1,5 +1,5 @@
 // ReportList.tsx
-import React, { useState, useEffect, useMemo } from 'react'; // Import useMemo
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -16,17 +16,21 @@ import {
   DialogTitle,
   DialogContent,
   Alert,
-  TextField, // Import TextField
+  TextField,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { getReports, Report } from '../../api/data/reportTools';
-import { backend, fetchData } from '../../api/data/fetchData';
+import { fetchData, getBackend } from '../../api/data/fetchData';
 import QueryParam from './QueryParam';
 import packageJson from '../../../package.json';
 import LineChart from '../Charts/LineChart';
+import CircularChart from '../Charts/CircularChart'; // <-- 1. Импортируем CircularChart
 import ReportResult from './ReportResult';
+// import { get } from 'http';
 
-// ... (keep existing interfaces: ReportExecutionResult, ParsedReport, ChartData) ...
+const backend = getBackend();
+
+// ... (keep existing interfaces: ReportExecutionResult, ParsedReport, ChartData, ReportToParsedReport) ...
 export interface ReportExecutionResult {
   columns: string[];
   rows: any[][];
@@ -51,41 +55,45 @@ export interface ParsedReport {
       width: number;
     }[];
     chart?: {
-      // type: string;
-      type: 'buble' | 'linear' | 'circular' | 'other';
+      type: 'buble' | 'linear' | 'circular' | 'other'; // Убедись, что 'circular' есть
       x_axis: { field: string };
-      y_axis: { field: string };
-      body_fields: string[];
+      y_axis: { field: string }; // Используется для заголовков (линий/сегментов)
+      body_fields: string[]; // Поля для данных
     };
   };
 }
 
-const ReportToParsedReport = (report: Report): ParsedReport => {
+export const ReportToParsedReport = (report: Report): ParsedReport => {
   try {
-    // Add basic check for config string before parsing
     const configObject = report.config && typeof report.config === 'string'
       ? JSON.parse(report.config)
-      : null; // Or provide a default empty config object if needed
-
-    // Ensure config is an object, even if parsing fails or config is null/undefined
+      : null;
     const config = typeof configObject === 'object' && configObject !== null
       ? configObject
-      : { params: [], columns: [], chart: undefined }; // Default structure
+      : { params: [], columns: [], chart: undefined };
+
+    // Добавим проверку и установку типа графика по умолчанию, если он отсутствует
+    if (config.chart && !config.chart.type) {
+        config.chart.type = 'linear'; // По умолчанию линейный
+    }
+
 
     return {
       id: report.id,
-      name: report.name || '', // Ensure name is a string
-      description: report.description || '', // Ensure description is a string
-      query: report.query || '', // Ensure query is a string
-      config: { // Ensure config and its properties exist
+      name: report.name || '',
+      description: report.description || '',
+      query: report.query || '',
+      config: {
         params: Array.isArray(config.params) ? config.params : [],
         columns: Array.isArray(config.columns) ? config.columns : [],
-        chart: typeof config.chart === 'object' ? config.chart : undefined,
+        // Убедимся, что chart является объектом и имеет тип
+        chart: typeof config.chart === 'object' && config.chart?.type
+            ? config.chart
+            : undefined,
       },
     };
   } catch (error) {
     console.error(`Error parsing config for report ID ${report.id}:`, error, "Config string:", report.config);
-    // Return a default ParsedReport structure in case of error
     return {
       id: report.id,
       name: report.name || '',
@@ -98,8 +106,8 @@ const ReportToParsedReport = (report: Report): ParsedReport => {
 
 
 export interface ChartData {
-  xAxisValues: string[];
-  datasets: { label: string; data: (number | null )[] }[];
+  xAxisValues: string[]; // Для LineChart - значения оси X, для CircularChart - метки сегментов
+  datasets: { label: string; data: (number | null )[] }[]; // Для LineChart - несколько наборов данных, для CircularChart - обычно один
 }
 
 
@@ -113,17 +121,18 @@ const ReportList: React.FC = () => {
   const [isParamDialogOpen, setIsParamDialogOpen] = useState<boolean>(false);
   const [isChartDialogOpen, setIsChartDialogOpen] = useState<boolean>(false);
   const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [chartType, setChartType] = useState<'linear' | 'circular' | null>(null); // <-- 2. Состояние для типа графика
   const [isResultDialogOpen, setIsResultDialogOpen] = useState<boolean>(false);
   const [queryParams, setQueryParams] = useState<{ name: string; value: string | number | boolean }[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [filterText, setFilterText] = useState<string>(''); // State for the filter input
+  const [filterText, setFilterText] = useState<string>('');
 
   useEffect(() => {
     const loadReports = async () => {
       setIsLoading(true);
       try {
         const fetchedReports = await getReports();
-        setReports(fetchedReports || []); // Ensure reports is always an array
+        setReports(fetchedReports || []);
         setFetchError(null);
       } catch (err) {
         console.error('Error fetching reports:', err);
@@ -137,49 +146,47 @@ const ReportList: React.FC = () => {
     loadReports();
   }, []);
 
-  // Memoize filtered reports to avoid recalculating on every render
   const filteredReports = useMemo(() => {
     if (!filterText) {
-      return reports; // Return all reports if filter is empty
+      return reports;
     }
     const lowerCaseFilter = filterText.toLowerCase();
     return reports.filter(report =>
       (report.name?.toLowerCase() || '').includes(lowerCaseFilter) ||
       (report.description?.toLowerCase() || '').includes(lowerCaseFilter)
     );
-  }, [reports, filterText]); // Recalculate only when reports or filterText changes
+  }, [reports, filterText]);
 
 
   const handleExecuteReport = async (report: Report) => {
-    const parsedReport = ReportToParsedReport(report); // Parse here
+    const parsedReport = ReportToParsedReport(report);
     setSelectedReport(parsedReport);
     setExecutionResult(null);
     setError(null);
-    // Use the parsedReport's config
-    if (parsedReport.config && parsedReport.config.params && parsedReport.config.params.length > 0) {
+    setChartData(null); // Сброс данных графика при новом запуске
+    setChartType(null);  // Сброс типа графика
+    if (parsedReport.config?.params?.length || 0 > 0) {
+      setQueryParams((parsedReport.config.params||[]).map(p => ({ name: p.name, value: p.defaultValue }))); // Инициализация параметров по умолчанию
       setIsParamDialogOpen(true);
     } else {
-      await executeReport(parsedReport, []); // Pass parsedReport
+      await executeReport(parsedReport, []);
     }
   };
 
   const handleParamDialogClose = () => {
     setIsParamDialogOpen(false);
-    // Optionally reset selectedReport if needed when closing param dialog without execution
-    // setSelectedReport(null);
   };
 
   const handleExecuteWithParams = async (
     params: { name: string; value: string | number | boolean }[]
   ) => {
     setIsParamDialogOpen(false);
-    setQueryParams(params); // Store params used for potential re-open
-    if (selectedReport) { // Ensure selectedReport is not null
+    setQueryParams(params);
+    if (selectedReport) {
         await executeReport(selectedReport, params);
     } else {
         console.error("Cannot execute report: selectedReport is null.");
         setError("Не удалось выполнить отчет: отчет не выбран.");
-        // Potentially show an error message to the user
     }
   };
 
@@ -189,22 +196,26 @@ const ReportList: React.FC = () => {
   ) => {
     setIsExecuting(true);
     setExecutionResult(null);
-    setError(null); // Clear previous errors
+    setError(null);
 
     try {
       const result = await executeReportQuery(report.id, params);
       setExecutionResult(result);
-      setIsResultDialogOpen(true); // Open result dialog on success
-    } catch (err: any) { // Catch specific error type if possible
+      // Проверяем, есть ли ошибка в результате перед открытием диалога
+      const isErrorResult = result.columns.length === 1 && (result.columns[0] === 'Ошибка' || result.columns[0] === 'Сообщение');
+      if (isErrorResult && result.columns[0] === 'Ошибка') {
+          setError(result.rows[0]?.[0] || 'Неизвестная ошибка выполнения');
+      }
+      setIsResultDialogOpen(true);
+    } catch (err: any) {
       console.error('Error executing report:', err);
       const errorMessage = err.message || 'Неизвестная ошибка';
       setError(`Ошибка при выполнении отчета: ${errorMessage}`);
-      // Optionally set a specific error state for the result dialog
       setExecutionResult({
         columns: ['Ошибка'],
         rows: [[`Не удалось выполнить отчет: ${errorMessage}`]],
       });
-      setIsResultDialogOpen(true); // Still open result dialog to show the error
+      setIsResultDialogOpen(true);
     } finally {
       setIsExecuting(false);
     }
@@ -214,7 +225,6 @@ const ReportList: React.FC = () => {
     id: number,
     params: { name: string; value: string | number | boolean }[]
   ): Promise<ReportExecutionResult> => {
-    // Keep the existing implementation, but enhance error handling
     try {
       const paramsToSend = {
         backend_point: backend.backend_point_report,
@@ -225,169 +235,195 @@ const ReportList: React.FC = () => {
 
       const response: any = await fetchData(paramsToSend);
 
-      // --- Improved Error Handling ---
       if (!response) {
           throw new Error('No response received from backend.');
       }
 
-      // Check for explicit error flags or status codes from fetchData/backend
-      // This depends on how fetchData signals errors (e.g., response.ok, response.status)
       const isErrorStatus = response.ok === false || (response.status && response.status >= 400);
-      const responseData = response.data || response; // Adjust based on where data/error message is
+      const responseData = response.data || response;
 
       if (isErrorStatus) {
-          // Try to extract a meaningful error message from the response
-          const errorMsg = response.error // If backend sends { error: '...' }
-                        || response.message // If backend sends { message: '...' }
-                        || (typeof responseData === 'string' ? responseData : null) // If error is just a string response
-                        || response.statusText // Standard HTTP status text
+          const errorMsg = response.error
+                        || response.message
+                        || (typeof responseData === 'string' ? responseData : null)
+                        || response.statusText
                         || `HTTP error ${response.status || 'unknown'}`;
-          throw new Error(`Backend error: ${errorMsg}`);
+          // Возвращаем результат с ошибкой, чтобы показать в таблице
+          // throw new Error(`Backend error: ${errorMsg}`);
+          return { columns: ['Ошибка'], rows: [[`Ошибка бэкенда: ${errorMsg}`]] };
       }
-      // --- End Improved Error Handling ---
 
-
-      // Handle empty results specifically
       if (!responseData || (Array.isArray(responseData) && responseData.length === 0)) {
         return { columns: ['Сообщение'], rows: [['Нет данных']] };
       }
 
-      // Basic check for valid data structure (array of objects)
-      if (!Array.isArray(responseData) || typeof responseData[0] !== 'object' || responseData[0] === null) {
+      if (!Array.isArray(responseData) || responseData.length === 0 || typeof responseData[0] !== 'object' || responseData[0] === null) {
           console.warn("Received unexpected data format from backend:", responseData);
-          // You might want to throw an error here instead, depending on requirements
           return { columns: ['Сообщение'], rows: [['Некорректный формат данных в ответе']] };
       }
-
 
       const columns = Object.keys(responseData[0]);
       const rows = responseData.map((row: any) => columns.map((col) => row[col]));
       return { columns, rows };
     } catch (err: any) {
       console.error("Error in executeReportQuery:", err);
-      // Rethrow the error to be caught by the calling executeReport function
-      // This allows the UI to display a user-friendly message via the setError state
-      throw new Error(err.message || 'Failed to fetch or process report data.');
+      // Возвращаем результат с ошибкой
+      return { columns: ['Ошибка'], rows: [[`Ошибка запроса данных: ${err.message || 'Неизвестная ошибка'}`]] };
+      // throw new Error(err.message || 'Failed to fetch or process report data.');
     }
   };
 
 
+  // <-- 3. Обновляем handleOpenChartDialog -->
   const handleOpenChartDialog = () => {
-    setError(null); // Clear previous errors
+    setError(null); // Clear previous UI errors
     if (executionResult && selectedReport) {
-       // Check if result is just an error/message
-       if (executionResult.columns.length === 1 && (executionResult.columns[0] === 'Ошибка' || executionResult.columns[0] === 'Сообщение')) {
-           setError("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
-           // Optionally close the result dialog and show error alert, or keep result dialog open
-           // setIsResultDialogOpen(false); // Example: close result dialog
-           return; // Stop chart generation
-       }
+        // Check if the execution result itself indicates an error or just a message
+        if (executionResult.columns.length === 1 && (executionResult.columns[0] === 'Ошибка' || executionResult.columns[0] === 'Сообщение')) {
+            setError("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
+            // Don't proceed to open the chart dialog
+            return;
+        }
 
-      const config = selectedReport.config;
-      const chartConfig = config?.chart;
+        const config = selectedReport.config;
+        const chartConfig = config?.chart;
 
-      if (
-        chartConfig &&
-        chartConfig.x_axis?.field && // Check field exists
-        chartConfig.body_fields &&
-        chartConfig.body_fields.length > 0
-      ) {
+        // Ensure chart config is complete
+        if (
+            !chartConfig ||
+            !chartConfig.type || // Make sure type is defined
+            !chartConfig.x_axis?.field ||
+            !chartConfig.body_fields ||
+            chartConfig.body_fields.length === 0
+        ) {
+            setError('Конфигурация графика (тип, оси X, поля данных) не задана или неполная.');
+            return;
+        }
+
         const xAxisField = chartConfig.x_axis.field;
-        const yAxisValueFields = chartConfig.body_fields; // These are the fields for the lines
-        const labels = chartConfig.y_axis.field.split(',') || yAxisValueFields;
+        const yAxisValueFields = chartConfig.body_fields;
+        const yAxisLabels = chartConfig.y_axis?.field?.split(',') || yAxisValueFields;
 
         const xAxisIndex = executionResult.columns.indexOf(xAxisField);
         const yAxisIndices = yAxisValueFields.map((field) =>
-          executionResult.columns.indexOf(field)
+            executionResult.columns.indexOf(field)
         );
 
         // Validate indices
         if (xAxisIndex === -1) {
             setError(`Поле для оси X '${xAxisField}' не найдено в результатах.`);
-            // setIsResultDialogOpen(false); // Optionally close result dialog
             return;
         }
-        if (yAxisIndices.some((index) => index === -1)) {
+        // For circular, we only strictly need the first Y field index
+        if (chartConfig.type === 'circular' && yAxisIndices[0] === -1) {
+             setError(`Поле для данных '${yAxisValueFields[0]}' не найдено в результатах.`);
+             return;
+        }
+        // For linear, check all Y field indices
+        if (chartConfig.type !== 'circular' && yAxisIndices.some((index) => index === -1)) {
             const missing = yAxisValueFields.filter((_, i) => yAxisIndices[i] === -1);
             setError(`Одно или несколько полей для данных (${missing.join(', ')}) не найдены в результатах.`);
-            // setIsResultDialogOpen(false); // Optionally close result dialog
             return;
         }
 
-        // Process data
+        // Process data based on chart type
         try {
-            const xAxisValues = executionResult.rows.map(
-                (row) => row[xAxisIndex]?.toString() ?? '' // Ensure string conversion, handle null/undefined
-            );
-            const datasets = yAxisIndices.map((yAxisIndex, index) => ({
-                // label: yAxisValueFields[index], // Use the field name as label
-                label: labels[index],
-                data: executionResult.rows.map((row) => {
-                    const value = row[yAxisIndex];
-                    // Convert to number, handle null/undefined explicitly
-                    if (value === null || value === undefined) return null;
-                    const num = Number(value);
-                    return !isNaN(num) ? num : null; // Return null if conversion fails
-                }),
-                // Add other dataset properties if needed (colors, etc.)
-            }));
+            let processedChartData: ChartData | null = null;
 
-            setChartData({ xAxisValues, datasets });
-            setIsResultDialogOpen(false); // Close result dialog
-            setIsChartDialogOpen(true); // Open chart dialog
+            if (chartConfig.type === 'circular') {
+                // --- Circular Chart Data Preparation ---
+                if (yAxisIndices.length > 1) {
+                    console.warn("Circular chart config has multiple body_fields. Using the first one:", yAxisValueFields[0]);
+                }
+
+                const segmentLabels = executionResult.rows.map(
+                    (row) => row[xAxisIndex]?.toString() ?? ''
+                );
+                const segmentValues = executionResult.rows.map((row) => {
+                    const value = row[yAxisIndices[0]]; // Use first Y field
+                    if (value === null || value === undefined) return 0; // Default to 0 for circular
+                    const num = Number(value);
+                    return !isNaN(num) ? num : 0; // Default to 0 if conversion fails
+                });
+                const datasetLabel = yAxisLabels[0] || yAxisValueFields[0]; // Use first label
+
+                processedChartData = {
+                    xAxisValues: segmentLabels, // Segment labels
+                    datasets: [{ label: datasetLabel, data: segmentValues }] // Single dataset
+                };
+                setChartType('circular');
+
+            } else { // Default to linear or handle other types like 'linear' explicitly
+                // --- Linear Chart Data Preparation (Existing Logic) ---
+                const xAxisValues = executionResult.rows.map(
+                    (row) => row[xAxisIndex]?.toString() ?? ''
+                );
+                const datasets = yAxisIndices.map((yAxisIndex, index) => ({
+                    label: yAxisLabels[index] || yAxisValueFields[index],
+                    data: executionResult.rows.map((row) => {
+                        const value = row[yAxisIndex];
+                        if (value === null || value === undefined) return null;
+                        const num = Number(value);
+                        return !isNaN(num) ? num : null;
+                    }),
+                }));
+                processedChartData = { xAxisValues, datasets };
+                setChartType('linear'); // Assume linear if not circular
+            }
+
+            // Set data and open dialog if processing was successful
+            if (processedChartData) {
+                setChartData(processedChartData);
+                setIsResultDialogOpen(false); // Close result dialog
+                setIsChartDialogOpen(true); // Open chart dialog
+            } else {
+                 setError("Не удалось обработать данные для графика.");
+            }
+
         } catch (processError: any) {
             console.error("Error processing data for chart:", processError);
             setError(`Ошибка при обработке данных для графика: ${processError.message}`);
-            // setIsResultDialogOpen(false); // Optionally close result dialog
         }
 
-      } else {
-        setError('Конфигурация графика (оси X, поля данных) не задана или неполная.');
-        // setIsResultDialogOpen(false); // Optionally close result dialog
-      }
     } else {
-        setError("Нет данных для построения графика (результат выполнения отсутствует).");
-        // setIsResultDialogOpen(false); // Optionally close result dialog
+        setError("Нет данных для построения графика (результат выполнения отсутствует или отчет не выбран).");
     }
-  };
+};
 
 
   const handleCloseChartDialog = () => {
     setIsChartDialogOpen(false);
     setChartData(null); // Clear chart data when closing
+    setChartType(null); // Clear chart type
   };
 
   const handleResultDialogClose = () => {
     setIsResultDialogOpen(false);
-    // Reset states related to the specific execution when closing results
-    // setExecutionResult(null); // Keep result if user might reopen? Decide based on UX.
-    // setSelectedReport(null); // Keep selected report for context?
-    // setQueryParams([]); // Reset params used?
-    setError(null); // Clear any execution errors shown in the main list area
+    // Consider resetting executionResult, selectedReport, queryParams here if needed
+    // setError(null); // Clear execution errors shown in the main list area
   };
 
-  // Handler to go back from Results/Chart to Params
   const handleReopenParamDialog = () => {
-    if (selectedReport?.config?.params && selectedReport.config.params.length > 0) {
-        setIsResultDialogOpen(false); // Close results
-        setIsChartDialogOpen(false); // Close chart
-        setChartData(null); // Clear chart data
-        // Keep executionResult? Maybe not needed if re-executing.
-        // Keep queryParams as they were for this report execution
-        setIsParamDialogOpen(true); // Reopen params
+    if (selectedReport?.config?.params?.length || 0 > 0) {
+        setIsResultDialogOpen(false);
+        setIsChartDialogOpen(false);
+        setChartData(null);
+        setChartType(null);
+        // queryParams should still hold the last used parameters
+        setIsParamDialogOpen(true);
     } else {
-        // Handle case where report has no params - maybe just close?
+        // If no params, maybe just close the current dialog?
         handleResultDialogClose();
         handleCloseChartDialog();
+        // Optionally show a message that there are no parameters
     }
   };
 
 
   return (
-    <Box sx={{ p: 2 }}> {/* Add padding to the main container */}
-      {/* Title and Filter Row */}
+    <Box sx={{ p: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6" gutterBottom sx={{ mb: 0 }}> {/* Remove bottom margin from Typography */}
+        <Typography variant="h6" gutterBottom sx={{ mb: 0 }}>
           Список отчетов для выполнения
         </Typography>
         <TextField
@@ -396,11 +432,10 @@ const ReportList: React.FC = () => {
           size="small"
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
-          sx={{ width: '300px' }} // Adjust width as needed
+          sx={{ width: '300px' }}
         />
       </Box>
 
-      {/* Loading/Error State */}
       {isLoading ? (
         <Box display="flex" justifyContent="center" mt={2}>
           <CircularProgress />
@@ -408,7 +443,6 @@ const ReportList: React.FC = () => {
       ) : fetchError ? (
         <Alert severity="error">{fetchError}</Alert>
       ) : (
-        // Report Table
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
@@ -424,7 +458,7 @@ const ReportList: React.FC = () => {
                  filteredReports.map((report) => (
                    <TableRow
                      key={report.id}
-                     hover // Add hover effect
+                     hover
                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                    >
                      <TableCell component="th" scope="row">
@@ -436,10 +470,9 @@ const ReportList: React.FC = () => {
                        <IconButton
                          aria-label={`Выполнить отчет ${report.name}`}
                          onClick={() => handleExecuteReport(report)}
-                         disabled={isExecuting && selectedReport?.id === report.id} // Disable only the button for the currently executing report
+                         disabled={isExecuting && selectedReport?.id === report.id}
                          color="primary"
                        >
-                         {/* Show progress only for the specific report being executed */}
                          {isExecuting && selectedReport?.id === report.id ? (
                            <CircularProgress size={24} />
                          ) : (
@@ -472,66 +505,81 @@ const ReportList: React.FC = () => {
           Параметры для отчета: {selectedReport?.name || 'Загрузка...'}
         </DialogTitle>
         <DialogContent>
-          {/* Ensure selectedReport and its config/params are loaded before rendering QueryParam */}
           {selectedReport?.config?.params ? (
               <QueryParam
                 report={selectedReport}
                 onExecute={handleExecuteWithParams}
                 onClose={handleParamDialogClose}
-                initialParams={queryParams} // Pass previously used params for this report
+                initialParams={queryParams}
               />
+            ) : selectedReport ? (
+                // Случай, когда отчет выбран, но параметров нет (хотя логика handleExecuteReport должна это предотвращать)
+                 <Typography>У этого отчета нет настраиваемых параметров.</Typography>
             ) : (
-              // Optional: Show a loading or placeholder if selectedReport is somehow null here
               <CircularProgress />
             )
           }
         </DialogContent>
       </Dialog>
 
-      {/* Chart Dialog */}
+      {/* <-- 4. Обновляем рендеринг диалога графика --> */}
       <Dialog
         open={isChartDialogOpen}
         onClose={handleCloseChartDialog}
         fullWidth
-        maxWidth="lg" // Use lg for potentially wider charts
+        // Можно сделать ширину разной для разных типов
+        maxWidth={chartType === 'circular' ? 'md' : 'lg'}
       >
-        {/* <DialogTitle sx={{ pb: 0 }}>График: {selectedReport?.name}</DialogTitle> */}
         <DialogContent>
-          {chartData && selectedReport ? ( // Ensure chartData and selectedReport are available
+          {chartData && selectedReport && chartType ? ( // Убедимся, что все данные есть
              <Box sx={{ height: '60vh', minHeight: '400px', position: 'relative' }}>
-                <LineChart
-                  reportName={selectedReport.name || ''}
-                  xAxisValues={chartData.xAxisValues}
-                  datasets={chartData.datasets}
-                  onClose={handleCloseChartDialog} // Close only the chart dialog
-                  onReopenParamDialog={handleReopenParamDialog} // Go back to params
-                />
+                {chartType === 'circular' ? (
+                    <CircularChart
+                        reportName={selectedReport.name || ''}
+                        labels={chartData.xAxisValues} // Для CircularChart это метки сегментов
+                        // Данные для CircularChart: один dataset с числовыми значениями
+                        datasets={chartData.datasets.map(ds => ({
+                            label: ds.label, // Метка набора данных (может отображаться в легенде/тултипах)
+                            data: ds.data.map(d => d ?? 0), // Преобразуем null в 0 для круговой диаграммы
+                        }))}
+                        onClose={handleCloseChartDialog}
+                        onReopenParamDialog={handleReopenParamDialog}
+                    />
+                ) : ( // По умолчанию или если chartType === 'linear'
+                    <LineChart
+                        reportName={selectedReport.name || ''}
+                        xAxisValues={chartData.xAxisValues} // Значения оси X
+                        datasets={chartData.datasets} // Наборы данных для линий
+                        onClose={handleCloseChartDialog}
+                        onReopenParamDialog={handleReopenParamDialog}
+                    />
+                )}
              </Box>
           ) : (
-             <Typography>Нет данных для отображения графика.</Typography> // Fallback
+             // Сообщение, если данных нет или тип не определен
+             <Typography align="center" sx={{ mt: 4 }}>Нет данных для отображения графика или тип графика не определен.</Typography>
           )}
         </DialogContent>
-        {/* Actions like close/reopen params are handled by LineChart's internal buttons */}
       </Dialog>
 
 
-      {/* Report Result Dialog (using ReportResult component) */}
-      {selectedReport && executionResult && isResultDialogOpen && ( // Control via isResultDialogOpen
+      {/* Report Result Dialog */}
+      {selectedReport && executionResult && isResultDialogOpen && (
         <ReportResult
           report={selectedReport}
           executionResult={executionResult}
-          open={isResultDialogOpen} // Pass the state to control visibility
-          onClose={handleResultDialogClose} // Handler to close this dialog
-          chartData={chartData} // Pass chartData (might be null)
-          setChartData={setChartData} // Pass setter (might be unused by ReportResult)
-          handleOpenChartDialog={handleOpenChartDialog} // Pass handler to switch view to chart
-          onReopenParamDialog={handleReopenParamDialog} // Pass handler to switch view to params
+          open={isResultDialogOpen}
+          onClose={handleResultDialogClose}
+          chartData={chartData} // Передаем, но ReportResult может его не использовать напрямую
+          setChartData={setChartData} // Передаем, но ReportResult может его не использовать напрямую
+          handleOpenChartDialog={handleOpenChartDialog} // Передаем обработчик для кнопки "График"
+          onReopenParamDialog={handleReopenParamDialog} // Передаем обработчик для кнопки "Изменить параметры"
         />
       )}
 
-      {/* Global Error Alert (for errors not shown in dialogs) */}
-      {error && !isResultDialogOpen && !isChartDialogOpen && ( // Show only if no dialog is open showing an error
-        <Alert severity="error" sx={{ mt: 2 }}>
+      {/* Global Error Alert */}
+      {error && !isResultDialogOpen && !isChartDialogOpen && (
+        <Alert severity="error" sx={{ mt: 2 }} onClose={() => setError(null)}>
           {error}
         </Alert>
       )}

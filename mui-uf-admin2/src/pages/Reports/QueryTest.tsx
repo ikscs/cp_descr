@@ -13,11 +13,15 @@ import {
 } from '@mui/material';
 import { ChartData, ParsedReport, ReportExecutionResult } from '../Reports/ReportList';
 import { ReportDescriptor } from './QueryEdit';
-import { backend, fetchData } from '../../api/data/fetchData';
+import { fetchData, getBackend } from '../../api/data/fetchData';
 import packageJson from '../../../package.json';
 import ReportResult from './ReportResult'; // ReportResult IS a Dialog
 import QueryParam from './QueryParam';     // QueryParam is NOT a Dialog (it's content)
 import LineChart from '../Charts/LineChart'; // LineChart is NOT a Dialog (it's content)
+import CircularChart from '../Charts/CircularChart'; // <-- 1. Import CircularChart
+// import { get } from 'http';
+
+const backend = getBackend(); 
 
 // Helper function to convert ReportDescriptor to ParsedReport
 const MakeParsedReport = (reportData: ReportDescriptor): ParsedReport => {
@@ -25,6 +29,11 @@ const MakeParsedReport = (reportData: ReportDescriptor): ParsedReport => {
   const params = config.params || [];
   const columns = config.columns || [];
   const chart = config.chart;
+
+  // Ensure chart type has a default if chart exists but type doesn't
+  if (chart && !chart.type) {
+    chart.type = 'linear'; // Default to linear
+  }
 
   return {
     id: reportData.report_id,
@@ -49,7 +58,8 @@ const MakeParsedReport = (reportData: ReportDescriptor): ParsedReport => {
         field: col.field,
         width: col.width,
       })),
-      chart: chart,
+      // Ensure chart is an object with a type
+      chart: typeof chart === 'object' && chart?.type ? chart : undefined,
     },
   };
 };
@@ -64,12 +74,12 @@ interface QueryTestProps {
 const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => {
   // State for internal logic
   const [executionResult, setExecutionResult] = useState<ReportExecutionResult | null>(null);
-  // const [isExecuting, setIsExecuting] = useState<boolean>(false); // Replaced by currentView
   const [error, setError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'idle' | 'params' | 'executing' | 'results' | 'chart' | 'error'>('idle');
   const [queryParams, setQueryParams] = useState<{ name: string; value: string | number | boolean }[]>([]);
   const [reportData, setReportData] = useState<ParsedReport>(MakeParsedReport(_reportData));
   const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [chartType, setChartType] = useState<'linear' | 'circular' | null>(null); // <-- 2. Add state for chart type
 
   // Update parsed report data when input changes
   useEffect(() => {
@@ -83,14 +93,13 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
       setExecutionResult(null);
       setError(null);
       setChartData(null);
-      // setIsExecuting(false); // No longer needed
+      setChartType(null); // Reset chart type
 
       // Determine initial view: params or execute directly
       const hasParams = reportData.config?.params && reportData.config.params.length > 0;
       if (hasParams) {
-        // Reset queryParams only if opening fresh, keep if reopening from error/result?
-        // Let's reset for simplicity on initial open.
-        // setQueryParams(reportData.config.params.map(p => ({ name: p.name, value: p.defaultValue }))); // Initialize params
+        // Initialize params if needed (consider if keeping old params is desired on reopen)
+        // setQueryParams(reportData.config.params.map(p => ({ name: p.name, value: p.defaultValue })));
         setCurrentView('params');
       } else {
         executeReport([]); // Execute immediately if no params
@@ -99,6 +108,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
       // Reset view when dialog is closed externally
       setCurrentView('idle');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]); // Rerun only when 'open' changes
 
   // Effect to update reportData state without triggering initial execution logic again
@@ -112,6 +122,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
     id: number,
     params: { name: string; value: string | number | boolean }[]
   ): Promise<ReportExecutionResult> => {
+    // ... (keep existing executeReportQuery implementation)
     try {
       const paramsToSend = {
         backend_point: backend.backend_point_report,
@@ -128,7 +139,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
 
       // Check if response indicates an error (e.g., !response.ok, status >= 400)
       // Adapt this based on your actual fetchData structure and how errors are returned
-      const isErrorStatus = response.ok === false || response.status >= 400;
+      const isErrorStatus = response.ok === false || (response.status && response.status >= 400);
       const responseData = response.data || response; // Adjust based on where data/error is
 
       if (isErrorStatus) {
@@ -137,8 +148,10 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
                         || response.message // If backend sends { message: '...' }
                         || (typeof responseData === 'string' ? responseData : null) // If error is just a string response
                         || response.statusText // Standard HTTP status text
-                        || `HTTP error ${response.status}`;
-          throw new Error(`Backend error: ${errorMsg}`);
+                        || `HTTP error ${response.status || 'unknown'}`;
+          // Return error structure instead of throwing to show in table/alert
+          return { columns: ['Ошибка'], rows: [[`Ошибка бэкенда: ${errorMsg}`]] };
+          // throw new Error(`Backend error: ${errorMsg}`);
       }
 
 
@@ -158,8 +171,9 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
       return { columns, rows };
     } catch (err: any) {
       console.error("Error in executeReportQuery:", err);
-      // Rethrow a more specific error or the original one
-      throw new Error(`Failed to fetch or process report data: ${err.message || err}`);
+      // Return error structure
+      return { columns: ['Ошибка'], rows: [[`Ошибка запроса данных: ${err.message || 'Неизвестная ошибка'}`]] };
+      // throw new Error(`Failed to fetch or process report data: ${err.message || err}`);
     }
   };
 
@@ -171,6 +185,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
     setExecutionResult(null);
     setError(null);
     setChartData(null);
+    setChartType(null); // Reset chart type on new execution
 
     try {
       // Ensure reportData is available before accessing id
@@ -179,11 +194,22 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
       }
       const result = await executeReportQuery(reportData.id, params);
       setExecutionResult(result);
-      setCurrentView('results'); // Show results view on success
-    } catch (err: any) {
+
+      // Check if the result itself is an error message from the backend
+      const isErrorResult = result.columns.length === 1 && (result.columns[0] === 'Ошибка' || result.columns[0] === 'Сообщение');
+      if (isErrorResult && result.columns[0] === 'Ошибка') {
+          setError(result.rows[0]?.[0] || 'Неизвестная ошибка выполнения');
+          setCurrentView('error'); // Show error view
+      } else {
+          setCurrentView('results'); // Show results view on success or 'Сообщение'
+      }
+
+    } catch (err: any) { // Catch errors from executeReportQuery if it throws (e.g., network error)
       console.error('Error executing report:', err);
       const errorMessage = err.message || 'Неизвестная ошибка при выполнении отчета';
       setError(`Ошибка при выполнении отчета: ${errorMessage}`);
+      // Optionally set a minimal executionResult for the error dialog
+      setExecutionResult({ columns: ['Ошибка'], rows: [[errorMessage]] });
       setCurrentView('error'); // Show error view on failure
     }
   };
@@ -219,37 +245,48 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
     // Reset results/chart/error states before going back
     setExecutionResult(null);
     setChartData(null);
+    setChartType(null);
     setError(null);
+    // queryParams should still hold the last used parameters
     setCurrentView('params');
   };
 
-  // Prepare and switch to chart view
+  // <-- 3. Update handleOpenChartDialog -->
   const handleOpenChartDialog = () => {
-    setError(null); // Clear previous errors specific to chart generation
+    setError(null); // Clear previous UI errors
     if (executionResult && reportData) {
-       // Check if result is just an error/message
-       if (executionResult.columns.length === 1 && (executionResult.columns[0] === 'Error' || executionResult.columns[0] === 'Сообщение')) {
-           setError("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
-           setCurrentView('error'); // Switch to error view
-           return;
-       }
+        // Check if the execution result itself indicates an error or just a message
+        if (executionResult.columns.length === 1 && (executionResult.columns[0] === 'Ошибка' || executionResult.columns[0] === 'Сообщение')) {
+            setError("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
+            setCurrentView('error'); // Switch to error view
+            return;
+        }
 
-      const config = reportData.config;
-      const chartConfig = config?.chart;
+        const config = reportData.config;
+        const chartConfig = config?.chart;
 
-      if (
-        chartConfig &&
-        chartConfig.x_axis?.field &&
-        chartConfig.body_fields &&
-        chartConfig.body_fields.length > 0
-      ) {
+        // Ensure chart config is complete
+        if (
+            !chartConfig ||
+            !chartConfig.type || // Make sure type is defined
+            !chartConfig.x_axis?.field ||
+            !chartConfig.body_fields ||
+            chartConfig.body_fields.length === 0
+        ) {
+            setError('Конфигурация графика (тип, оси X, поля данных) не задана или неполная.');
+            setCurrentView('error');
+            return;
+        }
+
         const xAxisField = chartConfig.x_axis.field;
-        const yAxisValueFields = chartConfig.body_fields; // These are the fields for the lines
-        const labels = chartConfig.y_axis.field.split(',') || yAxisValueFields;
+        const yAxisValueFields = chartConfig.body_fields;
+        // Use y_axis.field for labels if available and split by comma, otherwise fallback to body_fields
+        const yAxisLabels = chartConfig.y_axis?.field?.split(',').map(s => s.trim()).filter(Boolean) || yAxisValueFields;
+
 
         const xAxisIndex = executionResult.columns.indexOf(xAxisField);
         const yAxisIndices = yAxisValueFields.map((field) =>
-          executionResult.columns.indexOf(field)
+            executionResult.columns.indexOf(field)
         );
 
         // Validate indices
@@ -258,52 +295,100 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
             setCurrentView('error');
             return;
         }
-        if (yAxisIndices.some((index) => index === -1)) {
+        // For circular, we only strictly need the first Y field index
+        if (chartConfig.type === 'circular' && yAxisIndices[0] === -1) {
+             setError(`Поле для данных '${yAxisValueFields[0]}' не найдено в результатах.`);
+             setCurrentView('error');
+             return;
+        }
+        // For linear, check all Y field indices
+        if (chartConfig.type !== 'circular' && yAxisIndices.some((index) => index === -1)) {
             const missing = yAxisValueFields.filter((_, i) => yAxisIndices[i] === -1);
             setError(`Одно или несколько полей для данных (${missing.join(', ')}) не найдены в результатах.`);
             setCurrentView('error');
             return;
         }
 
-        // Process data
+        // Process data based on chart type
         try {
-            const xAxisValues = executionResult.rows.map(
-                (row) => row[xAxisIndex]?.toString() ?? '' // Ensure string conversion
-            );
-            const datasets = yAxisIndices.map((yAxisIndex, index) => ({
-                // label: yAxisValueFields[index], // Use the field name as label
-                label: labels[index],
-                data: executionResult.rows.map((row) => {
-                    const value = row[yAxisIndex];
-                    // Convert to number, handle null/undefined explicitly
-                    if (value === null || value === undefined) return null;
-                    const num = Number(value);
-                    return !isNaN(num) ? num : null; // Return null if conversion fails
-                }),
-                // Add other dataset properties if needed (colors, etc.) - LineChart handles defaults
-            }));
+            let processedChartData: ChartData | null = null;
+            let determinedChartType: 'linear' | 'circular' | null = null;
 
-            setChartData({ xAxisValues, datasets });
-            setCurrentView('chart'); // Switch to chart view
+            if (chartConfig.type === 'circular') {
+                // --- Circular Chart Data Preparation ---
+                if (yAxisIndices.length > 1) {
+                    console.warn("Circular chart config has multiple body_fields. Using the first one:", yAxisValueFields[0]);
+                }
+
+                const segmentLabels = executionResult.rows.map(
+                    (row) => row[xAxisIndex]?.toString() ?? ''
+                );
+                const segmentValues = executionResult.rows.map((row) => {
+                    const value = row[yAxisIndices[0]]; // Use first Y field
+                    if (value === null || value === undefined) return 0; // Default to 0 for circular
+                    const num = Number(value);
+                    return !isNaN(num) ? num : 0; // Default to 0 if conversion fails
+                });
+                // Use the first label from y_axis.field if available, otherwise the first body_field name
+                const datasetLabel = yAxisLabels[0] || yAxisValueFields[0];
+
+                processedChartData = {
+                    xAxisValues: segmentLabels, // Segment labels
+                    datasets: [{ label: datasetLabel, data: segmentValues }] // Single dataset
+                };
+                determinedChartType = 'circular';
+
+            } else { // Default to linear or handle other types like 'linear' explicitly
+                // --- Linear Chart Data Preparation (Existing Logic) ---
+                const xAxisValues = executionResult.rows.map(
+                    (row) => row[xAxisIndex]?.toString() ?? ''
+                );
+                const datasets = yAxisIndices.map((yAxisIndex, index) => ({
+                    // Use corresponding label from y_axis.field or fallback to body_field name
+                    label: yAxisLabels[index] || yAxisValueFields[index],
+                    data: executionResult.rows.map((row) => {
+                        const value = row[yAxisIndex];
+                        if (value === null || value === undefined) return null;
+                        const num = Number(value);
+                        return !isNaN(num) ? num : null;
+                    }),
+                }));
+                processedChartData = { xAxisValues, datasets };
+                determinedChartType = 'linear'; // Assume linear if not circular
+            }
+
+            // Set data and open dialog if processing was successful
+            if (processedChartData && determinedChartType) {
+                setChartData(processedChartData);
+                setChartType(determinedChartType);
+                setCurrentView('chart'); // Switch to chart view
+            } else {
+                 setError("Не удалось обработать данные для графика.");
+                 setCurrentView('error');
+            }
+
         } catch (processError: any) {
             console.error("Error processing data for chart:", processError);
             setError(`Ошибка при обработке данных для графика: ${processError.message}`);
             setCurrentView('error');
         }
 
-      } else {
-        setError('Конфигурация графика (оси X, поля данных) не задана или неполная в настройках отчета.');
-        setCurrentView('error');
-      }
     } else {
-        setError("Нет данных для построения графика (результат выполнения отсутствует).");
+        setError("Нет данных для построения графика (результат выполнения отсутствует или отчет не выбран).");
         setCurrentView('error');
     }
   };
 
+
   // Close chart view and trigger main close
   const handleCloseChartDialog = () => {
+    // We might want to go back to results instead of closing entirely?
+    // For now, keep original behavior: close the whole test dialog.
     handleClose();
+    // If we wanted to go back to results:
+    // setChartData(null);
+    // setChartType(null);
+    // setCurrentView('results');
   };
 
   // --- Rendering Logic ---
@@ -353,7 +438,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
                 <Box display="flex" justifyContent="flex-end" gap={2}>
                      <Button onClick={handleParamDialogClose}>Отмена</Button>
                      {/* Button to execute directly if needed, though it should have happened automatically */}
-                     {/* <Button variant="contained" onClick={() => executeReport([])}>Выполнить</Button> */}
+                     <Button variant="contained" onClick={() => executeReport([])}>Выполнить</Button>
                  </Box>
              </Box>
           ) : ( // reportData still loading
@@ -380,30 +465,45 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
     );
   }
 
-  // Render Chart Dialog Content
-  if (currentView === 'chart' && chartData && reportData) {
+  // <-- 4. Update Chart Dialog Rendering -->
+  if (currentView === 'chart' && chartData && reportData && chartType) { // Ensure chartType is also set
     return (
       <Dialog
         open={true} // Always open when view is 'chart'
         onClose={handleCloseChartDialog} // Closes the whole test
         fullWidth
-        maxWidth="lg" // Use lg for potentially wider charts
+        // Adjust maxWidth based on chart type
+        maxWidth={chartType === 'circular' ? 'md' : 'lg'}
       >
+        {/* Optional: Title could be here or handled within the chart component */}
         {/* <DialogTitle sx={{ pb: 0 }}>График: {reportData.name}</DialogTitle> */}
         <DialogContent>
-          {/* LineChart component expects data and options */}
-          {/* Wrap LineChart in a Box to ensure it takes height */}
            <Box sx={{ height: '60vh', minHeight: '400px', position: 'relative' }}>
-              <LineChart
-                reportName={reportData.name || ''}
-                xAxisValues={chartData.xAxisValues}
-                datasets={chartData.datasets}
-                onClose={handleCloseChartDialog} // Close the whole test
-                onReopenParamDialog={handleReopenParamDialog} // Go back to params
-              />
+              {/* Conditional rendering based on chartType */}
+              {chartType === 'circular' ? (
+                    <CircularChart
+                        reportName={reportData.name || ''}
+                        labels={chartData.xAxisValues} // For CircularChart these are segment labels
+                        // Data for CircularChart: usually one dataset with numeric values
+                        datasets={chartData.datasets.map(ds => ({
+                            label: ds.label, // Dataset label (for legend/tooltips)
+                            data: ds.data.map(d => d ?? 0), // Convert null to 0 for circular chart
+                        }))}
+                        onClose={handleCloseChartDialog} // Close the whole test
+                        onReopenParamDialog={handleReopenParamDialog} // Go back to params
+                    />
+                ) : ( // Default or if chartType === 'linear'
+                    <LineChart
+                        reportName={reportData.name || ''}
+                        xAxisValues={chartData.xAxisValues} // X-axis values
+                        datasets={chartData.datasets} // Datasets for lines
+                        onClose={handleCloseChartDialog} // Close the whole test
+                        onReopenParamDialog={handleReopenParamDialog} // Go back to params
+                    />
+                )}
            </Box>
         </DialogContent>
-        {/* Actions like close/reopen params are handled by LineChart's internal buttons */}
+        {/* Actions like close/reopen params are handled by the chart component's internal buttons */}
       </Dialog>
     );
   }

@@ -18,6 +18,11 @@ import RoleList from './components/Roles/RoleList';
 import GeneralSettings from './pages/Settings/GeneralSettings';
 import ReportListSettings from './pages/Settings/ReportListSettings';
 import ReportList from './pages/Reports/ReportList';
+import DepartmentList from './pages/Enterprise/components/departments/DepartmentList';
+import PositionList from './pages/Enterprise/components/positions/PositionList';
+import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
+// import MyDashboardComponent from './pages/MyDashboardComponent';
+import MyDashboardWithCircularChart from './pages/MyDashboardWithCircularChart';
 
 // Helper function to check if the user has the 'admin' role
 // const hasAdminRole = (user: any): boolean => {
@@ -61,6 +66,10 @@ function App() {
       icon: <DashboardIcon />,
     },
     {
+      text: 'test Панель управления',
+      path: '/testdashboard',
+      icon: <DashboardIcon />,
+    },    {
       text: 'Администрирование',
       icon: <AdminPanelSettingsIcon />,
       items: [
@@ -68,6 +77,16 @@ function App() {
         { text: 'Роли', path: '/roles', icon: <BadgeIcon /> },
       ],
       role: 'admin',
+    },
+    {
+      text: 'Предприятие',
+      icon: <AdminPanelSettingsIcon />,
+      items: [
+        { text: 'Подразделения', path: 'enterprise/departments', icon: <BadgeIcon /> },
+        { text: 'Должности', path: '/enterprise/positions', icon: <BadgeIcon /> },
+        { text: 'Сотруники', path: '/enterprise/employees', icon: <PeopleIcon /> },
+        { text: 'Изображения сотрудников', path: '/enterprise/images', icon: <PeopleIcon /> },
+      ],
     },
     {
       text: 'Отчеты',
@@ -140,6 +159,7 @@ function App() {
 
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/testdashboard" element={<MyDashboardWithCircularChart />} />
           <Route path="/users" element={<Users />} />
           <Route path="/roles" element={<RoleList />} />
           <Route path="/reports" element={<ReportList />} />
@@ -151,6 +171,30 @@ function App() {
             element={
               <ProtectedRoute user={user} requiredRole="editor">
                 <ReportListSettings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/enterprise/departments"
+            element={
+              <ProtectedRoute user={user} requiredRole="owner">
+                <DepartmentList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/enterprise/positions"
+            element={
+              <ProtectedRoute user={user} requiredRole="owner">
+                <PositionList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/enterprise/employees"
+            element={
+              <ProtectedRoute user={user} requiredRole="owner">
+                <EmployeeList />
               </ProtectedRoute>
             }
           />
