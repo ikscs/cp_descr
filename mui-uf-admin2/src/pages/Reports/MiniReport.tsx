@@ -118,6 +118,7 @@ const processChartData = (
     const yAxisValueFields = chartConfig.body_fields;
     // Используем y_axis.field для лейблов, если есть, иначе body_fields
     const yAxisLabels = chartConfig.y_axis?.field?.split(',').map(s => s.trim()).filter(Boolean) || yAxisValueFields;
+    const yAxisTitleLabel = chartConfig.y_axis_label;
 
     const xAxisIndex = executionResult.columns.indexOf(xAxisField);
     const yAxisIndices = yAxisValueFields.map((field) =>
@@ -182,7 +183,11 @@ const processChartData = (
                     return !isNaN(num) ? num : null;
                 }),
             }));
-            processedChartData = { xAxisValues, datasets };
+            processedChartData = { 
+                xAxisValues, 
+                datasets,
+                yAxisLabel: yAxisTitleLabel
+             };
             determinedChartType = 'linear'; // Предполагаем линейный, если не круговой
         }
 
@@ -327,6 +332,7 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
                                 reportName={report.name || ''}
                                 xAxisValues={chartData.xAxisValues} // Значения оси X
                                 datasets={chartData.datasets} // Наборы данных
+                                yAxisLabel={chartData.yAxisLabel}
                                 onClose={() => {}} // No-op
                                 onReopenParamDialog={() => {}} // No-op
                             />

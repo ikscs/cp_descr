@@ -178,7 +178,7 @@ const reportParams17_2 = [
                                 report={parsedReport17}
                                 parameters={reportParams17_2}
                                 displayMode="chart"
-                                height="300px"
+                                height="400px"
                             />
                         </Grid>
                     )}

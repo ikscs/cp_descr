@@ -282,7 +282,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
         const yAxisValueFields = chartConfig.body_fields;
         // Use y_axis.field for labels if available and split by comma, otherwise fallback to body_fields
         const yAxisLabels = chartConfig.y_axis?.field?.split(',').map(s => s.trim()).filter(Boolean) || yAxisValueFields;
-
+        const yAxisTitleLabel = chartConfig.y_axis_label;
 
         const xAxisIndex = executionResult.columns.indexOf(xAxisField);
         const yAxisIndices = yAxisValueFields.map((field) =>
@@ -353,7 +353,11 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
                         return !isNaN(num) ? num : null;
                     }),
                 }));
-                processedChartData = { xAxisValues, datasets };
+                processedChartData = {
+                  xAxisValues,
+                  datasets,
+                  yAxisLabel: yAxisTitleLabel,
+                };
                 determinedChartType = 'linear'; // Assume linear if not circular
             }
 
@@ -497,6 +501,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
                         reportName={reportData.name || ''}
                         xAxisValues={chartData.xAxisValues} // X-axis values
                         datasets={chartData.datasets} // Datasets for lines
+                        yAxisLabel={chartData.yAxisLabel} // Y-axis label (if any)
                         onClose={handleCloseChartDialog} // Close the whole test
                         onReopenParamDialog={handleReopenParamDialog} // Go back to params
                     />

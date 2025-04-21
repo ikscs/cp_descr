@@ -63,6 +63,7 @@ export interface Chart {
   x_axis: { field: string };
   y_axis: { field: string };
   body_fields: string[];
+  y_axis_label?: string;
 }
 
 export interface ReportConfig {
@@ -557,6 +558,14 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
               value={reportData.report_config.chart?.body_fields?.join(',') || ''}
               onChange={(e) => handleChartChange('body_fields', e.target.value.split(','))}
               margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Y-Axis Label (Title)" // Метка для заголовка оси Y
+              value={reportData.report_config.chart?.y_axis_label || ''}
+              onChange={(e) => handleChartChange('y_axis_label', e.target.value)}
+              margin="normal"
+              helperText="Заголовок, отображаемый рядом с осью Y на линейном графике."
             />
           </Box>
         )}

@@ -1,3 +1,4 @@
+// src/pages/Charts/LineChart.tsx
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -37,6 +38,7 @@ interface LineChartProps {
   reportName: string;
   xAxisValues: string[];
   datasets: LineChartDataset[];
+  yAxisLabel?: string;
   onClose: () => void;
   onReopenParamDialog: () => void;
 }
@@ -56,6 +58,7 @@ const LineChart: React.FC<LineChartProps> = ({
   reportName,
   xAxisValues,
   datasets,
+  yAxisLabel,
   onClose,
   onReopenParamDialog,
 }) => {
@@ -114,10 +117,8 @@ const LineChart: React.FC<LineChartProps> = ({
         display: true,
         beginAtZero: false, // Keep this false if data doesn't start near zero
         title: {
-          display: true,
-          // You might want to add a y-axis title if applicable
-          // text: 'Y Axis Label'
-          text: 'Y Axis Label'
+          display: !!yAxisLabel,
+          text: yAxisLabel || '',
         }
       },
     },

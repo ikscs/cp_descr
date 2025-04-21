@@ -59,6 +59,7 @@ export interface ParsedReport {
       x_axis: { field: string };
       y_axis: { field: string }; // Используется для заголовков (линий/сегментов)
       body_fields: string[]; // Поля для данных
+      y_axis_label?: string; // <-- Добавлено поле для заголовка оси Y
     };
   };
 }
@@ -77,6 +78,16 @@ export const ReportToParsedReport = (report: Report): ParsedReport => {
         config.chart.type = 'linear'; // По умолчанию линейный
     }
 
+    // Извлекаем конфигурацию графика, если она есть
+    const chartConfig = typeof config.chart === 'object' && config.chart?.type
+        ? {
+            type: config.chart.type,
+            x_axis: config.chart.x_axis || { field: '' }, // Добавим значения по умолчанию
+            y_axis: config.chart.y_axis || { field: '' }, // Добавим значения по умолчанию
+            body_fields: Array.isArray(config.chart.body_fields) ? config.chart.body_fields : [], // Добавим значения по умолчанию
+            y_axis_label: config.chart.y_axis_label || undefined, // <-- Извлекаем y_axis_label
+          }
+        : undefined;
 
     return {
       id: report.id,
@@ -86,14 +97,12 @@ export const ReportToParsedReport = (report: Report): ParsedReport => {
       config: {
         params: Array.isArray(config.params) ? config.params : [],
         columns: Array.isArray(config.columns) ? config.columns : [],
-        // Убедимся, что chart является объектом и имеет тип
-        chart: typeof config.chart === 'object' && config.chart?.type
-            ? config.chart
-            : undefined,
+        chart: chartConfig, // Используем извлеченную и обработанную конфигурацию графика
       },
     };
   } catch (error) {
     console.error(`Error parsing config for report ID ${report.id}:`, error, "Config string:", report.config);
+    // Возвращаем структуру по умолчанию в случае ошибки парсинга
     return {
       id: report.id,
       name: report.name || '',
@@ -108,6 +117,7 @@ export const ReportToParsedReport = (report: Report): ParsedReport => {
 export interface ChartData {
   xAxisValues: string[]; // Для LineChart - значения оси X, для CircularChart - метки сегментов
   datasets: { label: string; data: (number | null )[] }[]; // Для LineChart - несколько наборов данных, для CircularChart - обычно один
+  yAxisLabel?: string; // <-- Добавлено необязательное поле для метки оси Y
 }
 
 
@@ -302,7 +312,9 @@ const ReportList: React.FC = () => {
 
         const xAxisField = chartConfig.x_axis.field;
         const yAxisValueFields = chartConfig.body_fields;
-        const yAxisLabels = chartConfig.y_axis?.field?.split(',') || yAxisValueFields;
+        // Используем y_axis.field для имен наборов данных, разделенных запятой, или fallback на body_fields
+        const yAxisDatasetLabels = chartConfig.y_axis?.field?.split(',').map(s => s.trim()).filter(Boolean) || yAxisValueFields;
+        const yAxisTitleLabel = chartConfig.y_axis_label; // <-- Извлекаем заголовок оси Y
 
         const xAxisIndex = executionResult.columns.indexOf(xAxisField);
         const yAxisIndices = yAxisValueFields.map((field) =>
@@ -345,11 +357,13 @@ const ReportList: React.FC = () => {
                     const num = Number(value);
                     return !isNaN(num) ? num : 0; // Default to 0 if conversion fails
                 });
-                const datasetLabel = yAxisLabels[0] || yAxisValueFields[0]; // Use first label
+                // Use the first label from y_axis.field if available, otherwise the first body_field name
+                const datasetLabel = yAxisDatasetLabels[0] || yAxisValueFields[0];
 
                 processedChartData = {
                     xAxisValues: segmentLabels, // Segment labels
-                    datasets: [{ label: datasetLabel, data: segmentValues }] // Single dataset
+                    datasets: [{ label: datasetLabel, data: segmentValues }], // Single dataset
+                    // yAxisLabel здесь не используется для круговой диаграммы в ChartData, но может быть полезен в будущем
                 };
                 setChartType('circular');
 
@@ -359,7 +373,8 @@ const ReportList: React.FC = () => {
                     (row) => row[xAxisIndex]?.toString() ?? ''
                 );
                 const datasets = yAxisIndices.map((yAxisIndex, index) => ({
-                    label: yAxisLabels[index] || yAxisValueFields[index],
+                    // Use corresponding label from y_axis.field or fallback to body_field name
+                    label: yAxisDatasetLabels[index] || yAxisValueFields[index],
                     data: executionResult.rows.map((row) => {
                         const value = row[yAxisIndex];
                         if (value === null || value === undefined) return null;
@@ -367,7 +382,12 @@ const ReportList: React.FC = () => {
                         return !isNaN(num) ? num : null;
                     }),
                 }));
-                processedChartData = { xAxisValues, datasets };
+                // Добавляем yAxisLabel в ChartData для линейного графика
+                processedChartData = {
+                    xAxisValues,
+                    datasets,
+                    yAxisLabel: yAxisTitleLabel // <-- Передаем заголовок оси Y
+                };
                 setChartType('linear'); // Assume linear if not circular
             }
 
@@ -550,6 +570,7 @@ const ReportList: React.FC = () => {
                         reportName={selectedReport.name || ''}
                         xAxisValues={chartData.xAxisValues} // Значения оси X
                         datasets={chartData.datasets} // Наборы данных для линий
+                        yAxisLabel={chartData.yAxisLabel} // <-- Передаем метку оси Y
                         onClose={handleCloseChartDialog}
                         onReopenParamDialog={handleReopenParamDialog}
                     />
