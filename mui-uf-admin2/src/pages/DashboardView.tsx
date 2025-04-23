@@ -3,12 +3,17 @@ import React, { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { Box, Grid, CircularProgress, Alert } from '@mui/material'; // Добавили CircularProgress и Alert
+// Добавляем Button и Stack
+import { Box, Grid, CircularProgress, Alert, Button, Stack } from '@mui/material';
 import './DashboardView.css';
 import VideoPlayer from '../components/VideoPlayer';
 import { ParsedReport, ReportToParsedReport } from './Reports/ReportList';
 import { getReports, /*Report*/ } from '../api/data/reportTools';
 import MiniReport from './Reports/MiniReport';
+// --- Добавляем импорт dataToExcel ---
+import { dataToExcel } from '../api/tools/dataToExcel'; // <-- Уточните путь!
+// --- Добавляем импорт иконки (опционально) ---
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const images = [
     // ... (оставляем массив images как есть) ...
@@ -33,17 +38,40 @@ const images = [
 ];
 
 // Определим ID отчетов, которые хотим загрузить
-const REPORT_ID_7 = 7;
-const REPORT_ID_17 = 17;
+const REPORT_ID_22 = 25; // Відвідувачі
+const REPORT_ID_23 = 27; // Відвідувачі - Стать
+const REPORT_ID_24 = 26; // Відвідувачі - Вік
+
+// --- Константа для имени таблицы экспорта ---
+const EXPORT_TABLE_NAME = 'pcnt.v_event_data'; // Имя таблицы для экспорта данных
+
+// Определим возможные значения для mode
+type ReportMode = 'WEEK' | 'MONTH' | 'YEAR';
+
+// Определим тип для параметра отчета
+type ReportParameter = {
+    name: string;
+    value: string | number | boolean;
+};
 
 const DashboardView: React.FC = () => {
     // Состояния для каждого отчета
-    const [parsedReport7, setParsedReport7] = useState<ParsedReport | null>(null);
-    const [parsedReport17, setParsedReport17] = useState<ParsedReport | null>(null);
+    const [parsedReport22, setParsedReport22] = useState<ParsedReport | null>(null);
+    const [parsedReport23, setParsedReport23] = useState<ParsedReport | null>(null);
+    const [parsedReport24, setParsedReport24] = useState<ParsedReport | null>(null);
+
+    // Состояние для параметров отчетов
+    const [reportParams, setReportParams] = useState<ReportParameter[]>([
+        { name: 'd1', value: '' },
+        { name: 'd2', value: '' },
+        { name: 'mode', value: 'MONTH' },
+    ]);
 
     // Общие состояния загрузки и ошибок
-    const [isLoading, setIsLoading] = useState<boolean>(true); // Начинаем с true
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
+    // --- Состояние для индикации процесса экспорта ---
+    const [isExporting, setIsExporting] = useState<boolean>(false);
 
     useEffect(() => {
         // Функция для загрузки одного отчета по ID
@@ -52,82 +80,111 @@ const DashboardView: React.FC = () => {
             if (!fetchedReports || fetchedReports.length === 0) {
                 throw new Error(`Отчет с ID ${rid} не найден.`);
             }
-            // Возвращаем *распарсенный* отчет
             return ReportToParsedReport(fetchedReports[0]);
         };
 
         // Асинхронная функция для загрузки всех необходимых отчетов
         const loadAllReports = async () => {
             setIsLoading(true);
-            setFetchError(null); // Сбрасываем ошибку перед новой загрузкой
+            setFetchError(null);
 
             try {
-                // Используем Promise.allSettled для выполнения всех запросов параллельно
-                // и получения результата каждого (успех или ошибка)
                 const results = await Promise.allSettled([
-                    loadSingleReport(REPORT_ID_7),
-                    loadSingleReport(REPORT_ID_17),
-                    // Добавьте сюда другие вызовы loadSingleReport, если нужно больше отчетов
+                    loadSingleReport(REPORT_ID_22),
+                    loadSingleReport(REPORT_ID_23),
+                    loadSingleReport(REPORT_ID_24),
                 ]);
 
-                // Обрабатываем результаты
                 let firstError: string | null = null;
+                const handleResult = (
+                    result: PromiseSettledResult<ParsedReport>,
+                    setter: React.Dispatch<React.SetStateAction<ParsedReport | null>>,
+                    reportId: number
+                ) => {
+                    if (result.status === 'fulfilled') {
+                        setter(result.value);
+                    } else {
+                        const errorMsg = `Ошибка загрузки отчета ${reportId}: ${result.reason?.message || result.reason}`;
+                        console.error(errorMsg, result.reason);
+                        if (!firstError) firstError = errorMsg;
+                    }
+                };
 
-                if (results[0].status === 'fulfilled') {
-                    setParsedReport7(results[0].value);
-                } else {
-                    console.error(`Ошибка загрузки отчета ${REPORT_ID_7}:`, results[0].reason);
-                    if (!firstError) firstError = `Ошибка загрузки отчета ${REPORT_ID_7}: ${results[0].reason?.message || results[0].reason}`;
-                }
+                handleResult(results[0], setParsedReport22, REPORT_ID_22);
+                handleResult(results[1], setParsedReport23, REPORT_ID_23);
+                handleResult(results[2], setParsedReport24, REPORT_ID_24);
 
-                if (results[1].status === 'fulfilled') {
-                    setParsedReport17(results[1].value);
-                } else {
-                    console.error(`Ошибка загрузки отчета ${REPORT_ID_17}:`, results[1].reason);
-                    if (!firstError) firstError = `Ошибка загрузки отчета ${REPORT_ID_17}: ${results[1].reason?.message || results[1].reason}`;
-                }
-
-                // Устанавливаем первую возникшую ошибку
                 if (firstError) {
                     setFetchError(firstError);
                 }
 
             } catch (err: any) {
-                // Эта ошибка маловероятна при использовании allSettled, но оставим на всякий случай
                 console.error('Непредвиденная ошибка при загрузке отчетов:', err);
                 setFetchError(err.message || 'Произошла неизвестная ошибка');
             } finally {
-                setIsLoading(false); // Завершаем загрузку в любом случае
+                setIsLoading(false);
             }
         };
 
-        loadAllReports(); // Запускаем загрузку при монтировании
-    }, []); // Пустой массив зависимостей - выполнить один раз
+        loadAllReports();
+    }, []);
 
-    // Параметры для отчета 17 (пример)
-    const reportParams7 = [
-      { name: 'd1', value: '2025-01-01' },
-      { name: 'd2', value: '2025-12-31' },
-      { name: 'crn', value: 'EUR' },
-  ];
-  const reportParams17_1 = [
-    { name: 'd1', value: '2025-01-01' },
-    { name: 'd2', value: '2025-12-31' },
-    { name: 'crn', value: 'EUR' },
-];
-const reportParams17_2 = [
-        { name: 'd1', value: '2025-04-01' },
-        { name: 'd2', value: '2025-12-31' },
-        { name: 'crn', value: 'EUR' },
-    ];
+    // Обработчик изменения режима (Неделя/Месяц/Год)
+    const handleModeChange = (newMode: ReportMode) => {
+        setReportParams(currentParams =>
+            currentParams.map(param =>
+                param.name === 'mode'
+                    ? { ...param, value: newMode }
+                    : param
+            )
+        );
+    };
 
-    // Параметры для отчета 7 (пример, если они нужны)
-    // const reportParams7 = [ { name: 'someParam', value: 'someValue' } ];
+    // --- Упрощенный обработчик для кнопки Экспорт ---
+    const handleExport = async () => {
+        setIsExporting(true); // Начинаем экспорт
+        console.log(`Exporting data from table: ${EXPORT_TABLE_NAME}`);
+
+        // Простое имя файла, основанное только на имени таблицы
+        const filename = `export_${EXPORT_TABLE_NAME}`;
+
+        try {
+            // Вызываем dataToExcel без параметров фильтрации (where)
+            await dataToExcel(
+                EXPORT_TABLE_NAME,
+                filename // Имя файла без расширения
+                // Поля по умолчанию '*'
+                // where не передаем
+                // order не передаем
+            );
+            console.log('Export successful');
+            // Можно добавить уведомление об успехе
+        } catch (error) {
+            console.error('Export failed:', error);
+            // Можно добавить уведомление об ошибке
+        } finally {
+            setIsExporting(false); // Завершаем экспорт (даже если была ошибка)
+        }
+    };
+
+    // Получаем текущее значение mode для выделения активной кнопки
+    const currentMode = reportParams.find(p => p.name === 'mode')?.value;
 
     return (
         <Box sx={{ padding: 2 }}>
-            <Typography variant="h4" gutterBottom>Панель управления</Typography>
-            <Typography variant="body1" gutterBottom>Добро пожаловать на панель управления!</Typography>
+            {/* --- Заголовок и кнопка Экспорт --- */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>Панель управления</Typography>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleExport}
+                    disabled={isExporting} // Блокируем ТОЛЬКО во время экспорта
+                    startIcon={isExporting ? <CircularProgress size={20} color="inherit" /> : <FileDownloadIcon />}
+                >
+                    {isExporting ? 'Экспорт...' : 'Экспорт в Excel'}
+                </Button>
+            </Box>
 
             {/* Отображение состояния загрузки или ошибки */}
             {isLoading && (
@@ -136,47 +193,67 @@ const reportParams17_2 = [
                     <Typography sx={{ ml: 2 }}>Загрузка данных отчетов...</Typography>
                 </Box>
             )}
-            {fetchError && !isLoading && ( // Показываем ошибку только если не идет загрузка
+            {fetchError && !isLoading && (
                 <Alert severity="error" sx={{ my: 2 }}>{fetchError}</Alert>
             )}
 
+            {/* Кнопки управления режимом отчетов */}
+            {!isLoading && !fetchError && (
+                <Stack direction="row" spacing={2} sx={{ my: 2, justifyContent: 'center' }}>
+                     <Button
+                         variant={currentMode === 'WEEK' ? 'contained' : 'outlined'}
+                         onClick={() => handleModeChange('WEEK')}
+                     >
+                         Неделя
+                     </Button>
+                     <Button
+                         variant={currentMode === 'MONTH' ? 'contained' : 'outlined'}
+                         onClick={() => handleModeChange('MONTH')}
+                     >
+                         Месяц
+                     </Button>
+                     <Button
+                         variant={currentMode === 'YEAR' ? 'contained' : 'outlined'}
+                         onClick={() => handleModeChange('YEAR')}
+                     >
+                         Год
+                     </Button>
+                </Stack>
+            )}
+
             {/* Секция с отчетами */}
-            {!isLoading && !fetchError && ( // Показываем отчеты только если нет загрузки и ошибок
+            {!isLoading && !fetchError && (
                 <Grid container spacing={3} sx={{ my: 2 }}>
-                    {/* Отчет 7 */}
-                    {parsedReport7 && (
-                        <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom>{parsedReport7.name || `Отчет ID ${REPORT_ID_7}`}</Typography>
+                    {/* Отчет 22: Відвідувачі */}
+                    {parsedReport22 && (
+                        <Grid item xs={12} md={12}>
                             <MiniReport
-                                report={parsedReport7}
-                                // parameters={reportParams7} // Используйте нужные параметры
-                                parameters={reportParams7} 
+                                report={parsedReport22}
+                                parameters={reportParams}
                                 displayMode="chart"
-                                height="300px"
+                                height="400px"
                             />
                         </Grid>
                     )}
 
-                    {/* Отчет 17 - Таблица */}
-                    {parsedReport17 && (
+                    {/* Отчет 24: Відвідувачі - Вік */}
+                    {parsedReport24 && (
                         <Grid item xs={12} md={6}>
-                             <Typography variant="h6" gutterBottom>{parsedReport17.name || `Отчет ID ${REPORT_ID_17}`} (Таблица)</Typography>
                             <MiniReport
-                                report={parsedReport17}
-                                parameters={reportParams17_1}
-                                displayMode="table"
-                                height="300px"
+                                report={parsedReport24}
+                                parameters={reportParams}
+                                displayMode="chart"
+                                height="400px"
                             />
                         </Grid>
                     )}
 
-                     {/* Отчет 17 - График */}
-                     {parsedReport17 && (
+                     {/* Отчет 23: Відвідувачі - Стать */}
+                     {parsedReport23 && (
                         <Grid item xs={12} md={6}>
-                             <Typography variant="h6" gutterBottom>{parsedReport17.name || `Отчет ID ${REPORT_ID_17}`} (График)</Typography>
                             <MiniReport
-                                report={parsedReport17}
-                                parameters={reportParams17_2}
+                                report={parsedReport23}
+                                parameters={reportParams}
                                 displayMode="chart"
                                 height="400px"
                             />
@@ -185,7 +262,8 @@ const reportParams17_2 = [
                 </Grid>
             )}
 
-            {/* Секция с видео и галереей (остается как была) */}
+            {/* Секция с видео и галереей (остается как была, но скрыта через false) */}
+            {false && (
             <Grid container spacing={2} sx={{ marginTop: '20px' }}>
                 {/* Видео */}
                 <Grid item xs={12} md={6}>
@@ -226,6 +304,7 @@ const reportParams17_2 = [
                     </Carousel>
                 </Grid>
             </Grid>
+            )}
         </Box>
     );
 };

@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { tenantId, basename, } from './globals_VITE';
 
 if (!tenantId) {
-  throw new Error("REACT_APP_USERFRONT_TENANT_ID is not defined in .env");
+  throw new Error("TENANT_ID is not defined in .env");
 }
 
 const root = ReactDOM.createRoot(

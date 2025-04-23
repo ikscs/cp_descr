@@ -1,5 +1,6 @@
 const getApiKey = () => {
-    if (import.meta.env.VITE_ENV === 'production') {
+  // return import.meta.env.VITE_USERFRONT_LIVE_API_KEY || '';
+  if (import.meta.env.VITE_ENV === 'production') {
       return import.meta.env.VITE_USERFRONT_LIVE_API_KEY || '';
     } else {
       return import.meta.env.VITE_USERFRONT_TEST_API_KEY || '';

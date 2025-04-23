@@ -1,5 +1,5 @@
 @echo off
-echo 111
+echo started
 rem npm run build
 
 SET SERV_USER=alavr

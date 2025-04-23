@@ -17,8 +17,9 @@ export interface Report {
   query: string;
 }
 
-const REPORT_TABLE = 'cp3.perm_report'; 
-// const REPORT_TABLE = 'public.perm_report'; 
+// const REPORT_TABLE = 'perm_report'; 
+//const REPORT_TABLE = 'cp3.perm_report'; 
+const REPORT_TABLE = 'public.perm_report'; 
 
 const backend = getBackend()
 

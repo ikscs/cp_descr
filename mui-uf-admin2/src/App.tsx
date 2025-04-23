@@ -23,6 +23,7 @@ import PositionList from './pages/Enterprise/components/positions/PositionList';
 import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
 // import MyDashboardComponent from './pages/MyDashboardComponent';
 import MyDashboardWithCircularChart from './pages/MyDashboardWithCircularChart';
+import { tenantId } from './globals_VITE';
 
 // Helper function to check if the user has the 'admin' role
 // const hasAdminRole = (user: any): boolean => {
@@ -65,11 +66,12 @@ function App() {
       path: '/dashboard',
       icon: <DashboardIcon />,
     },
+    // {
+    //   text: 'test Панель управления',
+    //   path: '/testdashboard',
+    //   icon: <DashboardIcon />,
+    // },    
     {
-      text: 'test Панель управления',
-      path: '/testdashboard',
-      icon: <DashboardIcon />,
-    },    {
       text: 'Администрирование',
       icon: <AdminPanelSettingsIcon />,
       items: [
@@ -139,7 +141,9 @@ function App() {
       <Box>
         <Box display="flex" alignItems="center" justifyContent="space-between" padding="1rem">
           <Box display="flex">
-            <MainMenu menuItems={menuItems} />
+            {user.hasRole('admin') && (
+              <MainMenu menuItems={menuItems} />
+            )}
             <Typography
               variant="h5"
               component="div"
@@ -207,7 +211,7 @@ function App() {
       <Box display="flex" flexDirection="column" alignItems="center">
         {showLogin ? <LoginForm /> : <SignupForm />}
         <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
-          {showLogin ? 'Регистрация' : 'Войти'}
+          {showLogin ? 'Регистрация' : 'Войти'} - {tenantId}
         </Button>
       </Box>
     );

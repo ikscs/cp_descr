@@ -15,7 +15,7 @@ const backend_rise = {
 
 const backend_cnt = {
     backend_url: 'https://cnt.theweb.place/back',
-    backend_point_select: '/f5.php?func=public.js_select_b',
+    backend_point_select: '/f5.php?func=js_select_b',
     backend_point_query:  '/f5.php?func=js_query_b',
     backend_point_insert: '/f5.php?func=js_insert_b',
     backend_point_upsert: '/f5.php?func=js_upsert_b',
