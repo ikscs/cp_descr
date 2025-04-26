@@ -324,8 +324,6 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
                                     label: ds.label,
                                     data: ds.data.map(d => d ?? 0), // null -> 0 для круговой
                                 }))}
-                                onClose={() => {}} // No-op
-                                onReopenParamDialog={() => {}} // No-op
                             />
                         ) : ( // По умолчанию или 'linear'
                             <LineChart
@@ -333,8 +331,6 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
                                 xAxisValues={chartData.xAxisValues} // Значения оси X
                                 datasets={chartData.datasets} // Наборы данных
                                 yAxisLabel={chartData.yAxisLabel}
-                                onClose={() => {}} // No-op
-                                onReopenParamDialog={() => {}} // No-op
                             />
                         )}
                     </Box>

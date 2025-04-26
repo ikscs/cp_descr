@@ -190,7 +190,7 @@ const DashboardView: React.FC = () => {
             {isLoading && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
                     <CircularProgress />
-                    <Typography sx={{ ml: 2 }}>Загрузка данных отчетов...</Typography>
+                    <Typography sx={{ ml: 2 }}>Завантаження даних звітів...</Typography>
                 </Box>
             )}
             {fetchError && !isLoading && (

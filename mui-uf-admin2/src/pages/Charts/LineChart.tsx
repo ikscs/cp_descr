@@ -39,8 +39,8 @@ interface LineChartProps {
   xAxisValues: string[];
   datasets: LineChartDataset[];
   yAxisLabel?: string;
-  onClose: () => void;
-  onReopenParamDialog: () => void;
+  onClose?: () => void;
+  onReopenParamDialog?: () => void;
 }
 
 // Define a palette of distinct colors
@@ -132,13 +132,20 @@ const LineChart: React.FC<LineChartProps> = ({
     // Use flex column and allow chart to grow
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 400 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 1 }}>
-        {/* Use a more appropriate icon for reopening parameters */}
-        <IconButton onClick={onReopenParamDialog} title="Изменить параметры">
-          <ReplayIcon />
-        </IconButton>
-        <IconButton onClick={onClose} title="Закрыть график">
-          <CloseIcon />
-        </IconButton>
+        {onReopenParamDialog ? (
+          <IconButton onClick={onReopenParamDialog} title="Изменить параметры">
+            <ReplayIcon />
+          </IconButton>
+        ) : (
+          <Box /> // Пустой Box для сохранения выравнивания
+        )}        
+        {onClose ? (
+          <IconButton onClick={onClose} title="Закрыть график">
+            <CloseIcon />
+          </IconButton>
+        ) : (
+          <Box /> // Пустой Box для сохранения выравнивания
+        )}
       </Box>
       {/* Ensure the chart container can grow */}
       <Box sx={{ position: 'relative', flexGrow: 1 }}>

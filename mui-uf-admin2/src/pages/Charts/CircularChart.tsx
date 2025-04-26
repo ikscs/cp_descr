@@ -36,8 +36,8 @@ interface CircularChartProps {
   reportName: string;
   labels: string[]; // Labels for each segment of the chart
   datasets: CircularChartDataset[]; // Typically only one dataset for Doughnut/Pie
-  onClose: () => void;
-  onReopenParamDialog: () => void;
+  onClose?: () => void;
+  onReopenParamDialog?: () => void;
 }
 
 // Define a palette of distinct colors (can be the same as LineChart)
@@ -136,12 +136,20 @@ const CircularChart: React.FC<CircularChartProps> = ({
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 400 }}>
       {/* Header with buttons */}
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 1 }}>
-        <IconButton onClick={onReopenParamDialog} title="Изменить параметры">
-          <ReplayIcon />
-        </IconButton>
-        <IconButton onClick={onClose} title="Закрыть график">
-          <CloseIcon />
-        </IconButton>
+        {onReopenParamDialog ? (
+          <IconButton onClick={onReopenParamDialog} title="Изменить параметры">
+            <ReplayIcon />
+          </IconButton>
+        ) : (
+          <Box /> // Пустой Box для сохранения выравнивания
+        )}        
+        {onClose ? (
+          <IconButton onClick={onClose} title="Закрыть график">
+            <CloseIcon />
+          </IconButton>
+        ) : (
+          <Box /> // Пустой Box для сохранения выравнивания
+        )}
       </Box>
       {/* Chart container */}
       <Box sx={{ position: 'relative', flexGrow: 1 }}>
