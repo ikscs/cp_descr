@@ -119,7 +119,7 @@ const ReportResult: React.FC<ReportResultProps> = ({
                 startIcon={<ExcelIcon />}
                 onClick={() => handleExportToExcel()}
               >
-                Экспорт в Excel
+                Експорт в Excel
               </Button>
               <Button
                 variant="contained"
