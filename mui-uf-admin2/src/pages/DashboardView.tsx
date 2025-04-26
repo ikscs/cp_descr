@@ -43,7 +43,7 @@ const REPORT_ID_23 = 27; // Відвідувачі - Стать
 const REPORT_ID_24 = 26; // Відвідувачі - Вік
 
 // --- Константа для имени таблицы экспорта ---
-const EXPORT_TABLE_NAME = 'pcnt.v_event_data'; // Имя таблицы для экспорта данных
+const EXPORT_TABLE_NAME = 'pcnt.v_export'; // Имя таблицы для экспорта данных
 
 // Определим возможные значения для mode
 type ReportMode = 'WEEK' | 'MONTH' | 'YEAR';
@@ -174,7 +174,7 @@ const DashboardView: React.FC = () => {
         <Box sx={{ padding: 2 }}>
             {/* --- Заголовок и кнопка Экспорт --- */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>Панель управления</Typography>
+                <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>Панель управління</Typography>
                 <Button
                     variant="contained"
                     color="secondary"
@@ -182,7 +182,7 @@ const DashboardView: React.FC = () => {
                     disabled={isExporting} // Блокируем ТОЛЬКО во время экспорта
                     startIcon={isExporting ? <CircularProgress size={20} color="inherit" /> : <FileDownloadIcon />}
                 >
-                    {isExporting ? 'Экспорт...' : 'Экспорт в Excel'}
+                    {isExporting ? 'Экспорт...' : 'Експорт в Excel'}
                 </Button>
             </Box>
 
@@ -204,19 +204,19 @@ const DashboardView: React.FC = () => {
                          variant={currentMode === 'WEEK' ? 'contained' : 'outlined'}
                          onClick={() => handleModeChange('WEEK')}
                      >
-                         Неделя
+                         Тиждень
                      </Button>
                      <Button
                          variant={currentMode === 'MONTH' ? 'contained' : 'outlined'}
                          onClick={() => handleModeChange('MONTH')}
                      >
-                         Месяц
+                         Місяць
                      </Button>
                      <Button
                          variant={currentMode === 'YEAR' ? 'contained' : 'outlined'}
                          onClick={() => handleModeChange('YEAR')}
                      >
-                         Год
+                         Рік
                      </Button>
                 </Stack>
             )}

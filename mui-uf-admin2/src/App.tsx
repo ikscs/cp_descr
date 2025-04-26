@@ -62,7 +62,7 @@ function App() {
       icon: <HomeIcon />,
     },
     {
-      text: 'Панель управления',
+      text: 'Панель управління',
       path: '/dashboard',
       icon: <DashboardIcon />,
     },
@@ -149,14 +149,14 @@ function App() {
               component="div"
               sx={{ fontWeight: 'bold', marginLeft: '1rem', marginTop: '0.5rem' }}
             >
-              Админ-панель
+              Адмін-панель
             </Typography>
           </Box>
 
           <Box display="flex" alignItems="center">
-            <Typography variant="body1">Пользователь: {user?.email}</Typography>
+            <Typography variant="body1">Користувач: {user?.email}</Typography>
             <Button onClick={handleLogout} variant="contained" sx={{ marginLeft: '1rem' }}>
-              Выйти
+              Вийти
             </Button>
           </Box>
         </Box>
