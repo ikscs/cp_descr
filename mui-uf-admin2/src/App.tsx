@@ -24,6 +24,7 @@ import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
 // import MyDashboardComponent from './pages/MyDashboardComponent';
 import MyDashboardWithCircularChart from './pages/MyDashboardWithCircularChart';
 import { tenantId } from './globals_VITE';
+import AppFooter from './components/Shared/AppFooter';
 
 // Helper function to check if the user has the 'admin' role
 // const hasAdminRole = (user: any): boolean => {
@@ -204,6 +205,7 @@ function App() {
           />
           <Route path="/" element={<Dashboard />} />
         </Routes>
+        <AppFooter />
       </Box>
     );
   } else {
@@ -211,7 +213,7 @@ function App() {
       <Box display="flex" flexDirection="column" alignItems="center">
         {showLogin ? <LoginForm /> : <SignupForm />}
         <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
-          {showLogin ? 'Регистрация' : 'Войти'} - {tenantId}
+          {showLogin ? 'Реєстрация' : 'Війти'} - {tenantId}
         </Button>
       </Box>
     );
