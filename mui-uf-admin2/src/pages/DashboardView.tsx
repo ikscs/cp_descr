@@ -3,16 +3,13 @@ import React, { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-// Добавляем Button и Stack
 import { Box, Grid, CircularProgress, Alert, Button, Stack } from '@mui/material';
 import './DashboardView.css';
 import VideoPlayer from '../components/VideoPlayer';
 import { ParsedReport, ReportToParsedReport } from './Reports/ReportList';
 import { getReports, /*Report*/ } from '../api/data/reportTools';
 import MiniReport from './Reports/MiniReport';
-// --- Добавляем импорт dataToExcel ---
 import { dataToExcel } from '../api/tools/dataToExcel'; // <-- Уточните путь!
-// --- Добавляем импорт иконки (опционально) ---
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const images = [
@@ -78,7 +75,7 @@ const DashboardView: React.FC = () => {
         const loadSingleReport = async (rid: number): Promise<ParsedReport> => {
             const fetchedReports = await getReports(rid);
             if (!fetchedReports || fetchedReports.length === 0) {
-                throw new Error(`Отчет с ID ${rid} не найден.`);
+                throw new Error(`Звіт з ID ${rid} не знайдено.`);
             }
             return ReportToParsedReport(fetchedReports[0]);
         };
@@ -104,7 +101,7 @@ const DashboardView: React.FC = () => {
                     if (result.status === 'fulfilled') {
                         setter(result.value);
                     } else {
-                        const errorMsg = `Ошибка загрузки отчета ${reportId}: ${result.reason?.message || result.reason}`;
+                        const errorMsg = `Помилка завантаження звіту ${reportId}: ${result.reason?.message || result.reason}`;
                         console.error(errorMsg, result.reason);
                         if (!firstError) firstError = errorMsg;
                     }
@@ -119,8 +116,8 @@ const DashboardView: React.FC = () => {
                 }
 
             } catch (err: any) {
-                console.error('Непредвиденная ошибка при загрузке отчетов:', err);
-                setFetchError(err.message || 'Произошла неизвестная ошибка');
+                console.error('Непередбачена помилка під час завантаження звітів:', err);
+                setFetchError(err.message || 'Сталася невідома помилка');
             } finally {
                 setIsLoading(false);
             }

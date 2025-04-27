@@ -1,7 +1,7 @@
 // Компонент футера приложения, который отображает информацию о компании и версии приложения
 import React from 'react';
 import { Box, Typography, Link, Container } from '@mui/material';
-import packageJson from '../../../package.json';
+import packageJson from '../../package.json';
 
 const AppFooter: React.FC = () => {
   const currentYear = new Date().getFullYear();

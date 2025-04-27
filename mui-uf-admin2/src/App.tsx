@@ -24,7 +24,7 @@ import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
 // import MyDashboardComponent from './pages/MyDashboardComponent';
 import MyDashboardWithCircularChart from './pages/MyDashboardWithCircularChart';
 import { tenantId } from './globals_VITE';
-import AppFooter from './components/Shared/AppFooter';
+import AppFooter from './components/AppFooter';
 
 // Helper function to check if the user has the 'admin' role
 // const hasAdminRole = (user: any): boolean => {
