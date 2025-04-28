@@ -69,7 +69,8 @@ const executeReportQuery = async (
         }
 
         if (!responseData || (Array.isArray(responseData) && responseData.length === 0)) {
-            return { columns: ['Сообщение'], rows: [['Нет данных']] };
+            // return { columns: ['Сообщение'], rows: [['Нет данных']] };
+            return { columns: ['Сообщение'], rows: [['Немає даних']] };
         }
 
         // Basic check for valid data structure (array of objects)
@@ -98,7 +99,8 @@ const processChartData = (
 
     // Check if result is just an error/message
     if (executionResult.columns.length === 1 && (executionResult.columns[0] === 'Ошибка' || executionResult.columns[0] === 'Сообщение')) {
-        throw new Error("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
+        // throw new Error("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
+        throw new Error("Неможливо побудувати графік по повідомленню про помилку або відсутність даних");
     }
 
     const chartConfig = reportConfig?.chart;
@@ -111,7 +113,8 @@ const processChartData = (
         !chartConfig.body_fields ||
         chartConfig.body_fields.length === 0
     ) {
-        throw new Error('Конфигурация графика (тип, оси X, поля данных) не задана или неполная.');
+        // throw new Error('Конфигурация графика (тип, оси X, поля данных) не задана или неполная.');
+        throw new Error('Конфігурація графіка (тип, осі X, поля даних) не задана чи неповна.');
     }
 
     const xAxisField = chartConfig.x_axis.field;
@@ -258,7 +261,7 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
             return (
                 <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: '100%' }}>
                     <CircularProgress size={24} />
-                    <Typography sx={{ ml: 1 }} variant="body2">Загрузка...</Typography>
+                    <Typography sx={{ ml: 1 }} variant="body2">Завантаження...</Typography>
                 </Box>
             );
         }
@@ -347,6 +350,7 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
         return null; // Should not be reached
     };
 
+    // p: 1 - padding, border, borderRadius, overflow, flexDirection
     return (
         <Box sx={{ height: height, width: '100%', p: 1, border: '1px solid #eee', borderRadius: '4px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
            {/* Optional Title */}
