@@ -84,7 +84,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
     maintainAspectRatio: false, // Allow chart to adapt to container size
     plugins: {
       legend: {
-        position: 'top' as const, // Position the legend at the top
+        position: 'left' as const, // Position the legend at the top
       },
       title: {
         display: true,
@@ -133,7 +133,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
 
   return (
     // Use flex column and allow chart to grow
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 400 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', /*minHeight: 250*/ }}>
       {/* Header with buttons */}
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 1 }}>
         {onReopenParamDialog ? (

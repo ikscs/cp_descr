@@ -150,13 +150,14 @@ function App() {
               component="div"
               sx={{ fontWeight: 'bold', marginLeft: '1rem', marginTop: '0.5rem' }}
             >
-              Адмін-панель
+              People Counting
             </Typography>
           </Box>
 
           <Box display="flex" alignItems="center">
-            <Typography variant="body1">Користувач: {user?.email}</Typography>
-            <Button onClick={handleLogout} variant="contained" sx={{ marginLeft: '1rem' }}>
+            {/* <Typography variant="body1">Користувач: {user?.email}</Typography> */}
+            <Typography variant="body1">{user?.email}</Typography>
+          <Button onClick={handleLogout} variant="contained" sx={{ marginLeft: '1rem' }}>
               Вийти
             </Button>
           </Box>

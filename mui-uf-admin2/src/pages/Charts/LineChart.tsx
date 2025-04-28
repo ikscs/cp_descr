@@ -90,7 +90,8 @@ const LineChart: React.FC<LineChartProps> = ({
     maintainAspectRatio: false, // Allow chart to fill container height better
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'right' as const,
+        display: datasets.length >= 2,
       },
       title: {
         display: true,
@@ -100,7 +101,7 @@ const LineChart: React.FC<LineChartProps> = ({
       tooltip: {
         mode: 'index', // Show tooltips for all datasets at the same x-index
         intersect: false,
-      },
+      },      
     },
     scales: {
       x: {
@@ -130,7 +131,7 @@ const LineChart: React.FC<LineChartProps> = ({
 
   return (
     // Use flex column and allow chart to grow
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 400 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 300 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 1 }}>
         {onReopenParamDialog ? (
           <IconButton onClick={onReopenParamDialog} title="Изменить параметры">

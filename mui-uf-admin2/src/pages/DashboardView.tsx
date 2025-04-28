@@ -1,3 +1,4 @@
+// d:\dvl\ikscs\react\vp-descr\mui-uf-admin2\src\pages\DashboardView.tsx
 // yarn add react-responsive-carousel @mui/material @mui/system react react-dom
 import React, { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
@@ -43,7 +44,7 @@ const REPORT_ID_24 = 26; // Відвідувачі - Вік
 const EXPORT_TABLE_NAME = 'pcnt.v_export'; // Имя таблицы для экспорта данных
 
 // Определим возможные значения для mode
-type ReportMode = 'WEEK' | 'MONTH' | 'YEAR';
+type ReportMode = 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
 
 // Определим тип для параметра отчета
 type ReportParameter = {
@@ -169,19 +170,8 @@ const DashboardView: React.FC = () => {
 
     return (
         <Box sx={{ padding: 2 }}>
-            {/* --- Заголовок и кнопка Экспорт --- */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>Панель управління</Typography>
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleExport}
-                    disabled={isExporting} // Блокируем ТОЛЬКО во время экспорта
-                    startIcon={isExporting ? <CircularProgress size={20} color="inherit" /> : <FileDownloadIcon />}
-                >
-                    {isExporting ? 'Экспорт...' : 'Експорт в Excel'}
-                </Button>
-            </Box>
+            {/* Заголовок и кнопка Экспорт были здесь, теперь кнопка перенесена ниже */}
+            {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}> ... </Box> */}
 
             {/* Отображение состояния загрузки или ошибки */}
             {isLoading && (
@@ -194,33 +184,70 @@ const DashboardView: React.FC = () => {
                 <Alert severity="error" sx={{ my: 2 }}>{fetchError}</Alert>
             )}
 
-            {/* Кнопки управления режимом отчетов */}
+            {/* Кнопки управления режимом И Кнопка Экспорт в одной строке */}
             {!isLoading && !fetchError && (
-                <Stack direction="row" spacing={2} sx={{ my: 2, justifyContent: 'center' }}>
-                     <Button
-                         variant={currentMode === 'WEEK' ? 'contained' : 'outlined'}
-                         onClick={() => handleModeChange('WEEK')}
-                     >
-                         Тиждень
-                     </Button>
-                     <Button
-                         variant={currentMode === 'MONTH' ? 'contained' : 'outlined'}
-                         onClick={() => handleModeChange('MONTH')}
-                     >
-                         Місяць
-                     </Button>
-                     <Button
-                         variant={currentMode === 'YEAR' ? 'contained' : 'outlined'}
-                         onClick={() => handleModeChange('YEAR')}
-                     >
-                         Рік
-                     </Button>
+                <Stack
+                    direction="row"
+                    spacing={2} // Spacing для элементов внутри Stack (если их несколько в потоке)
+                    sx={{
+                        my: 2,
+                        justifyContent: 'center', // Центрируем основной контент (кнопки режима)
+                        alignItems: 'center',
+                        width: '100%',
+                        position: 'relative', // Делаем Stack относительным для позиционирования кнопки Экспорт
+                    }}
+                >
+                    {/* Кнопки режима теперь центрируются относительно всей ширины Stack */}
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant={currentMode === 'DAY' ? 'contained' : 'outlined'}
+                            onClick={() => handleModeChange('DAY')}
+                        >
+                            День
+                        </Button>
+                        <Button
+                            variant={currentMode === 'WEEK' ? 'contained' : 'outlined'}
+                            onClick={() => handleModeChange('WEEK')}
+                        >
+                            Тиждень
+                        </Button>
+                        <Button
+                            variant={currentMode === 'MONTH' ? 'contained' : 'outlined'}
+                            onClick={() => handleModeChange('MONTH')}
+                        >
+                            Місяць
+                        </Button>
+                        <Button
+                            variant={currentMode === 'YEAR' ? 'contained' : 'outlined'}
+                            onClick={() => handleModeChange('YEAR')}
+                        >
+                            Рік
+                        </Button>
+                    </Stack>
+
+                    {/* Кнопка Экспорт - абсолютно позиционирована */}
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleExport}
+                        disabled={isExporting}
+                        startIcon={isExporting ? <CircularProgress size={20} color="inherit" /> : <FileDownloadIcon />}
+                        sx={{
+                            position: 'absolute', // Абсолютное позиционирование
+                            right: 0, // Прижимаем к правому краю родительского Stack
+                            // top: '50%', // Вертикально по центру относительно Stack
+                            // transform: 'translateY(-50%)' // Коррекция для точного центрирования по вертикали
+                        }}
+                    >
+                        {isExporting ? 'Экспорт...' : 'Експорт в Excel'}
+                    </Button>
                 </Stack>
             )}
 
-            {/* Секция с отчетами */}
+
+            {/* Секция с отчетами spacing={0} */}
             {!isLoading && !fetchError && (
-                <Grid container spacing={3} sx={{ my: 2 }}>
+                <Grid container spacing={0} sx={{ my: 2 }}>
                     {/* Отчет 22: Відвідувачі */}
                     {parsedReport22 && (
                         <Grid item xs={12} md={12}>
@@ -228,7 +255,7 @@ const DashboardView: React.FC = () => {
                                 report={parsedReport22}
                                 parameters={reportParams}
                                 displayMode="chart"
-                                height="400px"
+                                height="300px"
                             />
                         </Grid>
                     )}
@@ -240,7 +267,7 @@ const DashboardView: React.FC = () => {
                                 report={parsedReport24}
                                 parameters={reportParams}
                                 displayMode="chart"
-                                height="400px"
+                                height="250px"
                             />
                         </Grid>
                     )}
@@ -252,7 +279,7 @@ const DashboardView: React.FC = () => {
                                 report={parsedReport23}
                                 parameters={reportParams}
                                 displayMode="chart"
-                                height="400px"
+                                height="250px"
                             />
                         </Grid>
                     )}
