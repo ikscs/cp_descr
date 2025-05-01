@@ -1,10 +1,13 @@
 // d:\dvl\ikscs\react\vp-descr\mui-uf-admin2\src\pages\DashboardView.tsx
-// yarn add react-responsive-carousel @mui/material @mui/system react react-dom
 import React, { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Box, Grid, CircularProgress, Alert, Button, Stack } from '@mui/material';
+// --- Импортируем хуки для адаптивности ---
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+// --- Конец импортов для адаптивности ---
 import './DashboardView.css';
 import VideoPlayer from '../components/VideoPlayer';
 import { ParsedReport, ReportToParsedReport } from './Reports/ReportList';
@@ -70,6 +73,13 @@ const DashboardView: React.FC = () => {
     const [fetchError, setFetchError] = useState<string | null>(null);
     // --- Состояние для индикации процесса экспорта ---
     const [isExporting, setIsExporting] = useState<boolean>(false);
+
+    // --- Получаем тему и проверяем размер экрана ---
+    const theme = useTheme();
+    // theme.breakpoints.down('sm') - вернет true, если ширина экрана меньше breakpoint 'sm' (обычно 600px)
+    // Можете использовать 'md' (900px) или другое значение в зависимости от ваших нужд
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    // --- Конец блока адаптивности ---
 
     useEffect(() => {
         // Функция для загрузки одного отчета по ID
@@ -170,9 +180,6 @@ const DashboardView: React.FC = () => {
 
     return (
         <Box sx={{ padding: 2 }}>
-            {/* Заголовок и кнопка Экспорт были здесь, теперь кнопка перенесена ниже */}
-            {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}> ... </Box> */}
-
             {/* Отображение состояния загрузки или ошибки */}
             {isLoading && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
@@ -184,48 +191,54 @@ const DashboardView: React.FC = () => {
                 <Alert severity="error" sx={{ my: 2 }}>{fetchError}</Alert>
             )}
 
-            {/* Кнопки управления режимом И Кнопка Экспорт в одной строке */}
+            {/* Кнопки управления режимом И Кнопка Экспорт */}
             {!isLoading && !fetchError && (
                 <Stack
                     direction="row"
-                    spacing={2} // Spacing для элементов внутри Stack (если их несколько в потоке)
+                    spacing={1} // Уменьшим или настроим spacing при необходимости
                     sx={{
                         my: 2,
-                        justifyContent: 'center', // Центрируем основной контент (кнопки режима)
+                        // justifyContent: 'center', // Убираем или меняем, если нужно другое выравнивание
                         alignItems: 'center',
                         width: '100%',
-                        position: 'relative', // Делаем Stack относительным для позиционирования кнопки Экспорт
+                        flexWrap: 'wrap', // Позволяем перенос на новую строку, если не помещается
+                        gap: 1, // Добавляем отступ между элементами при переносе
                     }}
                 >
-                    {/* Кнопки режима теперь центрируются относительно всей ширины Stack */}
-                    <Stack direction="row" spacing={2}>
+                    {/* Кнопки режима */}
+                    {/* Оборачиваем кнопки режима в отдельный Stack или Box, чтобы они не растягивались */}
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', flexGrow: 1 /* Позволяет кнопкам занять центр */ }}>
                         <Button
+                            size="small" // Можно уменьшить кнопки на маленьких экранах
                             variant={currentMode === 'DAY' ? 'contained' : 'outlined'}
                             onClick={() => handleModeChange('DAY')}
                         >
                             День
                         </Button>
                         <Button
+                            size="small"
                             variant={currentMode === 'WEEK' ? 'contained' : 'outlined'}
                             onClick={() => handleModeChange('WEEK')}
                         >
                             Тиждень
                         </Button>
                         <Button
+                            size="small"
                             variant={currentMode === 'MONTH' ? 'contained' : 'outlined'}
                             onClick={() => handleModeChange('MONTH')}
                         >
                             Місяць
                         </Button>
                         <Button
+                            size="small"
                             variant={currentMode === 'YEAR' ? 'contained' : 'outlined'}
                             onClick={() => handleModeChange('YEAR')}
                         >
                             Рік
                         </Button>
-                    </Stack>
+                    </Box>
 
-                    {/* Кнопка Экспорт - абсолютно позиционирована */}
+                    {/* Кнопка Экспорт - теперь в потоке, прижата вправо */}
                     <Button
                         variant="contained"
                         color="secondary"
@@ -233,13 +246,19 @@ const DashboardView: React.FC = () => {
                         disabled={isExporting}
                         startIcon={isExporting ? <CircularProgress size={20} color="inherit" /> : <FileDownloadIcon />}
                         sx={{
-                            position: 'absolute', // Абсолютное позиционирование
-                            right: 0, // Прижимаем к правому краю родительского Stack
-                            // top: '50%', // Вертикально по центру относительно Stack
-                            // transform: 'translateY(-50%)' // Коррекция для точного центрирования по вертикали
+                            // marginLeft: 'auto', // Прижимает кнопку к правому краю, если есть место
+                            flexShrink: 0, // Запрещаем кнопке сжиматься
+                            // Убираем абсолютное позиционирование
+                            // position: 'absolute',
+                            // right: 0,
                         }}
+                        size="small" // Согласуем размер
                     >
-                        {isExporting ? 'Экспорт...' : 'Експорт в Excel'}
+                        {/* Условный рендеринг текста кнопки */}
+                        {isExporting
+                            ? (isSmallScreen ? '' : 'Экспорт...') // На маленьком экране только иконка при экспорте
+                            : (isSmallScreen ? '' : 'Експорт в Excel') // На маленьком экране только иконка
+                        }
                     </Button>
                 </Stack>
             )}
