@@ -1,6 +1,6 @@
 import { useState, useEffect, JSX } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
-import { useUserfront, LoginForm, SignupForm } from '@userfront/react';
+import { useUserfront, LoginForm, SignupForm, PasswordResetForm } from '@userfront/react'; // Import PasswordResetForm
 import Users from './pages/Users';
 import Dashboard from './pages/DashboardView';
 import { Button, Box, Typography } from '@mui/material';
@@ -25,6 +25,8 @@ import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
 import MyDashboardWithCircularChart from './pages/MyDashboardWithCircularChart';
 import { tenantId } from './globals_VITE';
 import AppFooter from './components/AppFooter';
+import MyComponentWithAspectRatio from './pages/MyComponentWithAspectRatio';
+import DashboardWrapper from './pages/DashboardWrapper';
 
 // Helper function to check if the user has the 'admin' role
 // const hasAdminRole = (user: any): boolean => {
@@ -67,11 +69,21 @@ function App() {
       path: '/dashboard',
       icon: <DashboardIcon />,
     },
-    // {
-    //   text: 'test Панель управления',
-    //   path: '/testdashboard',
-    //   icon: <DashboardIcon />,
-    // },    
+    {
+      text: 'Панель управління (пропорційна)',
+      path: '/dashboard_aspect_ratio',
+      icon: <DashboardIcon />,
+    },
+    {
+      text: 'Пример круговой диаграммы',
+      path: '/testdashboard',
+      icon: <DashboardIcon />,
+    },
+    {
+      text: 'Пример пропорции',
+      path: '/testdashboard_aspect_ratio',
+      icon: <DashboardIcon />,
+    },
     {
       text: 'Администрирование',
       icon: <AdminPanelSettingsIcon />,
@@ -106,7 +118,7 @@ function App() {
       role: 'editor',
     },
   ];
-  
+
   const { tokens, user, logout } = useUserfront();
   const [showLogin, setShowLogin] = useState(true);
   const navigate = useNavigate();
@@ -117,16 +129,16 @@ function App() {
     }
     return true;
   }));
-  
+
   useEffect(() => {
     if (tokens && tokens.accessToken) {
       console.log('Tokens:', tokens);
       console.log('User:', user);
-      navigate('/');
+      // navigate('/'); // Removed navigate on login to allow staying on current page or redirecting based on other logic if needed
     } else {
       console.log('No tokens');
     }
-  }, [tokens, user, /*navigate*/]);
+  }, [tokens, user]);
 
   const handleLogout = () => {
     logout();
@@ -165,7 +177,9 @@ function App() {
 
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard_aspect_ratio" element={<DashboardWrapper />} />
           <Route path="/testdashboard" element={<MyDashboardWithCircularChart />} />
+          <Route path="/testdashboard_aspect_ratio" element={<MyComponentWithAspectRatio />} />
           <Route path="/users" element={<Users />} />
           <Route path="/roles" element={<RoleList />} />
           <Route path="/reports" element={<ReportList />} />
@@ -205,6 +219,8 @@ function App() {
             }
           />
           <Route path="/" element={<Dashboard />} />
+          {/* Add the reset route here as well in case user navigates while logged in, though typically accessed when logged out */}
+          <Route path="/reset" element={<PasswordResetForm />} />
         </Routes>
         <AppFooter />
       </Box>
@@ -212,10 +228,21 @@ function App() {
   } else {
     return (
       <Box display="flex" flexDirection="column" alignItems="center">
-        {showLogin ? <LoginForm /> : <SignupForm />}
-        <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
-          {showLogin ? 'Реєстрация' : 'Війти'} - {tenantId}
-        </Button>
+        <Routes>
+          <Route path="/reset" element={<PasswordResetForm />} />
+          <Route path="/" element={
+            <>
+              {showLogin ? <LoginForm /> : <SignupForm />}
+              <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
+                {showLogin ? 'Реєстрация' : 'Війти'} - {tenantId}
+              </Button>
+              {/* Optionally add a link to the reset form */}
+              {/* <Link to="/reset">Forgot Password?</Link> */}
+            </>
+          } />
+          {/* Redirect any other path to login when not authenticated */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </Box>
     );
   }
