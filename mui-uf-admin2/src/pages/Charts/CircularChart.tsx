@@ -84,11 +84,11 @@ const CircularChart: React.FC<CircularChartProps> = ({
     maintainAspectRatio: false, // Allow chart to adapt to container size
     plugins: {
       legend: {
-        position: 'left' as const, // Position the legend at the top
+        position: 'left' as const, // Оставляем легенду слева (или меняем на 'top'/'bottom' по желанию)
       },
       title: {
-        display: true,
-        text: reportName, // Display the report name as the title
+        display: false, // Отключаем стандартный заголовок Chart.js
+        // text: reportName,
         font: { size: 22 },
       },
       tooltip: {
@@ -121,7 +121,8 @@ const CircularChart: React.FC<CircularChartProps> = ({
                     finalLabel += value;
                 }
                 return finalLabel;
-            }        }
+            }        
+          }
       },
     },
     // Cutout percentage for Doughnut (0 for Pie)
@@ -134,7 +135,27 @@ const CircularChart: React.FC<CircularChartProps> = ({
   return (
     // Use flex column and allow chart to grow
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', /*minHeight: 250*/ }}>
-      {/* Header with buttons */}
+      {/* Header with Title and buttons */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 1 }}>
+        {/* Render the title using Typography */}
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'left', mr: 1 /* Добавляем отступ справа */ }}>
+          {reportName}
+        </Typography>
+        {/* Optional: Add Reopen button */}
+        {onReopenParamDialog && (
+          <IconButton onClick={onReopenParamDialog} title="Изменить параметры" size="small">
+            <ReplayIcon />
+          </IconButton>
+        )}
+        {/* Optional: Add Close button */}
+        {onClose && (
+          <IconButton onClick={onClose} title="Закрыть график" size="small">
+            <CloseIcon />
+          </IconButton>
+        )}
+      </Box>
+      {/* Old Header location (now removed or repurposed) */}
+      {/*
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 1 }}>
         {onReopenParamDialog ? (
           <IconButton onClick={onReopenParamDialog} title="Изменить параметры">
@@ -151,6 +172,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
           <Box /> // Пустой Box для сохранения выравнивания
         )}
       </Box>
+      */}
       {/* Chart container */}
       <Box sx={{ position: 'relative', flexGrow: 1 }}>
         {hasData ? (
