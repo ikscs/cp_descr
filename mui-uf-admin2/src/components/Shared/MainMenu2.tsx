@@ -68,7 +68,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ menuItems }) => {
               <>
                 {item.items ? (
                   <>
-                    <ListItem onClick={() => handleExpandClick(item.text)}>
+                    <ListItem
+                      onClick={() => handleExpandClick(item.text)}
+                      sx={{ cursor: 'pointer' }}
+                    >
                       {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
                       <ListItemText primary={item.text} />
                       {expanded[item.text] ? <ExpandLess /> : <ExpandMore />}
