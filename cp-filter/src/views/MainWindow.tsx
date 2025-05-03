@@ -544,7 +544,12 @@ const MainWindow = () => {
                     size={30}
                     placeholder="Article, Name ?"
                     value={articleFilter}
-                    setValue={setArticleFilter}/>
+                    setValue={setArticleFilter}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            initGrid();
+                        }
+                    }}/>
                 <InputNumber
                     size={3}
                     placeholder="Limit ?"
@@ -561,6 +566,7 @@ const MainWindow = () => {
             </div> 
             
             <div className='flexbox-container'>
+                {subj != emptySubj && (
                 <div title='tree' style={{width: '300px'}}>
                     <MultiSelectCheckbox 
                         data={treeData}
@@ -568,6 +574,7 @@ const MainWindow = () => {
                         width='300px'
                     />
                 </div>
+                )}
                 <Tabs selectedIndex={tabIndex} onSelect={(index) => setTabIndex(index)}>
                     <TabList>
                         <Tab key='1' tabIndex='1'>Data</Tab>
