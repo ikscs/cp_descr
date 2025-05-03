@@ -151,8 +151,16 @@ function App() {
 
   if (tokens && tokens.accessToken) {
     return (
-      <Box>
-        <Box display="flex" alignItems="center" justifyContent="space-between" padding="1rem">
+      // 1. Главный контейнер: делаем его flex-колонкой и задаем минимальную высоту
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh', // Занимает минимум всю высоту окна
+      }}>
+        {/* 2. Хедер: остается как есть, не растягивается */}
+        <Box display="flex" alignItems="center" justifyContent="space-between" 
+          padding="1rem"
+        >
           <Box display="flex">
             {user.hasRole('admin') && (
               <MainMenu menuItems={menuItems} />
@@ -168,60 +176,69 @@ function App() {
 
           <Box display="flex" alignItems="center">
             {/* <Typography variant="body1">Користувач: {user?.email}</Typography> */}
-            <Typography variant="body1">{user?.email}</Typography>
+            <Typography variant="body1">{user?.username}</Typography>
           <Button onClick={handleLogout} variant="contained" sx={{ marginLeft: '1rem' }}>
               Вийти
             </Button>
           </Box>
         </Box>
 
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard_aspect_ratio" element={<DashboardWrapper />} />
-          <Route path="/testdashboard" element={<MyDashboardWithCircularChart />} />
-          <Route path="/testdashboard_aspect_ratio" element={<MyComponentWithAspectRatio />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/roles" element={<RoleList />} />
-          <Route path="/reports" element={<ReportList />} />
-          <Route path="/settings/general" element={<GeneralSettings />} />
-          {/* <Route path="/settings/report-list" element={<ReportListSettings />} /> */}
-          {/* Protected Route for ReportListSettings */}
-          <Route
-            path="/settings/report-list"
-            element={
-              <ProtectedRoute user={user} requiredRole="editor">
-                <ReportListSettings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/enterprise/departments"
-            element={
-              <ProtectedRoute user={user} requiredRole="owner">
-                <DepartmentList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/enterprise/positions"
-            element={
-              <ProtectedRoute user={user} requiredRole="owner">
-                <PositionList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/enterprise/employees"
-            element={
-              <ProtectedRoute user={user} requiredRole="owner">
-                <EmployeeList />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/" element={<Dashboard />} />
-          {/* Add the reset route here as well in case user navigates while logged in, though typically accessed when logged out */}
-          <Route path="/reset" element={<PasswordResetForm />} />
-        </Routes>
+        {/* 3. Основной контент: оборачиваем Routes и даем ему flexGrow: 1 */}
+        <Box id={'11111111'} sx={{
+          flexGrow: 1, // Занимает оставшееся пространство
+          display: 'flex', // <-- Делаем этот блок flex-контейнером
+          flexDirection: 'column' // <-- Его дочерние элементы (страницы) будут в колонку
+        }}>
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard_aspect_ratio" element={<DashboardWrapper />} />
+            <Route path="/testdashboard" element={<MyDashboardWithCircularChart />} />
+            <Route path="/testdashboard_aspect_ratio" element={<MyComponentWithAspectRatio />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/roles" element={<RoleList />} />
+            <Route path="/reports" element={<ReportList />} />
+            <Route path="/settings/general" element={<GeneralSettings />} />
+            {/* <Route path="/settings/report-list" element={<ReportListSettings />} /> */}
+            {/* Protected Route for ReportListSettings */}
+            <Route
+              path="/settings/report-list"
+              element={
+                <ProtectedRoute user={user} requiredRole="editor">
+                  <ReportListSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/enterprise/departments"
+              element={
+                <ProtectedRoute user={user} requiredRole="owner">
+                  <DepartmentList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/enterprise/positions"
+              element={
+                <ProtectedRoute user={user} requiredRole="owner">
+                  <PositionList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/enterprise/employees"
+              element={
+                <ProtectedRoute user={user} requiredRole="owner">
+                  <EmployeeList />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/" element={<Dashboard />} />
+            {/* Add the reset route here as well in case user navigates while logged in, though typically accessed when logged out */}
+            <Route path="/reset" element={<PasswordResetForm />} />
+          </Routes>
+        </Box>
+
+        {/* 4. Футер: остается как есть, не растягивается и будет прижат к низу */}
         <AppFooter />
       </Box>
     );

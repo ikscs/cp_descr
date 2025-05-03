@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { UserfrontProvider } from "@userfront/react";
 import App from './App';
+import { CssBaseline } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
 import { tenantId, basename, } from './globals_VITE';
 
@@ -17,6 +18,7 @@ root.render(
   <React.StrictMode>
     <UserfrontProvider tenantId={tenantId}>
       <BrowserRouter basename={basename}>
+        <CssBaseline />
         <App />
       </BrowserRouter>
     </UserfrontProvider>

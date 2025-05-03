@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { Box, Grid, CircularProgress, Alert, Button, Stack } from '@mui/material';
+import { Box, Grid, CircularProgress, Alert, Button, Stack } from '@mui/material'; // <-- Убираем Tooltip, т.к. он внутри ButtonA
 // --- Импортируем хуки для адаптивности ---
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+// import { useTheme } from '@mui/material/styles';
+// import useMediaQuery from '@mui/material/useMediaQuery';
 // --- Конец импортов для адаптивности ---
 import './DashboardView.css';
 import VideoPlayer from '../components/VideoPlayer';
@@ -15,6 +15,7 @@ import { getReports, /*Report*/ } from '../api/data/reportTools';
 import MiniReport from './Reports/MiniReport';
 import { dataToExcel } from '../api/tools/dataToExcel'; // <-- Уточните путь!
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import ButtonA from '../components/Shared/ButtonA';
 
 const images = [
     // ... (оставляем массив images как есть) ...
@@ -39,7 +40,7 @@ const images = [
 ];
 
 // Определим ID отчетов, которые хотим загрузить
-const REPORT_ID_22 = 25; // Відвідувачі
+const REPORT_ID_22 = 28; // Відвідувачі
 const REPORT_ID_23 = 27; // Відвідувачі - Стать
 const REPORT_ID_24 = 26; // Відвідувачі - Вік
 
@@ -75,12 +76,14 @@ const DashboardView: React.FC = () => {
     const [isExporting, setIsExporting] = useState<boolean>(false);
 
     // --- Получаем тему и проверяем размер экрана ---
-    const theme = useTheme();
+    
+    // const theme = useTheme();
+
     // theme.breakpoints.down('sm') - вернет true, если ширина экрана меньше breakpoint 'sm' (обычно 600px)
     // Можете использовать 'md' (900px) или другое значение в зависимости от ваших нужд
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    // --- Конец блока адаптивности ---
-
+    // --- Убрали isSmallScreen, т.к. логика теперь внутри ButtonA ---
+    // const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+    
     useEffect(() => {
         // Функция для загрузки одного отчета по ID
         const loadSingleReport = async (rid: number): Promise<ParsedReport> => {
@@ -179,7 +182,32 @@ const DashboardView: React.FC = () => {
     const currentMode = reportParams.find(p => p.name === 'mode')?.value;
 
     return (
-        <Box sx={{ padding: 2 }}>
+        <Box id={'22222222'} sx={{
+            padding: 0,
+            // height: '100%', // Заменяем на flexGrow, т.к. родитель (11111111) теперь flex-контейнер
+            flexGrow: 1, // <-- Заставляем этот Box занять все доступное ВЕРТИКАЛЬНОЕ пространство родителя (11111111)
+            backgroundImage: 'url(/bg1.png)', // Путь к изображению (из папки public)
+            backgroundRepeat: 'repeat',       // Повторять изображение (мозаика)
+            backgroundSize: 'auto',           // Использовать оригинальный размер изображения
+            // --- Снова делаем flex-контейнером, чтобы управлять растягиванием дочернего элемента ---
+            display: 'flex',
+            flexDirection: 'column', // Дочерние элементы (внутренний Box) будут в столбик
+            justifyContent: 'center', // <-- Центрируем дочерний элемент (внутренний Box) по ВЕРТИКАЛИ
+            // alignItems: 'center', // Не нужно, если внутренний Box должен занимать всю ширину (до maxWidth)
+        }}>
+        <Box sx={{
+            // flexGrow: 1, // <-- Заставляем этот Box занять все доступное ВЕРТИКАЛЬНОЕ пространство родителя (22222222)
+            width: '100%', // Занимает доступную ширину (ограниченную maxWidth ниже)
+            // height: '100%', // Убираем, высота будет по контенту
+            maxWidth: "1300px", // Ограничиваем максимальную ширину
+            margin: "0 auto", // Центрируем по горизонтали (0 для верха/низа, auto для лево/право)
+            padding: 1,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', // Легкий фон
+            // minHeight: 0, // <-- Временно уберем для проверки
+            display: 'flex',        // Делаем этот Box flex-контейнером для его содержимого
+            flexDirection: 'column', // Располагаем содержимое (Stack, Grid) в столбик
+         }}>
+
             {/* Отображение состояния загрузки или ошибки */}
             {isLoading && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
@@ -206,7 +234,14 @@ const DashboardView: React.FC = () => {
                     }}
                 >
                     {/* Кнопки режима */}
-                    {/* Оборачиваем кнопки режима в отдельный Stack или Box, чтобы они не растягивались */}
+                    {/* 1. Фиктивный элемент слева (невидимый) */}
+                    {/* Должен занимать столько же места, сколько кнопка Экспорт */}
+                    <Box sx={{ visibility: 'hidden', flexShrink: 0 }}>
+                        {/* Используем ButtonA для согласования размеров, но делаем его невидимым */}
+                        <ButtonA size="small" startIcon={<FileDownloadIcon />} hideTextOn="md" isActive={isExporting}>
+                            Експорт в Excel
+                        </ButtonA>
+                    </Box>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', flexGrow: 1 /* Позволяет кнопкам занять центр */ }}>
                         <Button
                             size="small" // Можно уменьшить кнопки на маленьких экранах
@@ -239,67 +274,67 @@ const DashboardView: React.FC = () => {
                     </Box>
 
                     {/* Кнопка Экспорт - теперь в потоке, прижата вправо */}
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={handleExport}
-                        disabled={isExporting}
-                        startIcon={isExporting ? <CircularProgress size={20} color="inherit" /> : <FileDownloadIcon />}
-                        sx={{
-                            // marginLeft: 'auto', // Прижимает кнопку к правому краю, если есть место
-                            flexShrink: 0, // Запрещаем кнопке сжиматься
-                            // Убираем абсолютное позиционирование
-                            // position: 'absolute',
-                            // right: 0,
-                        }}
-                        size="small" // Согласуем размер
-                    >
-                        {/* Условный рендеринг текста кнопки */}
-                        {isExporting
-                            ? (isSmallScreen ? '' : 'Экспорт...') // На маленьком экране только иконка при экспорте
-                            : (isSmallScreen ? '' : 'Експорт в Excel') // На маленьком экране только иконка
-                        }
-                    </Button>
+                    {/* Используем наш новый компонент ButtonA */}
+                    <Box sx={{ flexShrink: 0 }}> {/* Оставляем Box для flexShrink */}
+                        <ButtonA
+                            variant="contained"
+                            color="secondary"
+                            onClick={handleExport}
+                            isActive={isExporting}
+                            startIcon={<FileDownloadIcon />}
+                            hideTextOn="md" // Скрывать текст на 'md' и меньше
+                            size="small" // Согласуем размер
+                        >
+                            Експорт в Excel
+                        </ButtonA>
+                    </Box>
                 </Stack>
             )}
 
 
-            {/* Секция с отчетами spacing={0} */}
+            {/* Секция с отчетами spacing={3} */}
             {!isLoading && !fetchError && (
-                <Grid container spacing={0} sx={{ my: 2 }}>
+                <Grid container /*columnSpacing={3}*/ rowSpacing={1} sx={{ my: 2, width: '100%' }}> {/* <-- Убираем columnSpacing */}
                     {/* Отчет 22: Відвідувачі */}
                     {parsedReport22 && (
-                        <Grid item xs={12} md={12}>
+                        <Grid item xs={12} md={12}> {/* <-- Убираем padding отсюда */}
+                            {/* Оборачиваем MiniReport в Box с padding */}
+                            <Box sx={{ px: 1.5, pb: 1 }}> {/* Используем px/pb */}
                             <MiniReport
                                 report={parsedReport22}
                                 parameters={reportParams}
                                 displayMode="chart"
-                                height="300px"
+                                height="330px"
                             />
+                            </Box>
                         </Grid>
                     )}
 
                     {/* Отчет 24: Відвідувачі - Вік */}
                     {parsedReport24 && (
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={6}> {/* <-- Убираем padding отсюда */}
+                            <Box sx={{ px: 1.5, pb: 1 }}>
                             <MiniReport
                                 report={parsedReport24}
                                 parameters={reportParams}
                                 displayMode="chart"
-                                height="250px"
+                                height="300px"
                             />
+                            </Box>
                         </Grid>
                     )}
 
                      {/* Отчет 23: Відвідувачі - Стать */}
                      {parsedReport23 && (
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={6}> {/* <-- Убираем padding отсюда */}
+                            <Box sx={{ px: 1.5, pb: 1 }}>
                             <MiniReport
                                 report={parsedReport23}
                                 parameters={reportParams}
                                 displayMode="chart"
-                                height="250px"
+                                height="300px"
                             />
+                            </Box>
                         </Grid>
                     )}
                 </Grid>
@@ -348,6 +383,7 @@ const DashboardView: React.FC = () => {
                 </Grid>
             </Grid>
             )}
+        </Box>
         </Box>
     );
 };

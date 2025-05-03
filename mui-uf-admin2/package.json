@@ -1,7 +1,7 @@
 {
   "name": "mui-uf-admin",
   "private": true,
-  "version": "0.3.2",
+  "version": "0.4.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,6 +23,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "formik": "^2.4.6",
+    "lodash.debounce": "^4.0.8",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
