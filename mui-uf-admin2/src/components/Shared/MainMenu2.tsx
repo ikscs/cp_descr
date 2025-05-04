@@ -65,10 +65,11 @@ const MainMenu: React.FC<MainMenuProps> = ({ menuItems }) => {
           </Typography>
           <List>
             {menuItems.map((item) => (
-              <>
+              <React.Fragment key={item.path || item.text}> {/* Добавляем key сюда */}
                 {item.items ? (
-                  <>
+                  <> {/* Внутренний фрагмент не нуждается в key, т.к. он не прямой потомок map */}
                     <ListItem
+                      key={item.path || item.text}
                       onClick={() => handleExpandClick(item.text)}
                       sx={{ cursor: 'pointer' }}
                     >
@@ -104,7 +105,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ menuItems }) => {
                     <ListItemText primary={item.text} />
                   </ListItem>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </List>
         </Box>
