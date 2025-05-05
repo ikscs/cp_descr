@@ -137,8 +137,17 @@ const CircularChart: React.FC<CircularChartProps> = ({
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', /*minHeight: 250*/ }}>
       {/* Header with Title and buttons */}
       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 1 }}>
-        {/* Render the title using Typography */}
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'left', mr: 1 /* Добавляем отступ справа */ }}>
+        {/* Render the title using Typography with medium font weight */}
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{
+            flexGrow: 1,
+            textAlign: 'left',
+            mr: 1, /* Добавляем отступ справа */
+            fontWeight: 'bold', //fontWeight: 'medium' // Делаем заголовок немного жирнее
+            color: 'text.secondary' // Делаем цвет менее интенсивным (сероватым)
+          }}>
           {reportName}
         </Typography>
         {/* Optional: Add Reopen button */}
