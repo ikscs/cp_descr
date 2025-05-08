@@ -15,6 +15,8 @@ import { getReports, /*Report*/ } from '../api/data/reportTools';
 import MiniReport from './Reports/MiniReport';
 import { dataToExcel } from '../api/tools/dataToExcel'; // <-- Уточните путь!
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { format as formatDateFns, subDays as subDaysFns } from 'date-fns';
+import ReportDayControl from '../components/Shared/ReportDayControl';
 import ButtonA from '../components/Shared/ButtonA';
 
 const images = [
@@ -63,12 +65,20 @@ const DashboardView: React.FC = () => {
     const [parsedReport24, setParsedReport24] = useState<ParsedReport | null>(null);
 
     // Состояние для параметров отчетов
-    const [reportParams, setReportParams] = useState<ReportParameter[]>([
-        { name: 'd1', value: '' },
-        { name: 'd2', value: '' },
-        { name: 'mode', value: 'MONTH' },
-    ]);
-
+    // const [reportParams, setReportParams] = useState<ReportParameter[]>([
+    //     { name: 'd1', value: '' },
+    //     { name: 'd2', value: '' },
+    //     { name: 'mode', value: 'MONTH' },
+    // ]);
+    const [reportParams, setReportParams] = useState<ReportParameter[]>(() => {
+        const yesterday = subDaysFns(new Date(), 1);
+        const formattedYesterday = formatDateFns(yesterday, 'yyyy-MM-dd');
+        return [
+            { name: 'd1', value: formattedYesterday },
+            { name: 'd2', value: formattedYesterday },
+            { name: 'mode', value: 'MONTH' },
+        ];
+    });
     // Общие состояния загрузки и ошибок
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
@@ -247,6 +257,7 @@ const DashboardView: React.FC = () => {
                             size="small" // Можно уменьшить кнопки на маленьких экранах
                             variant={currentMode === 'DAY' ? 'contained' : 'outlined'}
                             onClick={() => handleModeChange('DAY')}
+                            title='Відображати дані за вчора'
                         >
                             День
                         </Button>
@@ -294,6 +305,15 @@ const DashboardView: React.FC = () => {
 
             {/* Секция с отчетами spacing={3} */}
             {!isLoading && !fetchError && (
+                <>
+                {(currentMode === 'DAY' || currentMode === 'PERIOD') && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 1, mb: 0.5 }}>
+                         <ReportDayControl
+                            // currentD1={reportParams.find(p => p.name === 'd1')?.value as string | undefined}
+                            onParamsUpdate={setReportParams} // Передаем setReportParams напрямую
+                        />
+                    </Box>
+                )}                
                 <Grid container /*columnSpacing={3}*/ rowSpacing={1} sx={{ my: 2, width: '100%' }}> {/* <-- Убираем columnSpacing */}
                     {/* Отчет 22: Відвідувачі */}
                     {parsedReport22 && (
@@ -338,6 +358,7 @@ const DashboardView: React.FC = () => {
                         </Grid>
                     )}
                 </Grid>
+                </>
             )}
 
             {/* Секция с видео и галереей (остается как была, но скрыта через false) */}

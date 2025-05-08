@@ -46,7 +46,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ menuItems }) => {
 
   return (
     <>
-      <Tooltip title="Главное меню">
+      <Tooltip title="Головне меню">
         <IconButton
           size="large"
           edge="start"
@@ -61,7 +61,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ menuItems }) => {
       <Drawer open={open} onClose={handleClose}>
         <Box p={2}>
           <Typography variant="h6" gutterBottom>
-            Главное меню
+            Головне меню
           </Typography>
           <List>
             {menuItems.map((item) => (

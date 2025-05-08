@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, FieldArray, FormikProps } from 'formik';
 import * as Yup from 'yup';
 import { User } from '../../api/fetchUsers';
-import { tenantId } from '../../globals_VITE';
+// import { tenantId } from '../../globals_VITE';
 import { fetchRoles } from '../../api/fetchRoles';
 import {
   Box,
@@ -23,10 +23,11 @@ interface UserFormProps {
   user?: User;
   onSave: (values: User) => void;
   onCancel: () => void;
+  tenantId: string;
   title?: string;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel, title = 'Форма пользователя' }) => {
+const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel, tenantId, title = 'Форма пользователя' }) => {
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -72,6 +73,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel, title = 'Ф
         return (
           <Form>
             <Typography variant="h6" gutterBottom>{title}</Typography>
+            <Typography variant="h6" gutterBottom>{tenantId}</Typography>
             <Stack spacing={2}>
               <Field name="userId">
                 {({ field, meta }: { field: any; meta: any }) => (

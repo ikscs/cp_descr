@@ -19,9 +19,10 @@ import { ParsedReport } from './ReportList';
 
 interface QueryParamProps {
   report: ParsedReport;
-  onExecute: (params: { name: string; value: string | number | boolean }[]) => void; // Changed onExecute type
+  onExecute: (params: { name: string; value: string | number | boolean }[], showAsChart: boolean) => void;
   onClose: () => void;
   initialParams?: { name: string; value: string | number | boolean }[];
+  initialShowAsChart?: boolean;
 }
 
 export interface Parameter {
@@ -33,9 +34,10 @@ export interface Parameter {
   options?: string[]; // For select type
 }
 
-const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, initialParams }) => {
+const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, initialParams, initialShowAsChart }) => {
   const [parameters, setParameters] = useState<Parameter[]>([]);
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+  const [showAsChart, setShowAsChart] = useState<boolean>(false);
 
   useEffect(() => {
     // Initialize parameters based on report.config
@@ -72,7 +74,10 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
     } else {
       setParameters([]);
     }
-  }, [report.config?.params, initialParams]);
+    if (initialShowAsChart !== undefined) {
+      setShowAsChart(initialShowAsChart);
+    }
+  }, [report.config?.params, initialParams, initialShowAsChart]);
 
   const handleParamChange = (
     index: number,
@@ -99,25 +104,25 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           param.type === 'string' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
-          errors[param.name] = 'Обязательное поле';
+          errors[param.name] = 'Обов\'язкове поле';
           isValid = false;
         } else if (
           param.type === 'number' &&
           (param.value === null || param.value === undefined || param.value.toString() === '')
         ) {
-          errors[param.name] = 'Обязательное поле';
+          errors[param.name] = 'Обов\'язкове поле';
           isValid = false;
         } else if (
           param.type === 'select' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
-          errors[param.name] = 'Обязательное поле';
+          errors[param.name] = 'Обов\'язкове поле';
           isValid = false;
         } else if (
           param.type === 'date' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
-          errors[param.name] = 'Обязательное поле';
+          errors[param.name] = 'Обов\'язкове поле';
           isValid = false;
         }
       }
@@ -140,16 +145,16 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           value: param.value,
         })
       );
-      onExecute(paramValues);
+      onExecute(paramValues, showAsChart);
     } catch (error) {
-      console.error('Error executing report with parameters:', error);
+      console.error('Помилка виконання звіту з параметрами:', error);
     }
   };
 
   return (
     <Box mt={2}>
       {parameters.length === 0 ? (
-        <Typography>Отчет не имеет параметров</Typography>
+        <Typography>Звіт не має параметрів</Typography>
       ) : (
         <Grid container spacing={2}>
           {parameters.map((param, index) => (
@@ -237,14 +242,24 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           ))}
         </Grid>
       )}
-      <Box mt={2} display="flex" justifyContent="flex-end" gap={2}>
-        <Button onClick={onClose}>Отмена</Button>
+      <Box mt={2} display="flex" justifyContent="flex-end" alignItems="center" gap={2}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showAsChart}
+              onChange={(e) => setShowAsChart(e.target.checked)}
+            />
+          }
+          label="графік"
+          sx={{ marginRight: 'auto' }} // Pushes buttons to the right
+        />
+        <Button onClick={onClose}>Скасувати</Button>
         <Button
           variant="contained"
           color="primary"
           onClick={handleExecute}
         >
-          Выполнить с параметрами
+          Виконати з параметрами
         </Button>
       </Box>
     </Box>

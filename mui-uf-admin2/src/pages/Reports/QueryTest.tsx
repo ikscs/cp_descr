@@ -80,6 +80,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
   const [reportData, setReportData] = useState<ParsedReport>(MakeParsedReport(_reportData));
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [chartType, setChartType] = useState<'linear' | 'circular' | null>(null); // <-- 2. Add state for chart type
+  const [lastShowAsChartPreference, setLastShowAsChartPreference] = useState<boolean>(false);
 
   // Update parsed report data when input changes
   useEffect(() => {
@@ -94,6 +95,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
       setError(null);
       setChartData(null);
       setChartType(null); // Reset chart type
+      setLastShowAsChartPreference(false); // Reset preference on new dialog open
 
       // Determine initial view: params or execute directly
       const hasParams = reportData.config?.params && reportData.config.params.length > 0;
@@ -179,13 +181,14 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
 
   // --- Core Execution Logic ---
   const executeReport = async (
-    params: { name: string; value: string | number | boolean }[]
+    params: { name: string; value: string | number | boolean }[],
+    showAsChart?: boolean
   ) => {
     setCurrentView('executing'); // Show loading state
     setExecutionResult(null);
     setError(null);
     setChartData(null);
-    setChartType(null); // Reset chart type on new execution
+    setChartType(null); 
 
     try {
       // Ensure reportData is available before accessing id
@@ -200,8 +203,11 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
       if (isErrorResult && result.columns[0] === 'Ошибка') {
           setError(result.rows[0]?.[0] || 'Неизвестная ошибка выполнения');
           setCurrentView('error'); // Show error view
+      } else if (showAsChart && reportData.config?.chart && !isErrorResult) {
+          // If showAsChart is true, report has chart config, and no direct error from query          
+          handleOpenChartDialog(result); // Pass the fresh result
       } else {
-          setCurrentView('results'); // Show results view on success or 'Сообщение'
+          setCurrentView('results'); // Show results view on success or 'Сообщение' (if not showing chart directly)
       }
 
     } catch (err: any) { // Catch errors from executeReportQuery if it throws (e.g., network error)
@@ -229,10 +235,12 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
 
   // Execute from parameters view
   const handleExecuteWithParams = async (
-    params: { name: string; value: string | number | boolean }[]
+    params: { name: string; value: string | number | boolean }[],
+    showAsChart: boolean
   ) => {
     setQueryParams(params); // Store params in case user goes back
-    await executeReport(params); // This will change currentView
+    setLastShowAsChartPreference(showAsChart); // Store the preference
+    await executeReport(params, showAsChart); // Pass showAsChart to execution logic
   };
 
   // Close results view and trigger main close
@@ -252,11 +260,12 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
   };
 
   // <-- 3. Update handleOpenChartDialog -->
-  const handleOpenChartDialog = () => {
+  const handleOpenChartDialog = (currentExecutionResult: ReportExecutionResult) => {
     setError(null); // Clear previous UI errors
-    if (executionResult && reportData) {
+    // Используем переданный currentExecutionResult вместо состояния executionResult
+    if (currentExecutionResult && reportData) {
         // Check if the execution result itself indicates an error or just a message
-        if (executionResult.columns.length === 1 && (executionResult.columns[0] === 'Ошибка' || executionResult.columns[0] === 'Сообщение')) {
+        if (currentExecutionResult.columns.length === 1 && (currentExecutionResult.columns[0] === 'Ошибка' || currentExecutionResult.columns[0] === 'Сообщение')) {
             setError("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
             setCurrentView('error'); // Switch to error view
             return;
@@ -284,9 +293,9 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
         const yAxisLabels = chartConfig.y_axis?.field?.split(',').map(s => s.trim()).filter(Boolean) || yAxisValueFields;
         const yAxisTitleLabel = chartConfig.y_axis_label;
 
-        const xAxisIndex = executionResult.columns.indexOf(xAxisField);
+        const xAxisIndex = currentExecutionResult.columns.indexOf(xAxisField);
         const yAxisIndices = yAxisValueFields.map((field) =>
-            executionResult.columns.indexOf(field)
+            currentExecutionResult.columns.indexOf(field)
         );
 
         // Validate indices
@@ -320,10 +329,10 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
                     console.warn("Circular chart config has multiple body_fields. Using the first one:", yAxisValueFields[0]);
                 }
 
-                const segmentLabels = executionResult.rows.map(
+                const segmentLabels = currentExecutionResult.rows.map(
                     (row) => row[xAxisIndex]?.toString() ?? ''
                 );
-                const segmentValues = executionResult.rows.map((row) => {
+                const segmentValues = currentExecutionResult.rows.map((row) => {
                     const value = row[yAxisIndices[0]]; // Use first Y field
                     if (value === null || value === undefined) return 0; // Default to 0 for circular
                     const num = Number(value);
@@ -340,13 +349,13 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
 
             } else { // Default to linear or handle other types like 'linear' explicitly
                 // --- Linear Chart Data Preparation (Existing Logic) ---
-                const xAxisValues = executionResult.rows.map(
+                const xAxisValues = currentExecutionResult.rows.map(
                     (row) => row[xAxisIndex]?.toString() ?? ''
                 );
                 const datasets = yAxisIndices.map((yAxisIndex, index) => ({
                     // Use corresponding label from y_axis.field or fallback to body_field name
                     label: yAxisLabels[index] || yAxisValueFields[index],
-                    data: executionResult.rows.map((row) => {
+                    data: currentExecutionResult.rows.map((row) => {
                         const value = row[yAxisIndex];
                         if (value === null || value === undefined) return null;
                         const num = Number(value);
@@ -435,6 +444,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
               onExecute={handleExecuteWithParams}
               onClose={handleParamDialogClose}
               initialParams={queryParams} // Use stored params if re-opening
+              initialShowAsChart={lastShowAsChartPreference} // Pass the stored preference
             />
           ) : reportData ? ( // reportData loaded but no params
              <Box>
@@ -463,7 +473,14 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
         onClose={handleResultDialogClose} // Closes the whole test
         chartData={chartData} // Pass chartData (might be null)
         setChartData={setChartData} // Pass setter (might be unused by ReportResult)
-        handleOpenChartDialog={handleOpenChartDialog} // Pass handler to switch view to chart
+        handleOpenChartDialog={() => { // Оборачиваем вызов, чтобы передать актуальный executionResult из состояния
+            if (executionResult) {
+                handleOpenChartDialog(executionResult);
+            } else {
+                setError("Результаты выполнения отчета отсутствуют для построения графика.");
+                setCurrentView('error');
+            }
+        }}
         onReopenParamDialog={handleReopenParamDialog} // Pass handler to switch view to params
       />
     );

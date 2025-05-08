@@ -4,6 +4,7 @@ import { UserfrontProvider } from "@userfront/react";
 import App from './App';
 import { CssBaseline } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
+import { TenantProvider } from './context/TenantContext'; 
 import { tenantId, basename, } from './globals_VITE';
 
 if (!tenantId) {
@@ -17,10 +18,12 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <UserfrontProvider tenantId={tenantId}>
-      <BrowserRouter basename={basename}>
-        <CssBaseline />
-        <App />
-      </BrowserRouter>
+    <TenantProvider>
+        <BrowserRouter basename={basename}>
+          <CssBaseline />
+          <App />
+        </BrowserRouter>
+      </TenantProvider>
     </UserfrontProvider>
   </React.StrictMode>
 );

@@ -9,23 +9,30 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import MainMenu from './components/Shared/MainMenu2';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
-import HomeIcon from '@mui/icons-material/Home';
+// import HomeIcon from '@mui/icons-material/Home';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import BadgeIcon from '@mui/icons-material/Badge';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { MenuItem } from './components/Shared/MainMenu2';
 import RoleList from './components/Roles/RoleList';
+import { tenantId } from './globals_VITE';
+// --- Добавляем импорты для контекста, хука и API ключа ---
+import { /*TenantProvider,*/ useTenant } from './context/TenantContext';
+import { apiKey } from './globals_VITE'; // Импортируем apiKey
+import { useDetermineChildTenant } from './hooks/useDetermineChildTenant'; // Импортируем новый хук
+// --- Конец добавлений ---
 import GeneralSettings from './pages/Settings/GeneralSettings';
 import ReportListSettings from './pages/Settings/ReportListSettings';
+// import ReportList from './pages/Reports/ReportList'; // ReportList is imported below if needed for other routes
 import ReportList from './pages/Reports/ReportList';
 import DepartmentList from './pages/Enterprise/components/departments/DepartmentList';
 import PositionList from './pages/Enterprise/components/positions/PositionList';
 import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
 // import MyDashboardComponent from './pages/MyDashboardComponent';
-import MyDashboardWithCircularChart from './pages/MyDashboardWithCircularChart';
-import { tenantId } from './globals_VITE';
+import MyDashboardWithCircularChart from './pages/MyDashboardWithCircularChart'; // tenantId теперь берется из user
 import AppFooter from './components/AppFooter';
 import MyComponentWithAspectRatio from './pages/MyComponentWithAspectRatio';
+import ViewerReportList from './pages/Reports/ViewerReportList'; // Import the new ViewerReportList
 import DashboardWrapper from './pages/DashboardWrapper';
 
 // Helper function to check if the user has the 'admin' role
@@ -59,30 +66,34 @@ const ProtectedRoute = ({
 
 function App() {
   const menuItems0: MenuItem[] = [
+    // {
+    //   text: 'Главная',
+    //   path: '/',
+    //   icon: <HomeIcon />,
+    // },
     {
-      text: 'Главная',
-      path: '/',
-      icon: <HomeIcon />,
-    },
-    {
-      text: 'Панель управління',
+      text: 'Дашборд',
       path: '/dashboard',
       icon: <DashboardIcon />,
+      role: 'viewer',
     },
     {
       text: 'Панель управління (пропорційна)',
       path: '/dashboard_aspect_ratio',
       icon: <DashboardIcon />,
+      role: 'admin',
     },
     {
       text: 'Пример круговой диаграммы',
       path: '/testdashboard',
       icon: <DashboardIcon />,
+      role: 'admin',
     },
     {
       text: 'Пример пропорции',
       path: '/testdashboard_aspect_ratio',
       icon: <DashboardIcon />,
+      role: 'admin',
     },
     {
       text: 'Администрирование',
@@ -99,14 +110,22 @@ function App() {
       items: [
         { text: 'Подразделения', path: 'enterprise/departments', icon: <BadgeIcon /> },
         { text: 'Должности', path: '/enterprise/positions', icon: <BadgeIcon /> },
-        { text: 'Сотруники', path: '/enterprise/employees', icon: <PeopleIcon /> },
+        { text: 'Сотрудники', path: '/enterprise/employees', icon: <PeopleIcon /> },
         { text: 'Изображения сотрудников', path: '/enterprise/images', icon: <PeopleIcon /> },
       ],
+      role: 'owner',
     },
     {
-      text: 'Отчеты',
+      text: 'Звіти',
+      path: '/viewerReports', // Corrected path for consistency
+      icon: <BarChartIcon />,
+      role: 'viewer',
+    },
+    {
+      text: 'Звіти всі',
       path: '/reports',
       icon: <BarChartIcon />,
+      role: 'admin',
     },
     {
       text: 'Настройки',
@@ -130,6 +149,13 @@ function App() {
     return true;
   }));
 
+  // --- Логика определения childTenantId ---
+  // Используем новый хук для определения ID
+  const { childTenantId, isLoading: isLoadingTenantId, error: tenantIdError } = useDetermineChildTenant({ user, apiKey });
+
+  // Получаем функцию установки из контекста, чтобы сохранить найденный ID
+  const { setChildTenantId } = useTenant(); // Убедись, что App обернут в TenantProvider в main.tsx или здесь
+
   useEffect(() => {
     if (tokens && tokens.accessToken) {
       console.log('Tokens:', tokens);
@@ -138,7 +164,21 @@ function App() {
     } else {
       console.log('No tokens');
     }
-  }, [tokens, user]);
+  }  , [tokens, user]);
+
+  useEffect(() => {
+    // Когда хук useDetermineChildTenant возвращает ID (или null),
+    // обновляем значение в TenantContext
+    if (!isLoadingTenantId) { // Обновляем только когда загрузка завершена
+        setChildTenantId(childTenantId); // Устанавливаем значение в контекст
+        if (tenantIdError) {
+            console.error("Error determining child tenant ID:", tenantIdError);
+            // Можно показать уведомление пользователю об ошибке
+        }
+    }
+  }, [childTenantId, isLoadingTenantId, tenantIdError, setChildTenantId]
+  ); // Зависимости для обновления контекста
+  // --- Конец логики определения childTenantId ---
 
   const handleLogout = () => {
     logout();
@@ -149,8 +189,15 @@ function App() {
     setShowLogin(!showLogin);
   };
 
+  // Проверяем наличие пользователя
   if (tokens && tokens.accessToken) {
+  // if (user) {
+    // Можно добавить индикатор загрузки, пока определяется childTenantId
+    // if (isLoadingTenantId) {
+    //   return <div>Loading tenant information...</div>; // Или более сложный лоадер
+    // }
     return (
+      // TenantProvider теперь должен быть в main.tsx, чтобы useTenant() работал здесь
       // 1. Главный контейнер: делаем его flex-колонкой и задаем минимальную высоту
       <Box sx={{
         display: 'flex',
@@ -160,11 +207,11 @@ function App() {
         {/* 2. Хедер: остается как есть, не растягивается */}
         <Box display="flex" alignItems="center" justifyContent="space-between" 
           padding="1rem"
-        >
+          >
           <Box display="flex">
-            {user.hasRole('admin') && (
+            {/* {user.hasRole('admin') && ( */}
               <MainMenu menuItems={menuItems} />
-            )}
+            {/* )} */}
             <Typography
               variant="h5"
               component="div"
@@ -197,6 +244,7 @@ function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/roles" element={<RoleList />} />
             <Route path="/reports" element={<ReportList />} />
+            <Route path="/viewerReports" element={<ViewerReportList />} /> 
             <Route path="/settings/general" element={<GeneralSettings />} />
             {/* <Route path="/settings/report-list" element={<ReportListSettings />} /> */}
             {/* Protected Route for ReportListSettings */}
@@ -240,7 +288,7 @@ function App() {
 
         {/* 4. Футер: остается как есть, не растягивается и будет прижат к низу */}
         <AppFooter />
-      </Box>
+        </Box>
     );
   } else {
     return (
@@ -251,6 +299,7 @@ function App() {
             <>
               {showLogin ? <LoginForm /> : <SignupForm />}
               <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
+                {/* {showLogin ? 'Реєстрация' : 'Війти'} - {useUserfront()?.tenantId} Показываем ID тенанта из Userfront */}
                 {showLogin ? 'Реєстрация' : 'Війти'} - {tenantId}
               </Button>
               {/* Optionally add a link to the reset form */}

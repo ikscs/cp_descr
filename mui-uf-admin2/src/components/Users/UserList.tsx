@@ -21,6 +21,7 @@ const UserList: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [/*childTenantId,*/ _setChildTenantId] = useState<string>('6nzyjqyb'); // Replace with your child tenant ID
 
   const getUsers = async () => {
     setIsLoading(true);
@@ -65,6 +66,7 @@ const UserList: React.FC = () => {
       const roles = updatedUser.authorization[tenantId].roles;
       if (roles) {
         await updateUserRoles(tenantId, apiKey, updatedUser.userId, { roles });
+        // await updateUserRoles(childTenantId, apiKey, updatedUser.userId, { roles });
       }
       await getUsers();
       handleCloseModal();
@@ -190,6 +192,8 @@ const UserList: React.FC = () => {
             title={selectedUser === null ? 'Добавить пользователя' : 'Редактировать пользователя'}
             onSave={handleSave}
             onCancel={handleCloseModal}
+            tenantId={tenantId}
+            // tenantId={childTenantId}
           />
         </Box>
       </Modal>

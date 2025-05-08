@@ -101,7 +101,7 @@ export const ReportToParsedReport = (report: Report): ParsedReport => {
       },
     };
   } catch (error) {
-    console.error(`Error parsing config for report ID ${report.id}:`, error, "Config string:", report.config);
+    console.error(`Помилка розбору конфігурації для звіту ID ${report.id}:`, error, "Рядок конфігурації:", report.config);
     // Возвращаем структуру по умолчанию в случае ошибки парсинга
     return {
       id: report.id,
@@ -120,8 +120,12 @@ export interface ChartData {
   yAxisLabel?: string; // <-- Добавлено необязательное поле для метки оси Y
 }
 
+// Add new prop to ReportList
+interface ReportListProps {
+  reportFilterPredicate?: (report: Report) => boolean;
+}
 
-const ReportList: React.FC = () => {
+const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedReport, setSelectedReport] = useState<ParsedReport | null>(null);
   const [executionResult, setExecutionResult] = useState<ReportExecutionResult | null>(null);
@@ -135,6 +139,7 @@ const ReportList: React.FC = () => {
   const [isResultDialogOpen, setIsResultDialogOpen] = useState<boolean>(false);
   const [queryParams, setQueryParams] = useState<{ name: string; value: string | number | boolean }[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [lastShowAsChartPreference, setLastShowAsChartPreference] = useState<boolean>(false);
   const [filterText, setFilterText] = useState<string>('');
 
   useEffect(() => {
@@ -142,11 +147,15 @@ const ReportList: React.FC = () => {
       setIsLoading(true);
       try {
         const fetchedReports = await getReports();
-        setReports(fetchedReports || []);
+        let reportsToSet = fetchedReports || [];
+        if (reportFilterPredicate) { // Apply the predicate here
+          reportsToSet = reportsToSet.filter(reportFilterPredicate);
+        }
+        setReports(reportsToSet);
         setFetchError(null);
       } catch (err) {
         console.error('Error fetching reports:', err);
-        setFetchError('Ошибка при загрузке отчетов');
+        setFetchError('Помилка при завантаженні звітів');
         setReports([]);
       } finally {
         setIsLoading(false);
@@ -154,7 +163,7 @@ const ReportList: React.FC = () => {
     };
 
     loadReports();
-  }, []);
+  }, [reportFilterPredicate]); // Add reportFilterPredicate to dependency array
 
   const filteredReports = useMemo(() => {
     if (!filterText) {
@@ -175,6 +184,7 @@ const ReportList: React.FC = () => {
     setError(null);
     setChartData(null); // Сброс данных графика при новом запуске
     setChartType(null);  // Сброс типа графика
+    setLastShowAsChartPreference(false); // Сброс предпочтения для нового отчета
     if (parsedReport.config?.params?.length || 0 > 0) {
       setQueryParams((parsedReport.config.params||[]).map(p => ({ name: p.name, value: p.defaultValue }))); // Инициализация параметров по умолчанию
       setIsParamDialogOpen(true);
@@ -188,42 +198,50 @@ const ReportList: React.FC = () => {
   };
 
   const handleExecuteWithParams = async (
-    params: { name: string; value: string | number | boolean }[]
+    params: { name: string; value: string | number | boolean }[],
+    showAsChart: boolean
   ) => {
     setIsParamDialogOpen(false);
     setQueryParams(params);
+    setLastShowAsChartPreference(showAsChart); // Сохраняем предпочтение
     if (selectedReport) {
-        await executeReport(selectedReport, params);
+        await executeReport(selectedReport, params, showAsChart);
     } else {
         console.error("Cannot execute report: selectedReport is null.");
-        setError("Не удалось выполнить отчет: отчет не выбран.");
+        setError("Не вдалося виконати звіт: звіт не вибрано.");
     }
   };
 
   const executeReport = async (
     report: ParsedReport,
-    params: { name: string; value: string | number | boolean }[]
+    params: { name: string; value: string | number | boolean }[],
+    showAsChart?: boolean
   ) => {
     setIsExecuting(true);
     setExecutionResult(null);
     setError(null);
+    // chart data and type are reset when a new report is selected or params are set
 
     try {
       const result = await executeReportQuery(report.id, params);
       setExecutionResult(result);
       // Проверяем, есть ли ошибка в результате перед открытием диалога
-      const isErrorResult = result.columns.length === 1 && (result.columns[0] === 'Ошибка' || result.columns[0] === 'Сообщение');
-      if (isErrorResult && result.columns[0] === 'Ошибка') {
-          setError(result.rows[0]?.[0] || 'Неизвестная ошибка выполнения');
+      const isErrorResult = result.columns.length === 1 && (result.columns[0] === 'Помилка' || result.columns[0] === 'Повідомлення');
+      if (isErrorResult && result.columns[0] === 'Помилка') {
+          setError(result.rows[0]?.[0] || 'Невідома помилка виконання');
+          setIsResultDialogOpen(true); 
+      } else if (showAsChart && report.config?.chart && !isErrorResult) {
+          handleOpenChartDialog(result); // Pass the fresh result
+      } else {
+          setIsResultDialogOpen(true); // Default to showing results table
       }
-      setIsResultDialogOpen(true);
     } catch (err: any) {
       console.error('Error executing report:', err);
-      const errorMessage = err.message || 'Неизвестная ошибка';
-      setError(`Ошибка при выполнении отчета: ${errorMessage}`);
+      const errorMessage = err.message || 'Невідома помилка';
+      setError(`Помилка під час виконання звіту: ${errorMessage}`);
       setExecutionResult({
-        columns: ['Ошибка'],
-        rows: [[`Не удалось выполнить отчет: ${errorMessage}`]],
+        columns: ['Помилка'],
+        rows: [[`Не вдалося виконати звіт: ${errorMessage}`]],
       });
       setIsResultDialogOpen(true);
     } finally {
@@ -246,7 +264,7 @@ const ReportList: React.FC = () => {
       const response: any = await fetchData(paramsToSend);
 
       if (!response) {
-          throw new Error('No response received from backend.');
+          throw new Error('Відповідь від бекенду не отримана.');
       }
 
       const isErrorStatus = response.ok === false || (response.status && response.status >= 400);
@@ -260,16 +278,16 @@ const ReportList: React.FC = () => {
                         || `HTTP error ${response.status || 'unknown'}`;
           // Возвращаем результат с ошибкой, чтобы показать в таблице
           // throw new Error(`Backend error: ${errorMsg}`);
-          return { columns: ['Ошибка'], rows: [[`Ошибка бэкенда: ${errorMsg}`]] };
+          return { columns: ['Помилка'], rows: [[`Помилка бекенду: ${errorMsg}`]] };
       }
 
       if (!responseData || (Array.isArray(responseData) && responseData.length === 0)) {
-        return { columns: ['Сообщение'], rows: [['Нет данных']] };
+        return { columns: ['Повідомлення'], rows: [['Немає даних']] };
       }
 
       if (!Array.isArray(responseData) || responseData.length === 0 || typeof responseData[0] !== 'object' || responseData[0] === null) {
           console.warn("Received unexpected data format from backend:", responseData);
-          return { columns: ['Сообщение'], rows: [['Некорректный формат данных в ответе']] };
+          return { columns: ['Повідомлення'], rows: [['Некоректний формат даних у відповіді']] };
       }
 
       const columns = Object.keys(responseData[0]);
@@ -278,20 +296,30 @@ const ReportList: React.FC = () => {
     } catch (err: any) {
       console.error("Error in executeReportQuery:", err);
       // Возвращаем результат с ошибкой
-      return { columns: ['Ошибка'], rows: [[`Ошибка запроса данных: ${err.message || 'Неизвестная ошибка'}`]] };
+      return { columns: ['Помилка'], rows: [[`Помилка запиту даних: ${err.message || 'Невідома помилка'}`]] };
       // throw new Error(err.message || 'Failed to fetch or process report data.');
     }
   };
 
 
   // <-- 3. Обновляем handleOpenChartDialog -->
-  const handleOpenChartDialog = () => {
+  const handleOpenChartDialog = (currentExecutionResult: ReportExecutionResult) => {
     setError(null); // Clear previous UI errors
-    if (executionResult && selectedReport) {
+    // Ensure chart dialog is closed initially if we fall back to results
+    setIsChartDialogOpen(false);
+    // Используем переданный currentExecutionResult вместо состояния executionResult
+    if (currentExecutionResult && selectedReport) {
         // Check if the execution result itself indicates an error or just a message
-        if (executionResult.columns.length === 1 && (executionResult.columns[0] === 'Ошибка' || executionResult.columns[0] === 'Сообщение')) {
-            setError("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
-            // Don't proceed to open the chart dialog
+        if (currentExecutionResult.columns.length === 1 && (currentExecutionResult.columns[0] === 'Помилка' || currentExecutionResult.columns[0] === 'Повідомлення')) {
+            setError("Неможливо побудувати графік за повідомленням про помилку або відсутність даних.");
+            setIsResultDialogOpen(true); // Fallback to showing the message in the result dialog
+            return;
+        }
+
+        // Explicitly check for empty data rows before any chart processing
+        if (currentExecutionResult.rows.length === 0) {
+            setError("Немає даних для побудови графіка (результат виконання містить 0 рядків).");
+            setIsResultDialogOpen(true); // Fallback to showing the (empty) table in result dialog
             return;
         }
 
@@ -306,7 +334,8 @@ const ReportList: React.FC = () => {
             !chartConfig.body_fields ||
             chartConfig.body_fields.length === 0
         ) {
-            setError('Конфигурация графика (тип, оси X, поля данных) не задана или неполная.');
+            setError('Конфігурація графіка (тип, осі X, поля даних) не задана або неповна.');
+            setIsResultDialogOpen(true); // Fallback
             return;
         }
 
@@ -316,42 +345,47 @@ const ReportList: React.FC = () => {
         const yAxisDatasetLabels = chartConfig.y_axis?.field?.split(',').map(s => s.trim()).filter(Boolean) || yAxisValueFields;
         const yAxisTitleLabel = chartConfig.y_axis_label; // <-- Извлекаем заголовок оси Y
 
-        const xAxisIndex = executionResult.columns.indexOf(xAxisField);
+        const xAxisIndex = currentExecutionResult.columns.indexOf(xAxisField);
         const yAxisIndices = yAxisValueFields.map((field) =>
-            executionResult.columns.indexOf(field)
+            currentExecutionResult.columns.indexOf(field)
         );
 
         // Validate indices
         if (xAxisIndex === -1) {
-            setError(`Поле для оси X '${xAxisField}' не найдено в результатах.`);
+            setError(`Поле для осі X '${xAxisField}' не знайдено в результатах.`);
+            setIsResultDialogOpen(true); // Fallback
             return;
         }
         // For circular, we only strictly need the first Y field index
         if (chartConfig.type === 'circular' && yAxisIndices[0] === -1) {
-             setError(`Поле для данных '${yAxisValueFields[0]}' не найдено в результатах.`);
+             setError(`Поле для даних '${yAxisValueFields[0]}' не знайдено в результатах.`);
+             setIsResultDialogOpen(true); // Fallback
              return;
         }
         // For linear, check all Y field indices
         if (chartConfig.type !== 'circular' && yAxisIndices.some((index) => index === -1)) {
             const missing = yAxisValueFields.filter((_, i) => yAxisIndices[i] === -1);
-            setError(`Одно или несколько полей для данных (${missing.join(', ')}) не найдены в результатах.`);
+            setError(`Одне або декілька полей для даних (${missing.join(', ')}) не знайдено в результатах.`);
+            setIsResultDialogOpen(true); // Fallback
             return;
         }
 
         // Process data based on chart type
         try {
             let processedChartData: ChartData | null = null;
+            // chartType state is already defined in the component
 
             if (chartConfig.type === 'circular') {
                 // --- Circular Chart Data Preparation ---
+                // (Existing logic for circular chart data prep)
                 if (yAxisIndices.length > 1) {
-                    console.warn("Circular chart config has multiple body_fields. Using the first one:", yAxisValueFields[0]);
+                    console.warn("Конфігурація кругової діаграми має декілька body_fields. Використовується перше:", yAxisValueFields[0]);
                 }
 
-                const segmentLabels = executionResult.rows.map(
+                const segmentLabels = currentExecutionResult.rows.map(
                     (row) => row[xAxisIndex]?.toString() ?? ''
                 );
-                const segmentValues = executionResult.rows.map((row) => {
+                const segmentValues = currentExecutionResult.rows.map((row) => {
                     const value = row[yAxisIndices[0]]; // Use first Y field
                     if (value === null || value === undefined) return 0; // Default to 0 for circular
                     const num = Number(value);
@@ -368,14 +402,15 @@ const ReportList: React.FC = () => {
                 setChartType('circular');
 
             } else { // Default to linear or handle other types like 'linear' explicitly
+                // (Existing logic for linear chart data prep)
                 // --- Linear Chart Data Preparation (Existing Logic) ---
-                const xAxisValues = executionResult.rows.map(
+                const xAxisValues = currentExecutionResult.rows.map(
                     (row) => row[xAxisIndex]?.toString() ?? ''
                 );
                 const datasets = yAxisIndices.map((yAxisIndex, index) => ({
                     // Use corresponding label from y_axis.field or fallback to body_field name
                     label: yAxisDatasetLabels[index] || yAxisValueFields[index],
-                    data: executionResult.rows.map((row) => {
+                    data: currentExecutionResult.rows.map((row) => {
                         const value = row[yAxisIndex];
                         if (value === null || value === undefined) return null;
                         const num = Number(value);
@@ -397,16 +432,21 @@ const ReportList: React.FC = () => {
                 setIsResultDialogOpen(false); // Close result dialog
                 setIsChartDialogOpen(true); // Open chart dialog
             } else {
-                 setError("Не удалось обработать данные для графика.");
+                 // This case might be hit if data processing logic itself determines no valid chart can be made,
+                 // without throwing an error.
+                 setError("Не вдалося обробити дані для графіка.");
+                 setIsResultDialogOpen(true); // Fallback
             }
 
         } catch (processError: any) {
             console.error("Error processing data for chart:", processError);
-            setError(`Ошибка при обработке данных для графика: ${processError.message}`);
+            setError(`Помилка при обробці даних для графіка: ${processError.message}`);
+            setIsResultDialogOpen(true); // Fallback
         }
 
     } else {
-        setError("Нет данных для построения графика (результат выполнения отсутствует или отчет не выбран).");
+        setError("Немає даних для побудови графіка (результат виконання відсутній або звіт не вибрано)");
+        setIsResultDialogOpen(true); // Fallback
     }
 };
 
@@ -444,10 +484,10 @@ const ReportList: React.FC = () => {
     <Box sx={{ p: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" gutterBottom sx={{ mb: 0 }}>
-          Список отчетов для выполнения
+          Перелік звітів для виконання
         </Typography>
         <TextField
-          label="Фильтр отчетов"
+          label="Фільтр звітів"
           variant="outlined"
           size="small"
           value={filterText}
@@ -468,9 +508,9 @@ const ReportList: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Название</TableCell>
-                <TableCell>Описание</TableCell>
-                <TableCell align="right">Действие</TableCell>
+                <TableCell>Назва</TableCell>
+                <TableCell>Опис</TableCell>
+                <TableCell align="right">Дія</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -488,7 +528,7 @@ const ReportList: React.FC = () => {
                      <TableCell>{report.description}</TableCell>
                      <TableCell align="right">
                        <IconButton
-                         aria-label={`Выполнить отчет ${report.name}`}
+                         aria-label={`Виконати звіт ${report.name}`}
                          onClick={() => handleExecuteReport(report)}
                          disabled={isExecuting && selectedReport?.id === report.id}
                          color="primary"
@@ -505,7 +545,7 @@ const ReportList: React.FC = () => {
               ) : (
                 <TableRow>
                     <TableCell colSpan={4} align="center">
-                        Отчеты не найдены{filterText ? ' по вашему фильтру' : ''}.
+                        Звіти не знайдено{filterText ? ' за вашим фільтром' : ''}.
                     </TableCell>
                 </TableRow>
               )}
@@ -522,7 +562,7 @@ const ReportList: React.FC = () => {
         maxWidth="sm"
       >
         <DialogTitle>
-          Параметры для отчета: {selectedReport?.name || 'Загрузка...'}
+          Параметри для звіту: {selectedReport?.name || 'Завантаження...'}
         </DialogTitle>
         <DialogContent>
           {selectedReport?.config?.params ? (
@@ -531,10 +571,11 @@ const ReportList: React.FC = () => {
                 onExecute={handleExecuteWithParams}
                 onClose={handleParamDialogClose}
                 initialParams={queryParams}
+                initialShowAsChart={lastShowAsChartPreference}
               />
             ) : selectedReport ? (
                 // Случай, когда отчет выбран, но параметров нет (хотя логика handleExecuteReport должна это предотвращать)
-                 <Typography>У этого отчета нет настраиваемых параметров.</Typography>
+                 <Typography>У цього звіту немає параметрів, що налаштовуються.</Typography>
             ) : (
               <CircularProgress />
             )
@@ -578,7 +619,7 @@ const ReportList: React.FC = () => {
              </Box>
           ) : (
              // Сообщение, если данных нет или тип не определен
-             <Typography align="center" sx={{ mt: 4 }}>Нет данных для отображения графика или тип графика не определен.</Typography>
+             <Typography align="center" sx={{ mt: 4 }}>Немає даних для відображення графіка або тип графіка не визначено.</Typography>
           )}
         </DialogContent>
       </Dialog>
@@ -593,7 +634,13 @@ const ReportList: React.FC = () => {
           onClose={handleResultDialogClose}
           chartData={chartData} // Передаем, но ReportResult может его не использовать напрямую
           setChartData={setChartData} // Передаем, но ReportResult может его не использовать напрямую
-          handleOpenChartDialog={handleOpenChartDialog} // Передаем обработчик для кнопки "График"
+          handleOpenChartDialog={() => { // Оборачиваем вызов, чтобы передать актуальный executionResult из состояния
+            if (executionResult) {
+              handleOpenChartDialog(executionResult);
+            } else {
+              setError("Результати виконання звіту відсутні для побудови графіка.");
+            }
+          }}
           onReopenParamDialog={handleReopenParamDialog} // Передаем обработчик для кнопки "Изменить параметры"
         />
       )}
