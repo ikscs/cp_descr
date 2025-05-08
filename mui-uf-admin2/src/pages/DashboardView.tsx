@@ -16,8 +16,15 @@ import MiniReport from './Reports/MiniReport';
 import { dataToExcel } from '../api/tools/dataToExcel'; // <-- Уточните путь!
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { format as formatDateFns, subDays as subDaysFns } from 'date-fns';
-import ReportDayControl from '../components/Shared/ReportDayControl';
+import ReportDayControl, { DATE_FORMAT_PARAM } from '../components/Shared/ReportDayControl';
 import ButtonA from '../components/Shared/ButtonA';
+import {
+    format,
+    addDays,
+    subDays,
+    // parseISO,
+    // isValid,
+} from 'date-fns';
 
 const images = [
     // ... (оставляем массив images как есть) ...
@@ -152,13 +159,26 @@ const DashboardView: React.FC = () => {
 
     // Обработчик изменения режима (Неделя/Месяц/Год)
     const handleModeChange = (newMode: ReportMode) => {
-        setReportParams(currentParams =>
-            currentParams.map(param =>
-                param.name === 'mode'
-                    ? { ...param, value: newMode }
-                    : param
-            )
-        );
+        if (newMode !== 'DAY') {
+            setReportParams(currentParams =>
+                currentParams.map(param =>
+                    param.name === 'mode'
+                        ? { ...param, value: newMode }
+                        : param
+                )
+            );
+        } else {
+            // Если режим "День", то вызываем ReportDayControl для выбора даты + устанавливаем начальную дату
+            setReportParams(() => {
+                const d = subDays(new Date(), 1);
+                const formattedDate = format(d, DATE_FORMAT_PARAM);
+                return [
+                    { name: 'd1', value: formattedDate },
+                    { name: 'd2', value: formattedDate },
+                    { name: 'mode', value: newMode },
+                ];
+            });
+        }
     };
 
     // --- Упрощенный обработчик для кнопки Экспорт ---

@@ -25,7 +25,7 @@ interface ReportDayControlProps {
     onParamsUpdate: (params: ReportParameter[]) => void;
 }
 
-const DATE_FORMAT_PARAM = 'yyyy-MM-dd'; // Формат для d1/d2
+export const DATE_FORMAT_PARAM = 'yyyy-MM-dd'; // Формат для d1/d2
 const DATE_FORMAT_DISPLAY = 'd MMMM yyyy'; // Формат для отображения
 
 const ReportDayControl: React.FC<ReportDayControlProps> = ({
