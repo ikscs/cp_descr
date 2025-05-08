@@ -210,7 +210,7 @@ function App() {
           >
           <Box display="flex">
             {/* {user.hasRole('admin') && ( */}
-              <MainMenu menuItems={menuItems} />
+              <MainMenu menuItems={menuItems} drawerTitle='People Counting'/>
             {/* )} */}
             <Typography
               variant="h5"

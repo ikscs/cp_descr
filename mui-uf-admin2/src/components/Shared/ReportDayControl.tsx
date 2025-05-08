@@ -46,7 +46,7 @@ const ReportDayControl: React.FC<ReportDayControlProps> = ({
     // и для инициализации параметров при монтировании
     useEffect(() => {
         const formattedDate = format(selectedDate, DATE_FORMAT_PARAM);
-        console.log('Selected date:', formattedDate); 
+        // console.log('ReportDayControl Selected date:', formattedDate); // Убрали console.log
         onParamsUpdate([
             { name: 'd1', value: formattedDate },
             { name: 'd2', value: formattedDate },

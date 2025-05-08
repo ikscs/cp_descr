@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ExpandLess from '@mui/icons-material/ExpandLess';
+// import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'; // Замінено на MenuIcon
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Link } from 'react-router-dom';
 
@@ -26,9 +27,14 @@ export interface MenuItem {
 
 interface MainMenuProps {
   menuItems: MenuItem[];
+  /** Заголовок, що відображається всередині відкритого меню */
+  drawerTitle?: string;
 }
 
-const MainMenu: React.FC<MainMenuProps> = ({ menuItems }) => {
+const MainMenu: React.FC<MainMenuProps> = ({
+ menuItems,
+  drawerTitle = "Головне меню", // Значення за замовчуванням
+}) => {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
@@ -60,9 +66,21 @@ const MainMenu: React.FC<MainMenuProps> = ({ menuItems }) => {
       </Tooltip>
       <Drawer open={open} onClose={handleClose}>
         <Box p={2}>
-          <Typography variant="h6" gutterBottom>
-            Головне меню
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', mb: 1 }}>
+            <Tooltip title="Закрити меню">
+              <IconButton
+                onClick={handleClose}
+                aria-label="close drawer"
+                size="small"
+                sx={{ mr: 1 }} // Додаємо відступ праворуч від кнопки
+              >
+                <MenuIcon /> {/* Іконка змінена тут */}
+              </IconButton>
+            </Tooltip>
+            <Typography variant="h6">
+              {drawerTitle}
+            </Typography>
+          </Box>
           <List>
             {menuItems.map((item) => (
               <React.Fragment key={item.path || item.text}> {/* Добавляем key сюда */}
