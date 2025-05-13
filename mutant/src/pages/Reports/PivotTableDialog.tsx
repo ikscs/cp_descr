@@ -21,6 +21,8 @@ import {
   MenuItem,
   Grid,
 } from '@mui/material';
+import LineChart from '../Charts/LineChart'; // Import LineChart
+import type { ChartData } from '../Reports/ReportList'; // Import ChartData type
 
 // Define AggregationType and its labels (can be moved to a separate types file)
 export enum AggregationType {
@@ -74,9 +76,17 @@ const PivotTableDialog: React.FC<PivotTableDialogProps> = ({
   const [valueField, setValueField] = useState<string>('');
   const [aggregation, setAggregation] = useState<AggregationType>(AggregationType.NONE);
 
+  // State for chart dialog
+  const [isChartDialogOpen, setIsChartDialogOpen] = useState(false);
+  const [chartDataForPivot, setChartDataForPivot] = useState<ChartData | null>(null);
+
   // Initialize state with defaults, and reset when dialog opens or data/defaults change
   useEffect(() => {
     if (open) {
+      // Reset chart state when main dialog opens
+      setIsChartDialogOpen(false);
+      setChartDataForPivot(null);
+
       const isValid = (field: string | undefined): field is string =>
         !!field && originalColumns.includes(field);
 
@@ -191,7 +201,7 @@ const PivotTableDialog: React.FC<PivotTableDialogProps> = ({
       sortedUniqueYValues.forEach(yColValue => {
         const aggregated = yMap.get(yColValue);
         if (aggregation === AggregationType.AVERAGE) {
-          rowObject[String(yColValue)] = aggregated && aggregated.count > 0 ? (aggregated.sum / aggregated.count).toFixed(2) : null;
+          rowObject[String(yColValue)] = aggregated && aggregated.count > 0 ? parseFloat((aggregated.sum / aggregated.count).toFixed(2)) : null;
         } else {
           rowObject[String(yColValue)] = aggregated !== undefined ? aggregated : null;
         }
@@ -213,14 +223,64 @@ const PivotTableDialog: React.FC<PivotTableDialogProps> = ({
 
   const availableColumns = originalColumns || [];
 
+  const canGenerateChart = useMemo(() => {
+    return (
+      !!xAxisField &&
+      !!yAxisField &&
+      !!valueField &&
+      aggregation !== AggregationType.NONE &&
+      pivotedData.rows.length > 0 &&
+      pivotedData.columns.length > 1 // Need at least X-axis and one Y-series
+    );
+  }, [xAxisField, yAxisField, valueField, aggregation, pivotedData]);
+
+
+  const handleOpenPivotChartDialog = () => {
+    if (!canGenerateChart) return;
+
+    const chartXAxisValues = pivotedData.rows.map(row => String(row[xAxisField]));
+    const chartDatasets = pivotedData.columns
+      .filter(colName => colName !== xAxisField) // Exclude the X-axis field itself
+      .map(ySeriesName => {
+        return {
+          label: String(ySeriesName),
+          data: pivotedData.rows.map(row => {
+            const val = row[ySeriesName];
+            // Ensure data is numeric or null for the chart
+            if (val === null || val === undefined) return null;
+            const numVal = Number(val);
+            return isNaN(numVal) ? null : numVal;
+          }),
+        };
+      });
+
+    setChartDataForPivot({
+      xAxisValues: chartXAxisValues,
+      datasets: chartDatasets,
+      yAxisLabel: `${aggregationTypeLabels[aggregation]} of ${valueField}`
+    });
+    setIsChartDialogOpen(true);
+  };
+
+  const handleClosePivotChartDialog = () => {
+    setIsChartDialogOpen(false);
+    setChartDataForPivot(null);
+  };
+
+
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Pivot Table Data for: {reportName}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-          <Typography variant="h6" gutterBottom>Pivot Controls</Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
+    <>
+      <Dialog open={open && !isChartDialogOpen} onClose={onClose} fullWidth maxWidth="lg"> {/* Hide main dialog if chart is open */}
+        <DialogTitle>Данные сводной таблицы для отчета: {reportName}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <Grid container spacing={2} alignItems="center"> {/* Container for Title + Button removed */}
+                <Grid item>
+                    <Typography variant="h6">Pivot Controls</Typography> {/* Title remains */}
+                </Grid>
+            </Grid>
+            <Grid container spacing={2} sx={{mt: 1}}> {/* Controls themselves */}
+              <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth size="small">
                 <InputLabel id="xaxis-label">X-Axis (Rows)</InputLabel>
                 <Select
@@ -230,7 +290,7 @@ const PivotTableDialog: React.FC<PivotTableDialogProps> = ({
                   onChange={(e) => setXAxisField(e.target.value as string)}
                 >
                   <MenuItem value=""><em>None</em></MenuItem>
-                  {availableColumns.map(col => <MenuItem key={col} value={col}>{col}</MenuItem>)}
+                  {availableColumns.map(col => <MenuItem key={`x-${col}`} value={col}>{col}</MenuItem>)}
                 </Select>
               </FormControl>
             </Grid>
@@ -245,7 +305,7 @@ const PivotTableDialog: React.FC<PivotTableDialogProps> = ({
                   disabled={!xAxisField}
                 >
                   <MenuItem value=""><em>None</em></MenuItem>
-                  {availableColumns.filter(col => col !== xAxisField).map(col => <MenuItem key={col} value={col}>{col}</MenuItem>)}
+                  {availableColumns.filter(col => col !== xAxisField).map(col => <MenuItem key={`y-${col}`} value={col}>{col}</MenuItem>)}
                 </Select>
               </FormControl>
             </Grid>
@@ -260,7 +320,7 @@ const PivotTableDialog: React.FC<PivotTableDialogProps> = ({
                   disabled={!xAxisField || !yAxisField}
                 >
                   <MenuItem value=""><em>None</em></MenuItem>
-                  {availableColumns.map(col => <MenuItem key={col} value={col}>{col}</MenuItem>)}
+                  {availableColumns.filter(col => col !== xAxisField && col !== yAxisField).map(col => <MenuItem key={`v-${col}`} value={col}>{col}</MenuItem>)}
                 </Select>
               </FormControl>
             </Grid>
@@ -275,41 +335,41 @@ const PivotTableDialog: React.FC<PivotTableDialogProps> = ({
                   disabled={!xAxisField || !yAxisField || !valueField}
                 >
                   {Object.entries(aggregationTypeLabels).map(([key, label]) => (
-                    <MenuItem key={key} value={key}>{label}</MenuItem>
+                    <MenuItem key={`agg-${key}`} value={key}>{label}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
           </Grid>
-        </Box>
+          </Box>
 
-        {pivotedData.rows.length > 0 && pivotedData.columns.length > 0 ? (
-          <TableContainer component={Paper} sx={{ marginTop: 2, maxHeight: '60vh' }}>
-            <Table stickyHeader size="small">
-              <TableHead>
-                <TableRow>
-                  {pivotedData.columns.map((column, index) => (
-                    <TableCell key={index}>{column}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {aggregation === AggregationType.NONE || !xAxisField || !yAxisField || !valueField
-                  ? rows.map((rowArray, rowIndex) => ( // Render raw data if pivot not fully configured
-                      <TableRow key={`raw-${rowIndex}`}>
-                        {rowArray.map((cell, cellIndex) => (
-                          <TableCell key={`raw-${rowIndex}-${cellIndex}`}>{String(cell)}</TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  : pivotedData.rows.map((rowObject, rowIndex) => ( // Render pivoted data
-                      <TableRow key={`${rowObject[xAxisField]}-${rowIndex}`}>
-                        {pivotedData.columns.map((colName) => (
-                          <TableCell key={`${rowObject[xAxisField]}-${colName}`}>
-                            {rowObject[colName] !== null && rowObject[colName] !== undefined ? String(rowObject[colName]) : ''}
-                          </TableCell>
-                        ))}
-                      </TableRow>
+          {pivotedData.rows.length > 0 && pivotedData.columns.length > 0 ? (
+            <TableContainer component={Paper} sx={{ marginTop: 2, maxHeight: '60vh' }}>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    {pivotedData.columns.map((column, index) => (
+                      <TableCell key={`h-${index}-${column}`}>{column}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {aggregation === AggregationType.NONE || !xAxisField || !yAxisField || !valueField
+                    ? rows.map((rowArray, rowIndex) => ( // Render raw data if pivot not fully configured
+                        <TableRow key={`raw-${rowIndex}`}>
+                          {rowArray.map((cell, cellIndex) => (
+                            <TableCell key={`raw-${rowIndex}-${cellIndex}`}>{String(cell)}</TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    : pivotedData.rows.map((rowObject, rowIndex) => ( // Render pivoted data
+                        <TableRow key={`${String(rowObject[xAxisField])}-${rowIndex}`}>
+                          {pivotedData.columns.map((colName) => (
+                            <TableCell key={`${String(rowObject[xAxisField])}-${colName}`}>
+                              {rowObject[colName] !== null && rowObject[colName] !== undefined ? String(rowObject[colName]) : ''}
+                            </TableCell>
+                          ))}
+                        </TableRow>
                     ))}
               </TableBody>
             </Table>
@@ -321,18 +381,52 @@ const PivotTableDialog: React.FC<PivotTableDialogProps> = ({
               : "No data available or select pivot parameters to transform data."}
           </Typography>
         )}
-      </DialogContent>
-      <DialogActions>
-        {/* Optional: Add a button to reset pivot controls explicitly */}
-        {/* <Button onClick={() => {
-          setXAxisField('');
-          setYAxisField('');
-          setValueField('');
-          setAggregation(AggregationType.NONE);
-        }}>Reset Pivot</Button> */}
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
+        </DialogContent>
+        <DialogActions>
+          <Button
+              variant="outlined"
+              onClick={handleOpenPivotChartDialog}
+              disabled={!canGenerateChart}
+              sx={{ mr: 'auto' }} // Pushes "Close" button to the right
+          >
+              График
+          </Button>
+          <Button onClick={onClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Chart Dialog */}
+      {chartDataForPivot && (
+        <Dialog
+          open={isChartDialogOpen}
+          onClose={handleClosePivotChartDialog}
+          fullWidth
+          maxWidth="lg" 
+        >
+          <DialogTitle>
+            График для сводной таблицы: {reportName}
+            <Typography variant="caption" display="block">
+                {`${aggregationTypeLabels[aggregation]} of ${valueField} by ${xAxisField} and ${yAxisField}`}
+            </Typography>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ height: '60vh', minHeight: '400px', position: 'relative' }}>
+              <LineChart
+                reportName={`Сводная таблица: ${reportName}`}
+                xAxisValues={chartDataForPivot.xAxisValues}
+                datasets={chartDataForPivot.datasets}
+                yAxisLabel={chartDataForPivot.yAxisLabel}
+                onClose={handleClosePivotChartDialog} 
+                // onReopenParamDialog={() => {}} // Not applicable here, or pass a no-op
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClosePivotChartDialog}>Close Chart</Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </>
   );
 };
 
