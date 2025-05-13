@@ -1,0 +1,65 @@
+--создай компонент QueryParam для задания параметров запроса и запуска отчета. 
+--типы параметров - строка число select чекбокс, проверка обязательных
+
+создай компонент QueryEdit для Формиоования дескриптора запроса
+    закладки:
+        общее - report_name, report_description,
+        параметры - грид для report_config.params
+        запрос - поле query
+        колонки - грид для report_config.columns
+        диаграмма - report_config.chart
+
+    на входе: данные дескриптора запроса или пустого(нового) запроса 
+
+
+бекэнд таблица отчетов(postgres) - структура:
+    (app_id	text,
+    report_id	numeric,
+    report_name	text,
+    report_description	text,
+    query	text,
+    report_config	jsonb,
+    )
+
+структура report_config:
+{
+    params: [
+        {
+            name: string,
+            description: string,
+            type: {string | number | boolean | select}
+            notNull: boolean
+            rules?: Object
+        }
+    ],
+    columns?: [
+        {
+            field: string,
+            width: number
+        }
+    ],
+    chart?: {
+        type: { buble | linear | circular | other }
+        x_axis: {field: string},
+        y_axis: {field: string},
+        body_fields: [string],
+    }
+}
+
+
+
+-- 2025-04-15
+создай компонент MiniReport для выполнения и отображения результатоа отчета, 
+параметры для выполнения через пропсы,
+запуск отчета как в ReportList,
+результатоа отчета в виде таблицы или в виде диаграммы (задается через пропсы)
+никаких дополнительных кнопкок (возможно расширим функционал через контекстное меню)
+
+используй:
+import { getReports, Report } from '../../api/data/reportTools';
+--
+изменить функцию getReports для получения отчетов с бекенда с опциональным параметром report_id
+-- 2025-04-16
+создай компонент CircularChart по аналогии с LineChart
+
+добавить в ReportList вывод CircularChart когда chart.type == 'circular'

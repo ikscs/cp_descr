@@ -1,0 +1,29 @@
+.half-screen-carousel {
+    height: 50vh;
+  }
+  
+  .carousel-image {
+    max-height: 50vh;
+    object-fit: contain;
+  }
+  
+  /* DashboardView.css */
+
+.half-screen-carousel .control-dots {
+  bottom: 10px; /* Adjust this value to control vertical position */
+}
+
+.half-screen-carousel .control-arrow {
+  /* Adjust arrow position as needed */
+  bottom: 10px; /* Adjust this value to control vertical position */
+}
+
+.half-screen-carousel .control-arrow.control-prev {
+  bottom: 10px;
+  left: 350px; /* Adjust as needed */
+}
+
+.half-screen-carousel .control-arrow.control-next {
+  bottom: 10px;
+  right: 350px; /* Adjust as needed */
+}
