@@ -28,8 +28,8 @@ const PivotChartContent: React.FC<PivotChartContentProps> = ({
   onReopenParamDialog,
 }) => {
   // Construct a descriptive title/subtitle
-  const chartTitle = `График для сводной таблицы: ${reportName}`;
-  const chartSubtitle = `${aggregationTypeLabels[aggregation]} of ${valueField} by ${xAxisField} and ${yAxisField}`;
+  const chartTitle = `Графік для зведеної таблиці: ${reportName}`;
+  const chartSubtitle = `${aggregationTypeLabels[aggregation]} для «${valueField}» за «${xAxisField}» та «${yAxisField}»`;
 
   return (
     <Box sx={{ height: '100%', minHeight: '400px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
