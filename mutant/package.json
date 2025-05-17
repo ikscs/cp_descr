@@ -1,7 +1,7 @@
 {
   "name": "mutant",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,6 +26,7 @@
     "formik": "^2.4.6",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.3.0",
     "write-excel-file": "^2.3.2",
@@ -36,6 +37,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.12",
+    "@types/react-datepicker": "^7.0.0",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.21.0",
