@@ -73,6 +73,7 @@ const ReportPeriodControl: React.FC<ReportPeriodControlProps> = ({
             { name: 'd1', value: format(d1, DATE_FORMAT_PARAM) },
             { name: 'd2', value: format(d2, DATE_FORMAT_PARAM) },
             { name: 'mode', value: 'PERIOD' }, 
+            { name: 'point', value: -1 },
         ]);
     }, [granularity, onParamsUpdate]);
 

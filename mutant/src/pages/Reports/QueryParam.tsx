@@ -13,9 +13,10 @@ import {
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  type SelectChangeEvent,
+  // type SelectChangeEvent,
 } from '@mui/material';
 //import { Report } from '../../api/data/reportTools';
+import { fetchData, getBackend } from '../../api/data/fetchData'; // For db_select
 import { type ParsedReport } from './ReportList';
 
 interface QueryParamProps {
@@ -24,19 +25,31 @@ interface QueryParamProps {
   onClose: () => void;
   initialParams?: { name: string; value: string | number | boolean }[];
   initialShowAsChart?: boolean;
+  reportContext?: { [key: string]: number | null | undefined }; // Add reportContext prop
 }
+
+const backend = getBackend(); // For db_select
 
 export interface Parameter {
   name: string;
   description: string;
-  type: 'string' | 'number' | 'select' | 'boolean' | 'datetime' | 'date';
+  type: 'string' | 'number' | 'select' | 'boolean' | 'datetime' | 'date' | 'db_select';
   value: string | number | boolean;
   required: boolean;
   options?: string[]; // For select type
+  optionsQuery?: string; // For db_select type
 }
 
-const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, initialParams, initialShowAsChart }) => {
+interface DbSelectOption {
+  value: string | number;
+  label: string;
+}
+
+const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, initialParams, initialShowAsChart, reportContext }) => {
   const [parameters, setParameters] = useState<Parameter[]>([]);
+  const [dbSelectOptions, setDbSelectOptions] = useState<{ [paramName: string]: DbSelectOption[] }>({});
+  const [dbSelectLoading, setDbSelectLoading] = useState<{ [paramName: string]: boolean }>({});
+  const [dbSelectError, setDbSelectError] = useState<{ [paramName: string]: string | null }>({});
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [showAsChart, setShowAsChart] = useState<boolean>(false);
 
@@ -57,6 +70,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
             : '', // Default values
         required: param.required || false,
         options: param.selectOptions,
+        optionsQuery: param.optionsQuery, // Add optionsQuery
       }));
 
       if (initialParams && initialParams.length > 0) {
@@ -79,6 +93,72 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
       setShowAsChart(initialShowAsChart);
     }
   }, [report.config?.params, initialParams, initialShowAsChart]);
+
+  useEffect(() => {
+    parameters.forEach(async (param) => {
+      if (param.type === 'db_select' && param.optionsQuery && !dbSelectOptions[param.name]) {
+        setDbSelectLoading(prev => ({ ...prev, [param.name]: true }));
+        setDbSelectError(prev => ({ ...prev, [param.name]: null }));
+        try {
+          let finalQuery = param.optionsQuery;
+
+          // --- Apply Context Substitution ---
+          if (reportContext && typeof finalQuery === 'string') {
+            for (const key in reportContext) {
+              if (Object.prototype.hasOwnProperty.call(reportContext, key)) {
+                const placeholder = `:${key}`;
+                const value = reportContext[key];
+                let replacementValue: string; 
+
+                // Given reportContext values are typed as number | null | undefined
+                if (value === null || value === undefined) {
+                  // NULL should be inserted as a keyword, no quotes
+                  replacementValue = 'NULL';
+                } else { // value is a number (this includes NaN, which becomes "NaN")
+                  // Numbers should be inserted directly without quotes
+                  replacementValue = String(value);
+                }
+
+                // Use regex to replace :key only if it's not followed by another word character
+                // This prevents replacing :customer in :customer_details if key is "customer".
+                const regex = new RegExp(`:${key}(?![a-zA-Z0-9_])`, 'g');
+                finalQuery = finalQuery.replace(regex, replacementValue);
+              }
+            }
+          }
+          // --- End Context Substitution ---
+
+          const queryResult: any = await fetchData({
+            backend_point: backend.backend_point_query,
+            query: finalQuery, // Use the processed query
+            // Potentially add app_id or other context if needed by the backend
+          });
+
+          if (queryResult && Array.isArray(queryResult.data)) {
+            const fetchedOptions: DbSelectOption[] = queryResult.data.map((row: any) => {
+              if (Array.isArray(row) && row.length >= 2) {
+                return { value: row[0], label: String(row[1]) };
+              } else if (typeof row === 'object' && row !== null && 'value' in row && 'label' in row) {
+                return { value: row.value, label: String(row.label) };
+              }
+              console.warn(`Invalid row format for db_select options for param "${param.name}":`, row);
+              return null;
+            }).filter((opt: any): opt is DbSelectOption => opt !== null);
+            setDbSelectOptions(prev => ({ ...prev, [param.name]: fetchedOptions }));
+          } else {
+            throw new Error('Invalid data format received for db_select options.');
+          }
+        } catch (error: any) {
+          console.error(`Error fetching db_select options for ${param.name}:`, error);
+          setDbSelectError(prev => ({ ...prev, [param.name]: error.message || 'Failed to load options' }));
+          setDbSelectOptions(prev => ({ ...prev, [param.name]: [] })); // Set empty on error
+        } finally {
+          setDbSelectLoading(prev => ({ ...prev, [param.name]: false }));
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parameters, reportContext]); // Add reportContext to dependencies
 
   const handleParamChange = (
     index: number,
@@ -121,6 +201,12 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           isValid = false;
         } else if (
           param.type === 'date' &&
+          (param.value === null || param.value === undefined || param.value === '')
+        ) {
+          errors[param.name] = 'Обов\'язкове поле';
+          isValid = false;
+        } else if (
+          param.type === 'db_select' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
           errors[param.name] = 'Обов\'язкове поле';
@@ -237,6 +323,39 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
                       shrink: true,
                     }}
                   />
+                )}
+                {param.type === 'db_select' && (
+                  <>
+                    <InputLabel id={`db-select-label-${index}`}>
+                      {param.description || param.name}
+                    </InputLabel>
+                    <Select
+                      labelId={`db-select-label-${index}`}
+                      label={param.description || param.name}
+                      value={param.value}
+                      onChange={(e: any) =>
+                        handleParamChange(index, e.target.value as string)
+                      }
+                      variant="outlined"
+                      required={param.required}
+                      disabled={dbSelectLoading[param.name]}
+                    >
+                      {dbSelectLoading[param.name] && (
+                        <MenuItem value="" disabled><em>Завантаження...</em></MenuItem>
+                      )}
+                      {dbSelectError[param.name] && (
+                        <MenuItem value="" disabled><em>Помилка завантаження</em></MenuItem>
+                      )}
+                      {!dbSelectLoading[param.name] && !dbSelectError[param.name] && (dbSelectOptions[param.name] || []).map((option, optionIndex) => (
+                        <MenuItem key={optionIndex} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {(validationErrors[param.name] || dbSelectError[param.name]) && (
+                      <FormHelperText>{validationErrors[param.name] || dbSelectError[param.name]}</FormHelperText>
+                    )}
+                  </>
                 )}
               </FormControl>
             </Grid>

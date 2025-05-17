@@ -51,7 +51,7 @@ const ReportDayControl: React.FC<ReportDayControlProps> = ({
             { name: 'd1', value: formattedDate },
             { name: 'd2', value: formattedDate },
             { name: 'mode', value: 'DAY' },
-            // { name: 'mode', value: 'PERIOD' },
+            { name: 'point', value: -1 },
         ]);
     }, [selectedDate, onParamsUpdate]);
 

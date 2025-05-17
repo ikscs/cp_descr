@@ -1,11 +1,12 @@
 // d:\dvl\ikscs\react\vp-descr\mui-uf-admin2\src\pages\DashboardView.tsx
 import React, { useEffect, useState, useCallback } from 'react';
 import Typography from '@mui/material/Typography';
-import { Box, Grid, CircularProgress, Alert, Button, Stack } from '@mui/material';
+import { Box, Grid, CircularProgress, Alert, Button, Stack, FormControl, Select, MenuItem, type SelectChangeEvent } from '@mui/material';
 import './DashboardView.css';
 import { type ParsedReport, ReportToParsedReport } from '../Reports/ReportList';
 import { getReports, /*Report*/ } from '../../api/data/reportTools';
-import MiniReport from '../Reports/MiniReport';
+import { useCustomer } from '../../context/CustomerContext';
+import MiniReport from '../Reports/MiniReport2';
 import { dataToExcel } from '../../api/tools/dataToExcel';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { format as formatDateFns, subDays as subDaysFns } from 'date-fns';
@@ -13,6 +14,7 @@ import ReportDayControl, { DATE_FORMAT_PARAM as DAY_DATE_FORMAT_PARAM } from '..
 import ReportPeriodControl, { type ReportGranularity } from '../../components/Shared/ReportPeriodControl';
 import ButtonA from '../../components/Shared/ButtonA';
 
+const REPORT_ID_Pivot = 2; // Відвідувачі Pivot
 const REPORT_ID_22 = 28; // Відвідувачі
 const REPORT_ID_23 = 27; // Відвідувачі - Стать
 const REPORT_ID_24 = 26; // Відвідувачі - Вік
@@ -62,9 +64,12 @@ const getInitialDates = (granularity: DashboardUserGranularity): { startDate: Da
 
 
 const DashboardView: React.FC = () => {
+    const { customerData, isLoading: isCustomerLoading } = useCustomer();
+
     const [parsedReport22, setParsedReport22] = useState<ParsedReport | null>(null);
     const [parsedReport23, setParsedReport23] = useState<ParsedReport | null>(null);
     const [parsedReport24, setParsedReport24] = useState<ParsedReport | null>(null);
+    const [parsedReportPivot, setParsedReportPivot] = useState<ParsedReport | null>(null);
 
     // Состояние для гранулярности, выбранной пользователем
     const [activeGranularity, setActiveGranularity] = useState<DashboardUserGranularity>('MONTH');
@@ -76,12 +81,38 @@ const DashboardView: React.FC = () => {
             { name: 'd1', value: formatDateFns(startDate, DAY_DATE_FORMAT_PARAM) },
             { name: 'd2', value: formatDateFns(endDate, DAY_DATE_FORMAT_PARAM) },
             { name: 'mode', value: apiMode },
+            { name: 'point', value: -1 }, // Initial default point, will be updated by useEffect
         ];
     });
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState<boolean>(false);
+
+    // Effect to set initial 'point' in reportParams based on customerData
+    useEffect(() => {
+        let newPointValue: number = -1; // Default
+
+        if (!isCustomerLoading) { // Only act if customer data loading is complete
+            if (customerData && customerData.points && customerData.points.length > 0) {
+                newPointValue = customerData.points[0].value;
+            }
+            // If customerData is loaded but no points, newPointValue remains -1.
+        } else {
+            // While customer data is loading, do nothing to avoid premature changes.
+            return;
+        }
+
+        setReportParams(prevParams => {
+            const currentPointValueInParams = prevParams.find(p => p.name === 'point')?.value;
+            if (currentPointValueInParams !== newPointValue) {
+                return prevParams.map(p =>
+                    p.name === 'point' ? { ...p, value: newPointValue } : p
+                );
+            }
+            return prevParams; // No change needed
+        });
+    }, [customerData, isCustomerLoading, setReportParams]);
 
     useEffect(() => {
         const loadSingleReport = async (rid: number): Promise<ParsedReport> => {
@@ -100,6 +131,7 @@ const DashboardView: React.FC = () => {
                     loadSingleReport(REPORT_ID_22),
                     loadSingleReport(REPORT_ID_23),
                     loadSingleReport(REPORT_ID_24),
+                    loadSingleReport(REPORT_ID_Pivot),
                 ]);
                 let firstError: string | null = null;
                 const handleResult = (
@@ -118,6 +150,8 @@ const DashboardView: React.FC = () => {
                 handleResult(results[0], setParsedReport22, REPORT_ID_22);
                 handleResult(results[1], setParsedReport23, REPORT_ID_23);
                 handleResult(results[2], setParsedReport24, REPORT_ID_24);
+                handleResult(results[3], setParsedReportPivot, REPORT_ID_Pivot);
+                
                 if (firstError) {
                     setFetchError(firstError);
                 }
@@ -136,18 +170,45 @@ const DashboardView: React.FC = () => {
         setActiveGranularity(newGranularity);
         const { startDate, endDate, apiMode } = getInitialDates(newGranularity);
 
-        setReportParams([
-            { name: 'd1', value: formatDateFns(startDate, DAY_DATE_FORMAT_PARAM) },
-            { name: 'd2', value: formatDateFns(endDate, DAY_DATE_FORMAT_PARAM) },
-            { name: 'mode', value: apiMode },
-        ]);
-    }, []);
+        setReportParams(prevParams => {
+            const existingPointParam = prevParams.find(p => p.name === 'point') || { name: 'point', value: -1 };
+            return [
+                { name: 'd1', value: formatDateFns(startDate, DAY_DATE_FORMAT_PARAM) },
+                { name: 'd2', value: formatDateFns(endDate, DAY_DATE_FORMAT_PARAM) },
+                { name: 'mode', value: apiMode },
+                existingPointParam, // Preserve existing point
+            ];
+        });
+    }, [setActiveGranularity, setReportParams]);
 
     // Обработчик обновления параметров от дочерних контролов (ReportDayControl, ReportPeriodControl)
-    const handleParamsUpdateFromControl = useCallback((updatedParamsFromControl: ReportParameter[]) => {
-        setReportParams(updatedParamsFromControl);
-    }, []);
+    const handleParamsUpdateFromControl = useCallback((dateAndModeParams: ReportParameter[]) => {
+        // Assuming dateAndModeParams contains {name: 'd1', ...}, {name: 'd2', ...}, {name: 'mode', ...}
+        setReportParams(prevParams => {
+            const pointParam = prevParams.find(p => p.name === 'point') || { name: 'point', value: -1 };
+            
+            // Create a map from the new date/mode params for easy lookup
+            const newParamsMap = new Map(dateAndModeParams.map(p => [p.name, p]));
 
+            // Build the new parameters array, prioritizing new date/mode, keeping existing point and others
+            const resultParams: ReportParameter[] = prevParams
+                .filter(p => p.name !== 'point' && !newParamsMap.has(p.name)) // Keep other old params
+                .concat(dateAndModeParams) // Add new date/mode params
+                .concat([pointParam]); // Add the point param
+            
+            // Deduplicate (just in case, ensuring pointParam is the one used for 'point')
+            const finalMap = new Map(resultParams.map(p => [p.name, p]));
+            finalMap.set('point', pointParam); // Ensure our point is authoritative
+            return Array.from(finalMap.values());
+        });
+    }, [setReportParams]);
+
+    const handlePointChange = useCallback((event: SelectChangeEvent<string | number>) => {
+        const newPointId = typeof event.target.value === 'string' ? parseInt(event.target.value, 10) : event.target.value;
+        setReportParams(prevParams =>
+            prevParams.map(p => (p.name === 'point' ? { ...p, value: newPointId } : p))
+        );
+    }, [setReportParams]);
 
     const handleExport = async () => {
         setIsExporting(true);
@@ -162,6 +223,8 @@ const DashboardView: React.FC = () => {
         }
     };
 
+    const currentPointSelected = reportParams.find(p => p.name === 'point')?.value as number ?? -1;
+    console.log('customerData.points', customerData?.points);
     return (
         <Box id={'22222222'} sx={{
             padding: 0,
@@ -205,10 +268,31 @@ const DashboardView: React.FC = () => {
                         gap: 1,
                     }}
                 >
-                    <Box sx={{ visibility: 'hidden', flexShrink: 0 }}>
-                        <ButtonA size="small" startIcon={<FileDownloadIcon />} hideTextOn="md" isActive={isExporting}>
-                            Експорт в Excel
-                        </ButtonA>
+                    <Box sx={{ flexShrink: 0, minWidth: { xs: '100%', sm: 200, md: 240 } }}>
+                        <FormControl fullWidth size="small" variant="outlined">
+                            {/* No InputLabel as per requirement */}
+                            <Select
+                                value={currentPointSelected}
+                                onChange={handlePointChange}
+                                inputProps={{ 'aria-label': 'Оберіть пункт' }}
+                                sx={{ backgroundColor: 'white' }}
+                                disabled={isCustomerLoading}
+                            >
+                                {isCustomerLoading ? (
+                                    <MenuItem value={currentPointSelected} disabled> 
+                                        <em>Завантаження пунктів...</em>
+                                    </MenuItem>
+                                ) : (customerData?.points && customerData.points.length > 0) ? (
+                                    customerData.points.map((point) => (
+                                        <MenuItem key={point.value} value={point.value}>
+                                            {point.label}
+                                        </MenuItem>
+                                    ))
+                                ) : (
+                                    <MenuItem value={-1}><em>{"нема даних"}</em></MenuItem>
+                                )}
+                            </Select>
+                        </FormControl>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', flexGrow: 1 }}>
                         <Button
@@ -300,7 +384,7 @@ const DashboardView: React.FC = () => {
                             </Box>
                         </Grid>
                     )}
-                     {parsedReport23 && (
+                    {parsedReport23 && (
                         <Grid item xs={12} md={6}>
                             <Box sx={{ px: 1.5, pb: 1 }}>
                             <MiniReport
@@ -308,6 +392,18 @@ const DashboardView: React.FC = () => {
                                 parameters={reportParams}
                                 displayMode="chart"
                                 height="300px"
+                            />
+                            </Box>
+                        </Grid>
+                    )}
+                    {parsedReportPivot && (
+                        <Grid item xs={12} md={12}>
+                            <Box sx={{ px: 1.5, pb: 1 }}>
+                            <MiniReport
+                                report={parsedReportPivot}
+                                parameters={reportParams}
+                                displayMode="pivot"
+                                height="450px"
                             />
                             </Box>
                         </Grid>

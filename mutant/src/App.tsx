@@ -28,6 +28,8 @@ import PositionList from './pages/Enterprise/components/positions/PositionList';
 import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
 import AppFooter from './components/AppFooter';
 import ViewerReportList from './pages/Reports/ViewerReportList'; // Import the new ViewerReportList
+import { CustomerData, CustomerProvider, type CustomerPoint } from './context/CustomerContext';
+import { getPoints } from './api/data/customerTools';
 
 // Protected Route Component
 const ProtectedRoute = ({
@@ -51,6 +53,10 @@ const ProtectedRoute = ({
 };
 
 function App() {
+  const [customerData, setCustomerData] = useState<CustomerData | null>(null);
+  const [isLoadingCustomerData, setIsLoadingCustomerData] = useState(true);  
+  const [isLoadingPoints, setIsLoadingPoints] = useState(false);
+
   const menuItems0: MenuItem[] = [
     // {
     //   text: 'Главная',
@@ -124,7 +130,7 @@ function App() {
     },
   ];
 
-  const { tokens, user, logout } = useUserfront();
+  const { tokens, user, logout, isLoading: isUserfrontLoading } = useUserfront(); // Destructure isLoading here
   const [showLogin, setShowLogin] = useState(true);
   const navigate = useNavigate();
 
@@ -146,11 +152,26 @@ function App() {
     if (tokens && tokens.accessToken) {
       console.log('Tokens:', tokens);
       console.log('User:', user);
-      // navigate('/'); // Removed navigate on login to allow staying on current page or redirecting based on other logic if needed
     } else {
       console.log('No tokens');
     }
-  }  , [tokens, user]);
+    
+    if (!isUserfrontLoading) { // Use the destructured isLoading
+      setIsLoadingCustomerData(false); 
+
+      if (user && user.data) {
+        // Extract customer and point_id if user and user.data are available
+        setCustomerData({
+          customer: user.data.customer as number | undefined,
+          point_id: user.data.point_id as number | undefined,
+        });
+        console.log('[App] Extracted customer data:', { customer: user.data.customer, point_id: user.data.point_id });
+      } else {
+        // User is null or has no data, set customerData to null
+        setCustomerData(null);
+      }
+    }
+  }, [tokens, user, isUserfrontLoading]); // Add isUserfrontLoading to dependencies
 
   useEffect(() => {
     // Когда хук useDetermineChildTenant возвращает ID (или null),
@@ -166,6 +187,54 @@ function App() {
   ); // Зависимости для обновления контекста
   // --- Конец логики определения childTenantId ---
 
+  // Mock function to fetch points for a customer
+  const fetchPointsForCustomer = async (customerId: number): Promise<CustomerPoint[]> => {
+    console.log(`[App] Mock fetching points for customer ID: ${customerId}`);
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Mocked data based on the example query: SELECT point_id as value, name as label from pcnt.point WHERE customer_id = :customer
+    // Replace with actual API call
+    if (customerId === 1) { // Example customer ID
+      return [
+        { value: 5, label: 'Store A - Downtown' },
+        { value: 4, label: 'Store B - Mall' },
+      ];
+    } else if (customerId === 2) { // Another example
+      return [
+        { value: 201, label: 'Warehouse X' },
+      ];
+    }
+    return []; // Default to empty array if no specific mock or for other customer IDs
+  };
+  
+  // Effect to fetch points when customerData.customer is set or changes
+  useEffect(() => {
+    const loadPoints = async () => {
+      if (customerData?.customer) {
+        setIsLoadingPoints(true);
+        try {
+          // console.log(`[App] Fetching points for customer ID: ${customerData.customer} with type: ${typeof customerData.customer}`);
+          const customerAsNumber = Number(customerData.customer);
+          // const points = await fetchPointsForCustomer(customerAsNumber);
+          const points = await getPoints(customerAsNumber);
+          setCustomerData(prevData => prevData ? { ...prevData, points } : null);
+          console.log(`[App] Fetched points for customer ${customerData.customer}:`, points);
+        } catch (error) {
+          console.error(`[App] Error fetching points for customer ${customerData.customer}:`, error);
+          setCustomerData(prevData => prevData ? { ...prevData, points: [] } : null); // Set empty on error or handle appropriately
+        } finally {
+          setIsLoadingPoints(false);
+        }
+      } else if (customerData && customerData.points !== undefined) {
+        // If customer becomes null/undefined, and points were previously set, clear them.
+        setCustomerData(prevData => prevData ? { ...prevData, points: undefined } : null);
+        setIsLoadingPoints(false);
+      }
+    };
+    loadPoints();
+  }, [customerData?.customer]); // Dependency: re-run when the customer ID in customerData changes
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -175,16 +244,20 @@ function App() {
     setShowLogin(!showLogin);
   };
 
+  const appTitle = 'People Counting (multi user)';
+
   // Проверяем наличие пользователя
   if (tokens && tokens.accessToken) {
   // if (user) {
     // Можно добавить индикатор загрузки, пока определяется childTenantId
     // if (isLoadingTenantId) {
     //   return <div>Loading tenant information...</div>; // Или более сложный лоадер
+    // +    // return <div>Loading tenant information... {isLoadingPoints && "(Loading points...)"}</div>; // Или более сложный лоадер
     // }
     return (
       // TenantProvider теперь должен быть в main.tsx, чтобы useTenant() работал здесь
-      // 1. Главный контейнер: делаем его flex-колонкой и задаем минимальную высоту
+      <CustomerProvider customerData={customerData} isLoading={isLoadingCustomerData}>
+      {/* 1. Главный контейнер: делаем его flex-колонкой и задаем минимальную высоту */}
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -196,14 +269,14 @@ function App() {
           >
           <Box display="flex">
             {/* {user.hasRole('admin') && ( */}
-              <MainMenu menuItems={menuItems} drawerTitle='People Counting'/>
+              <MainMenu menuItems={menuItems} drawerTitle={appTitle} />
             {/* )} */}
             <Typography
               variant="h5"
               component="div"
               sx={{ fontWeight: 'bold', marginLeft: '1rem', marginTop: '0.5rem' }}
             >
-              People Counting (multi user)
+              {appTitle}
             </Typography>
           </Box>
 
@@ -271,7 +344,8 @@ function App() {
 
         {/* 4. Футер: остается как есть, не растягивается и будет прижат к низу */}
         <AppFooter />
-        </Box>
+      </Box>
+      </CustomerProvider>
     );
   } else {
     return (

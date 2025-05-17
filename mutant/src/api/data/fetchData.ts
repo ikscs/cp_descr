@@ -25,8 +25,8 @@ const backend_cnt = {
 }
 
 export const getBackend = ()=> {
-  const backendType1 = backendType()
-  console.log('backendType', backendType1)
+  const backendType1 = backendType
+  // console.log('backendType', backendType1)
   return backendType1 === 'rise' ? backend_rise : backend_cnt
 }
 

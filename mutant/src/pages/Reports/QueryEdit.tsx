@@ -37,10 +37,11 @@ import QueryTest from './QueryTest';
 export interface Param {
   name: string;
   description: string;
-  type: 'string' | 'number' | 'boolean' | 'select' | 'date'; // Reverted to string literal union
+  type: 'string' | 'number' | 'boolean' | 'select' | 'date' | 'db_select';
   notNull: boolean;
   rules?: object;
   selectOptions?: string[];
+  optionsQuery?: string; // For db_select type
 }
 
 type ParamKey = keyof Param;
@@ -259,7 +260,8 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
         description: '',
         type: 'string',
         notNull: false,
-        defaultValue: '', // <-- Add a default value here
+        // defaultValue: '', // No longer needed here as QueryParam initializes based on type
+        optionsQuery: '',
       },    
     ]);
   };
@@ -351,7 +353,7 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
   return (
     <Box sx={{p:2}}> {/* Добавлен отступ p: 2 */}
       <Typography variant="h6" gutterBottom>
-        Report Editor
+        {/* Report Editor */}
       </Typography>
       <Paper>
         <Tabs value={tabValue} onChange={handleTabChange} centered>
@@ -405,6 +407,7 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
                     <TableCell>Description</TableCell>
                     <TableCell>Type</TableCell>
                     <TableCell>Not Null</TableCell>
+                    <TableCell>Options Query</TableCell> {/* New column for db_select */}
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -433,6 +436,7 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
                           <MenuItem value="number">Number</MenuItem>
                           <MenuItem value="select">Select</MenuItem>
                           <MenuItem value="string">String</MenuItem>
+                          <MenuItem value="db_select">DB Select</MenuItem>
                         </Select>
                       </TableCell>
                       <TableCell>
@@ -440,6 +444,16 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
                           checked={param.notNull}
                           onChange={(e) => handleParamChange(index, 'notNull', e.target.checked)}
                         />
+                      </TableCell>
+                      <TableCell>
+                        {param.type === 'db_select' && (
+                          <TextField
+                            value={param.optionsQuery || ''}
+                            onChange={(e) => handleParamChange(index, 'optionsQuery', e.target.value)}
+                            placeholder="SELECT value, label FROM ..."
+                            fullWidth
+                          />
+                        )}
                       </TableCell>
                       <TableCell>
                         <IconButton onClick={() => handleDeleteParam(index)}>

@@ -1,0 +1,29 @@
+opt 1
+export interface Parameter - добавить тип параметра "dbselect" (предложи свое имя) для выбора значения из БД
+
+opt 2
+для описания и выполнения отчетов добавить тип параметра "dbselect" (предложи свое имя) для выбора значения из БД,
+
+
+--export interface Param - приведи к виду export interface Parameter из QueryParam.tsx
+
+
+как выполнить запрос для параметра типа db_select если этот запрос зависит от контекста 
+(например: select point_id value, name label from pcnt.point where customer = :customer) ?
+-- здесь :customer должен быть равен переменной из контекста 
+-- бекенд менять пока не будем
+
+
+
++так как TenantContext нереально использовать в бесплатном режиме, 
+построй CustomerContext, который прочитает из юзерфронта Custom data 
+(например { "customer": "1", "point_id": "5" })
+
+построй CustomerContext, в который поместить Обьект "Custom data" вида { "customer": "1", "point_id": "5" }  из useUserfront - парсить не нужно
+
+
+
+расширить CustomerData - добавить свойство points как массив пар 
+{value: number, label: string} и получить points из бекенда 
+(временно сделай заглушку, далее выберем как
+"select point_id value, name label from pcnt.point WHERE customer_id = :customer" )

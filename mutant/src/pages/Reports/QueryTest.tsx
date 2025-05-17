@@ -1,5 +1,5 @@
 // QueryTest.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -19,6 +19,7 @@ import ReportResult from './ReportResult'; // ReportResult IS a Dialog
 import QueryParam from './QueryParam';     // QueryParam is NOT a Dialog (it's content)
 import LineChart from '../Charts/LineChart'; // LineChart is NOT a Dialog (it's content)
 import CircularChart from '../Charts/CircularChart'; // <-- 1. Import CircularChart
+import { useCustomer } from '../../context/CustomerContext';
 // import { get } from 'http';
 
 const backend = getBackend(); 
@@ -51,7 +52,9 @@ const MakeParsedReport = (reportData: ReportDescriptor): ParsedReport => {
             ? false
             : param.type === 'number'
             ? 0
+            // db_select will also default to '' initially
             : '',
+        optionsQuery: param.optionsQuery, // <--- ДОБАВЛЕНО: Передача optionsQuery
         selectOptions: param.selectOptions || [],
       })),
       columns: columns.map((col) => ({
@@ -82,6 +85,26 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
   const [chartType, setChartType] = useState<'linear' | 'circular' | null>(null); // <-- 2. Add state for chart type
   const [lastShowAsChartPreference, setLastShowAsChartPreference] = useState<boolean>(false);
 
+  const { customerData: rawCustomerData } = useCustomer(); // Renamed to avoid confusion
+
+  // Transform rawCustomerData to the shape expected by QueryParam's reportContext
+  const reportContextValue = useMemo(() => {
+    if (!rawCustomerData) { // rawCustomerData is of type { customer?: number; point_id?: number; } | null
+      return undefined;
+    }
+
+    const context: { [key: string]: number | null | undefined } = {};
+
+    if (rawCustomerData.customer !== undefined) {
+      context.customer = rawCustomerData.customer; // Assign if present; number | undefined is compatible
+    }
+    if (rawCustomerData.point_id !== undefined) {
+      context.point_id = rawCustomerData.point_id; // Assign if present
+    }
+
+    return context;
+  }, [rawCustomerData]);
+
   // Update parsed report data when input changes
   useEffect(() => {
     setReportData(MakeParsedReport(_reportData));
@@ -100,8 +123,13 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
       // Determine initial view: params or execute directly
       const hasParams = reportData.config?.params && reportData.config.params.length > 0;
       if (hasParams) {
-        // Initialize params if needed (consider if keeping old params is desired on reopen)
-        // setQueryParams(reportData.config.params.map(p => ({ name: p.name, value: p.defaultValue })));
+        // Initialize queryParams state with default values from the current reportData
+        setQueryParams(
+          (reportData.config.params || []).map(p => ({
+            name: p.name,
+            value: p.defaultValue, // defaultValue уже корректно типизирован в ParsedReport
+          }))
+        );
         setCurrentView('params');
       } else {
         executeReport([]); // Execute immediately if no params
@@ -445,6 +473,7 @@ const QueryTest: React.FC<QueryTestProps> = ({ _reportData, open, onClose }) => 
               onClose={handleParamDialogClose}
               initialParams={queryParams} // Use stored params if re-opening
               initialShowAsChart={lastShowAsChartPreference} // Pass the stored preference
+              reportContext={reportContextValue} // Pass the transformed customer context
             />
           ) : reportData ? ( // reportData loaded but no params
              <Box>

@@ -1,0 +1,37 @@
+<svg width="200" height="200" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <g transform="rotate(-90 16 16)">
+    <animateTransform attributeName="transform" attributeType="XML" type="rotate"
+                      from="0 16 16" to="360 16 16" dur="20s" repeatCount="indefinite"/>
+
+    <!-- Green Sector -->
+    <circle r="10" cx="16" cy="16" fill="none" stroke="green" stroke-width="6"
+            stroke-dasharray="12.8 51.2" stroke-dashoffset="0" stroke-linecap="butt">
+      <animate attributeName="stroke-dasharray" values="12.8 51.2;24 40;12.8 51.2" dur="2s" repeatCount="indefinite" fill="freeze"/>
+    </circle>
+
+    <!-- Orange Sector -->
+    <circle r="10" cx="16" cy="16" fill="none" stroke="orange" stroke-width="6"
+            stroke-dasharray="12.8 51.2" stroke-dashoffset="-12.8" stroke-linecap="butt">
+      <animate attributeName="stroke-dasharray" values="12.8 51.2;5 59;12.8 51.2" dur="2s" begin="0.2s" repeatCount="indefinite" fill="freeze"/>
+    </circle>
+
+    <!-- Blue Sector -->
+    <circle r="10" cx="16" cy="16" fill="none" stroke="blue" stroke-width="6"
+            stroke-dasharray="12.8 51.2" stroke-dashoffset="-25.6" stroke-linecap="butt">
+      <animate attributeName="stroke-dasharray" values="12.8 51.2;20 44;12.8 51.2" dur="2s" begin="0.4s" repeatCount="indefinite" fill="freeze"/>
+    </circle>
+
+    <!-- Purple Sector -->
+    <circle r="10" cx="16" cy="16" fill="none" stroke="purple" stroke-width="6"
+            stroke-dasharray="12.8 51.2" stroke-dashoffset="-38.4" stroke-linecap="butt">
+      <animate attributeName="stroke-dasharray" values="12.8 51.2;8 56;12.8 51.2" dur="2s" begin="0.6s" repeatCount="indefinite" fill="freeze"/>
+    </circle>
+
+    <!-- Red Sector (Calculated Remainder) -->
+    <circle r="10" cx="16" cy="16" fill="none" stroke="red" stroke-width="6"
+            stroke-dasharray="13.6 50.4" stroke-dashoffset="-51.2" stroke-linecap="butt">
+      <animate attributeName="stroke-dasharray" values="13.6 50.4;7 57;13.6 50.4" dur="2s" begin="0.8s" repeatCount="indefinite" fill="freeze"/>
+    </circle>
+  </g>
+  <circle cx="16" cy="16" r="6" fill="transparent"/>
+</svg>

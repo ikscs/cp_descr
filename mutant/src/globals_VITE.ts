@@ -1,25 +1,26 @@
 const getApiKey = () => {
-  // return import.meta.env.VITE_USERFRONT_LIVE_API_KEY || '';
-  if (import.meta.env.VITE_ENV === 'production') {
-      return import.meta.env.VITE_USERFRONT_LIVE_API_KEY || '';
-    } else {
-      return import.meta.env.VITE_USERFRONT_TEST_API_KEY || '';
-    }
-  };
+  return import.meta.env.DEV ? 
+    import.meta.env.VITE_USERFRONT_TEST_API_KEY :
+    import.meta.env.VITE_USERFRONT_LIVE_API_KEY;
+};
   
-  const getBaseName = () => {
-    if (import.meta.env.VITE_ENV === 'production') {
-      return import.meta.env.VITE_BASENAME_PROD || '';
-    } else {
-      return import.meta.env.VITE_BASENAME_DEV || '';
-    }
-  };
+const getBaseName = () => {
+  return import.meta.env.DEV ? 
+    import.meta.env.VITE_BASENAME_DEV :
+    import.meta.env.VITE_BASENAME_PROD;
+};
 
-  const getBackendType = () => {
-    return import.meta.env.VITE_BACKEND_TYPE || 'unknown';
-  };
-  
-  export const tenantId = import.meta.env.VITE_USERFRONT_TENANT_ID;
-  export const apiKey = getApiKey();
-  export const basename = getBaseName();
-  export const backendType = getBackendType;
+const getBackendType = () => {
+  return import.meta.env.VITE_BACKEND_TYPE || 'unknown';
+};
+
+const getTenantId = () => {
+  return import.meta.env.DEV ? 
+    import.meta.env.VITE_USERFRONT_TEST_TENANT_ID :
+    import.meta.env.VITE_USERFRONT_LIVE_TENANT_ID;
+}
+
+export const tenantId: string = getTenantId();
+export const apiKey: string = getApiKey();
+export const basename: string = getBaseName();
+export const backendType: string = getBackendType();

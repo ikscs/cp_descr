@@ -1,4 +1,4 @@
-// src/pages/Reports/MiniReport.tsx
+// src/pages/Reports/MiniReport2.tsx
 import React, { useState, useEffect } from 'react';
 import {
     Box,
@@ -18,14 +18,15 @@ import packageJson from '../../../package.json';
 import LineChart from '../Charts/LineChart';
 import CircularChart from '../Charts/CircularChart';
 import type { ParsedReport, ReportExecutionResult, ChartData } from './ReportList';
-import PivotTableDialog, { AggregationType } from './PivotTableDialog';
-// import { get } from 'http';
+// Используем новые утилиты и компонент для сводного графика
+import { AggregationType, generatePivotData, prepareChartDataFromPivoted, aggregationTypeLabels } from './pivotUtils';
+import PivotChartContent from './PivotChartContent';
 
 const backend = getBackend();
 
 // --- Interfaces ---
 
-interface MiniReportProps {
+interface MiniReport2Props { // Изменено имя интерфейса
     /** The parsed report definition, including config for chart */
     report: ParsedReport;
     /** Parameters to execute the report with */
@@ -64,17 +65,13 @@ const executeReportQuery = async (
                 || (typeof responseData === 'string' ? responseData : null)
                 || response.statusText
                 || `HTTP error ${response.status || 'unknown'}`;
-            // Возвращаем структуру ошибки, а не бросаем исключение, чтобы показать в Alert
             return { columns: ['Ошибка'], rows: [[`Ошибка бэкенда: ${errorMsg}`]] };
-            // throw new Error(`Backend error: ${errorMsg}`);
         }
 
         if (!responseData || (Array.isArray(responseData) && responseData.length === 0)) {
-            // return { columns: ['Сообщение'], rows: [['Нет данных']] };
             return { columns: ['Сообщение'], rows: [['Немає даних']] };
         }
 
-        // Basic check for valid data structure (array of objects)
         if (!Array.isArray(responseData) || responseData.length === 0 || typeof responseData[0] !== 'object' || responseData[0] === null) {
             console.warn("Received unexpected data format from backend:", responseData);
             return { columns: ['Сообщение'], rows: [['Некорректный формат данных в ответе']] };
@@ -85,42 +82,34 @@ const executeReportQuery = async (
         return { columns, rows };
     } catch (err: any) {
         console.error("Error in executeReportQuery:", err);
-        // Возвращаем структуру ошибки
         return { columns: ['Ошибка'], rows: [[`Ошибка запроса данных: ${err.message || 'Неизвестная ошибка'}`]] };
-        // throw new Error(err.message || 'Failed to fetch or process report data.');
     }
 };
 
 // --- Helper: Process Data for Chart (Adapted) ---
-// <-- 3. Обновляем хелпер processChartData -->
 const processChartData = (
     executionResult: ReportExecutionResult,
     reportConfig: ParsedReport['config']
-): { chartData: ChartData; chartType: 'linear' | 'circular' } => { // <-- Возвращаем и данные, и тип
+): { chartData: ChartData; chartType: 'linear' | 'circular' } => {
 
-    // Check if result is just an error/message
     if (executionResult.columns.length === 1 && (executionResult.columns[0] === 'Ошибка' || executionResult.columns[0] === 'Сообщение')) {
-        // throw new Error("Невозможно построить график по сообщению об ошибке или отсутствию данных.");
         throw new Error("Неможливо побудувати графік по повідомленню про помилку або відсутність даних");
     }
 
     const chartConfig = reportConfig?.chart;
 
-    // Ensure chart config is complete
     if (
         !chartConfig ||
-        !chartConfig.type || // Убедимся, что тип задан
+        !chartConfig.type ||
         !chartConfig.x_axis?.field ||
         !chartConfig.body_fields ||
         chartConfig.body_fields.length === 0
     ) {
-        // throw new Error('Конфигурация графика (тип, оси X, поля данных) не задана или неполная.');
         throw new Error('Конфігурація графіка (тип, осі X, поля даних) не задана чи неповна.');
     }
 
     const xAxisField = chartConfig.x_axis.field;
     const yAxisValueFields = chartConfig.body_fields;
-    // Используем y_axis.field для лейблов, если есть, иначе body_fields
     const yAxisLabels = chartConfig.y_axis?.field?.split(',').map(s => s.trim()).filter(Boolean) || yAxisValueFields;
     const yAxisTitleLabel = chartConfig.y_axis_label;
 
@@ -129,59 +118,51 @@ const processChartData = (
         executionResult.columns.indexOf(field)
     );
 
-    // Validate indices
     if (xAxisIndex === -1) {
         throw new Error(`Поле для оси X '${xAxisField}' не найдено в результатах.`);
     }
-    // Для круговой диаграммы нужен хотя бы первый индекс Y
     if (chartConfig.type === 'circular' && yAxisIndices[0] === -1) {
          throw new Error(`Поле для данных '${yAxisValueFields[0]}' не найдено в результатах.`);
     }
-    // Для линейной проверяем все индексы Y
     if (chartConfig.type !== 'circular' && yAxisIndices.some((index) => index === -1)) {
         const missing = yAxisValueFields.filter((_, i) => yAxisIndices[i] === -1);
         throw new Error(`Одно или несколько полей для данных (${missing.join(', ')}) не найдены в результатах.`);
     }
 
-    // Process data based on chart type
     try {
         let processedChartData: ChartData;
         let determinedChartType: 'linear' | 'circular';
 
         if (chartConfig.type === 'circular') {
-            // --- Подготовка данных для Circular Chart ---
             if (yAxisIndices.length > 1) {
-                console.warn("MiniReport: Circular chart config has multiple body_fields. Using the first one:", yAxisValueFields[0]);
+                console.warn("MiniReport2: Circular chart config has multiple body_fields. Using the first one:", yAxisValueFields[0]);
             }
 
             const segmentLabels = executionResult.rows.map(
                 (row) => row[xAxisIndex]?.toString() ?? ''
             );
             const segmentValues = executionResult.rows.map((row) => {
-                const value = row[yAxisIndices[0]]; // Используем первое поле Y
-                if (value === null || value === undefined) return 0; // По умолчанию 0 для круговой
+                const value = row[yAxisIndices[0]];
+                if (value === null || value === undefined) return 0;
                 const num = Number(value);
-                return !isNaN(num) ? num : 0; // По умолчанию 0, если конвертация не удалась
+                return !isNaN(num) ? num : 0;
             });
-            // Используем первый лейбл из y_axis.field или имя первого body_field
             const datasetLabel = yAxisLabels[0] || yAxisValueFields[0];
 
             processedChartData = {
-                xAxisValues: segmentLabels, // Метки сегментов
-                datasets: [{ label: datasetLabel, data: segmentValues }] // Один набор данных
+                xAxisValues: segmentLabels,
+                datasets: [{ label: datasetLabel, data: segmentValues }]
             };
             determinedChartType = 'circular';
 
-        } else { // По умолчанию или если chartConfig.type === 'linear'
-            // --- Подготовка данных для Line Chart (существующая логика) ---
+        } else { 
             const xAxisValues = executionResult.rows.map(
                 (row) => row[xAxisIndex]?.toString() ?? ''
             );
-            const datasets = yAxisIndices.map((yAxisIndex, index) => ({
-                // Используем соответствующий лейбл из y_axis.field или имя body_field
+            const datasets = yAxisIndices.map((yAxisIndexVal, index) => ({
                 label: yAxisLabels[index] || yAxisValueFields[index],
                 data: executionResult.rows.map((row) => {
-                    const value = row[yAxisIndex];
+                    const value = row[yAxisIndexVal];
                     if (value === null || value === undefined) return null;
                     const num = Number(value);
                     return !isNaN(num) ? num : null;
@@ -192,27 +173,32 @@ const processChartData = (
                 datasets,
                 yAxisLabel: yAxisTitleLabel
              };
-            determinedChartType = 'linear'; // Предполагаем линейный, если не круговой
+            determinedChartType = 'linear';
         }
 
         return { chartData: processedChartData, chartType: determinedChartType };
 
     } catch (processError: any) {
-        console.error("Error processing data for chart in MiniReport:", processError);
+        console.error("Error processing data for chart in MiniReport2:", processError);
         throw new Error(`Ошибка при обработке данных для графика: ${processError.message}`);
     }
 };
 
 
-// --- MiniReport Component ---
+// --- MiniReport2 Component ---
 
-const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode, height = 'auto' }) => {
+const MiniReport2: React.FC<MiniReport2Props> = ({ report, parameters, displayMode, height = 'auto' }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [executionResult, setExecutionResult] = useState<ReportExecutionResult | null>(null);
     const [chartData, setChartData] = useState<ChartData | null>(null);
     const [chartType, setChartType] = useState<'linear' | 'circular' | null>(null);
-    const [isPivotDialogOpen, setIsPivotDialogOpen] = useState(false);
+    
+    // Состояние для данных и конфигурации сводного графика
+    const [pivotChartData, setPivotChartData] = useState<ChartData | null>(null);
+    const [pivotConfigForChart, setPivotConfigForChart] = useState<{
+        xAxisField: string; yAxisField: string; valueField: string; aggregation: AggregationType;
+    } | null>(null);
 
     // Effect to run the report when props change
     useEffect(() => {
@@ -222,35 +208,66 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
             setExecutionResult(null);
             setChartData(null);
             setChartType(null);
-            setIsPivotDialogOpen(false);
+            setPivotChartData(null); // Сброс данных сводного графика
+            setPivotConfigForChart(null); // Сброс конфигурации сводного графика
 
             try {
                 const result = await executeReportQuery(report.id, parameters);
-                setExecutionResult(result); // Сохраняем результат в любом случае
+                setExecutionResult(result);
 
-                // Обрабатываем для графика, если нужно и если результат не ошибка/сообщение
                 if (displayMode === 'chart' && !(result.columns.length === 1 && (result.columns[0] === 'Ошибка' || result.columns[0] === 'Сообщение'))) {
                     try {
-                        // <-- 4. Обновляем вызов processChartData -->
                         const { chartData: processedData, chartType: determinedType } = processChartData(result, report.config);
                         setChartData(processedData);
-                        setChartType(determinedType); // <-- Устанавливаем тип графика
+                        setChartType(determinedType);
                     } catch (chartError: any) {
-                        setError(chartError.message); // Показываем ошибку обработки графика
+                        setError(chartError.message);
                     }
                 } else if (displayMode === 'chart' && result.columns.length === 1 && result.columns[0] === 'Ошибка') {
-                    // Если режим графика, но результат - ошибка от бэкенда
                     setError(result.rows[0]?.[0] || 'Ошибка выполнения отчета');
-                } else if (displayMode === 'pivot' && !(result.columns.length === 1 && (result.columns[0] === 'Ошибка' || result.columns[0] === 'Сообщение'))) {
-                    // If pivot mode and result is not an error/message
-                    // We don't need to process data here, just indicate that the dialog should open
-                    setIsPivotDialogOpen(true);
+                } else if (displayMode === 'pivot') { // Логика для сводного графика
+                    if (!(result.columns.length === 1 && (result.columns[0] === 'Ошибка' || result.columns[0] === 'Сообщение'))) {
+                        try {
+                            const defaults = getPivotDefaults(result); // Pass the fresh 'result'
+                            if (defaults.defaultXAxisField && defaults.defaultYAxisField && defaults.defaultValueField && defaults.defaultAggregation && defaults.defaultAggregation !== AggregationType.NONE) {
+                                const pivoted = generatePivotData(
+                                    result.rows,
+                                    result.columns,
+                                    defaults.defaultXAxisField,
+                                    defaults.defaultYAxisField,
+                                    defaults.defaultValueField,
+                                    defaults.defaultAggregation
+                                );
+                                const preparedPivotChartData = prepareChartDataFromPivoted(
+                                    pivoted,
+                                    defaults.defaultXAxisField,
+                                    defaults.defaultAggregation,
+                                    defaults.defaultValueField
+                                );
+                                setPivotChartData(preparedPivotChartData);
+                                setPivotConfigForChart({
+                                    xAxisField: defaults.defaultXAxisField,
+                                    yAxisField: defaults.defaultYAxisField,
+                                    valueField: defaults.defaultValueField,
+                                    aggregation: defaults.defaultAggregation,
+                                });
+                            } else {
+                                setError("Конфігурація для зведеного графіка неповна. Неможливо відобразити графік автоматично.");
+                                setPivotConfigForChart(null);
+                            }
+                        } catch (pivotChartGenError: any) {
+                            setError(pivotChartGenError.message || "Помилка при генерації зведеного графіка.");
+                            setPivotConfigForChart(null);
+                        }
+                    } else {
+                        setError(result.rows[0]?.[0] || 'Помилка або немає даних для зведення');
+                        setPivotConfigForChart(null);
+                    }
                 } else if (displayMode === 'chart' && result.columns.length === 1 && result.columns[0] === 'Сообщение') {
-                     // Если режим графика, но результат - сообщение (например, "Нет данных")
-                     setError(result.rows[0]?.[0] || 'Нет данных для графика'); // Отображаем как ошибку/предупреждение
+                     setError(result.rows[0]?.[0] || 'Нет данных для графика');
                 }
 
-            } catch (err: any) { // Ловим ошибки из executeReportQuery (если он бросает исключения)
+            } catch (err: any) {
                 setError(err.message || 'Неизвестная ошибка при выполнении отчета');
             } finally {
                 setIsLoading(false);
@@ -259,13 +276,13 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
 
         runReport();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [report.id, displayMode, JSON.stringify(parameters)]); // Re-run if report, mode, or params change
+    }, [report.id, displayMode, JSON.stringify(parameters)]);
 
-    // Helper to get default pivot settings (adapted from ReportResult)
-    const getPivotDefaults = () => {
-        if (!executionResult) 
-            return {};
-        const { columns } = executionResult;
+    // Helper to get default pivot settings
+    const getPivotDefaults = (currentExecutionResult: ReportExecutionResult | null) => {
+        if (!currentExecutionResult)
+            return { defaultAggregation: AggregationType.NONE }; // Возвращаем объект с NONE по умолчанию
+        const { columns } = currentExecutionResult;
         const chartConfig = report.config?.chart;
 
         let dX: string | undefined = undefined;
@@ -275,7 +292,6 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
 
         const isValid = (field: string | undefined): field is string => !!field && columns.includes(field);
 
-        // Try to get defaults from chart configuration
         if (chartConfig) {
           if (isValid(chartConfig.x_axis?.field)) 
             dX = chartConfig.x_axis.field;
@@ -295,8 +311,6 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
           }
         }
 
-        // 2. Fill remaining from available columns if not found in chartConfig
-        //    or if chartConfig values were invalid/conflicting.
         const availableForX = columns.filter(c => c !== dY && c !== dV);
         if (!dX && availableForX.length > 0) {
         dX = availableForX[0];
@@ -312,7 +326,6 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
         dV = availableForValue[0];
         }
 
-        // Set a default aggregation if all three fields are successfully determined
         if (dX && dY && dV) 
             dAgg = AggregationType.SUM;
 
@@ -336,27 +349,21 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
             );
         }
 
-        // Сначала показываем ошибку, если она есть (из executeReportQuery или processChartData)
         if (error) {
             return <Alert severity="error" sx={{ m: 1 }}>{error}</Alert>;
         }
 
         if (!executionResult) {
-            // Fallback, если не загрузка и не ошибка
             return <Typography sx={{ m: 1 }}>Нет данных для отображения.</Typography>;
         }
 
-        // Обрабатываем специфичные результаты "Сообщение" или "Ошибка" от бэкенда, если они не были перехвачены как error выше
         const isMessageResult = executionResult.columns.length === 1 && (executionResult.columns[0] === 'Сообщение' || executionResult.columns[0] === 'Ошибка');
-        if (isMessageResult) {
+        if (isMessageResult && displayMode !== 'pivot') { // Не показываем это сообщение, если пытаемся построить сводный график (ошибка обработается там)
              const severity = executionResult.columns[0] === 'Ошибка' ? 'error' : 'info';
-             // Если режим графика, а получили сообщение, лучше показать как warning/error
              const finalSeverity = displayMode === 'chart' && severity === 'info' ? 'warning' : severity;
              return <Alert severity={finalSeverity} sx={{ m: 1 }}>{executionResult.rows[0]?.[0] ?? 'Нет данных'}</Alert>;
         }
 
-
-        // Display Table
         if (displayMode === 'table') {
             return (
                 <TableContainer component={Paper} sx={{ maxHeight: '100%', overflow: 'auto' }}>
@@ -382,65 +389,59 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
             );
         }
 
-        // Display Pivot Table (using the dialog component)
-        if (displayMode === 'pivot' && executionResult) {
-             // The PivotTableDialog is a Dialog itself, controlled by isPivotDialogOpen
-             // We render it here, but its visibility is managed internally.
-             return (
-                <PivotTableDialog
-                    open={isPivotDialogOpen}
-                    onClose={() => setIsPivotDialogOpen(false)} // Close handler for the dialog
-                    rows={executionResult.rows}
-                    columns={executionResult.columns}
-                    reportName={report.name}
-                    {...getPivotDefaults()} // Pass calculated defaults
-                />
-             );
-        }
-
-        // Display Chart
-        // <-- 5. Обновляем логику рендеринга графика -->
         if (displayMode === 'chart') {
-            // Убедимся, что есть и данные, и тип графика
             if (chartData && chartType) {
                 return (
                     <Box sx={{ height: '100%', position: 'relative' }}>
                         {chartType === 'circular' ? (
                             <CircularChart
                                 reportName={report.name || ''}
-                                labels={chartData.xAxisValues} // Метки сегментов
+                                labels={chartData.xAxisValues}
                                 datasets={chartData.datasets.map(ds => ({
                                     label: ds.label,
-                                    data: ds.data.map(d => d ?? 0), // null -> 0 для круговой
+                                    data: ds.data.map(d => d ?? 0),
                                 }))}
                             />
-                        ) : ( // По умолчанию или 'linear'
+                        ) : (
                             <LineChart
                                 reportName={report.name || ''}
-                                xAxisValues={chartData.xAxisValues} // Значения оси X
-                                datasets={chartData.datasets} // Наборы данных
+                                xAxisValues={chartData.xAxisValues}
+                                datasets={chartData.datasets}
                                 yAxisLabel={chartData.yAxisLabel}
                             />
                         )}
                     </Box>
                 );
             } else {
-                // Эта ветка сработает, если обработка данных для графика не удалась,
-                // но сама загрузка данных прошла успешно (и не было ошибки).
-                // Ошибка должна была быть установлена в `error` и показана выше.
-                // Но на всякий случай добавим сообщение.
                  return <Alert severity="warning" sx={{ m: 1 }}>Не удалось подготовить данные для графика.</Alert>;
             }
         }
 
-        return null; // Should not be reached
+        if (displayMode === 'pivot') {
+            if (pivotChartData && pivotConfigForChart) {
+                return (
+                    <Box sx={{ height: '100%', position: 'relative' }}>
+                        <PivotChartContent
+                            chartData={pivotChartData}
+                            reportName={report.name}
+                            xAxisField={pivotConfigForChart.xAxisField}
+                            yAxisField={pivotConfigForChart.yAxisField}
+                            valueField={pivotConfigForChart.valueField}
+                            aggregation={pivotConfigForChart.aggregation}
+                        />
+                    </Box>
+                );
+            }
+            // Ошибка для сводного графика уже должна быть в `error` и отображена выше.
+            // Это запасной вариант, если что-то пошло не так с установкой `error`.
+            return <Alert severity="warning" sx={{ m: 1 }}>Не вдалося згенерувати зведений графік. Перевірте конфігурацію звіту.</Alert>;
+        }
+
+        return null;
     };
 
-    // p: 1 - padding, border, borderRadius, overflow, flexDirection
     return (
         <Box sx={{ height: height, width: '100%', p: 1, border: '1px solid #eee', borderRadius: '4px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-           {/* Optional Title */}
-           {/* <Typography variant="subtitle2" gutterBottom noWrap sx={{ flexShrink: 0 }}>{report.name}</Typography> */}
            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
                {renderContent()}
            </Box>
@@ -448,4 +449,4 @@ const MiniReport: React.FC<MiniReportProps> = ({ report, parameters, displayMode
     );
 };
 
-export default MiniReport;
+export default MiniReport2; // Изменено имя экспорта

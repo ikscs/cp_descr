@@ -26,6 +26,7 @@ import packageJson from '../../../package.json';
 import LineChart from '../Charts/LineChart';
 import CircularChart from '../Charts/CircularChart'; // <-- 1. Импортируем CircularChart
 import ReportResult from './ReportResult';
+import { useCustomer } from '../../context/CustomerContext';
 // import { get } from 'http';
 
 const backend = getBackend();
@@ -45,10 +46,11 @@ export interface ParsedReport {
     params?: {
       name: string;
       description: string;
-      type: string;
+      type: string; // Will include 'db_select'
       notNull: boolean;
       defaultValue: string | number | boolean;
       selectOptions?: string[];
+      optionsQuery?: string; // For db_select
     }[];
     columns?: {
       field: string;
@@ -86,6 +88,7 @@ export const ReportToParsedReport = (report: Report): ParsedReport => {
             y_axis: config.chart.y_axis || { field: '' }, // Добавим значения по умолчанию
             body_fields: Array.isArray(config.chart.body_fields) ? config.chart.body_fields : [], // Добавим значения по умолчанию
             y_axis_label: config.chart.y_axis_label || undefined, // <-- Извлекаем y_axis_label
+            // optionsQuery will be part of params, handled below
           }
         : undefined;
 
@@ -95,7 +98,11 @@ export const ReportToParsedReport = (report: Report): ParsedReport => {
       description: report.description || '',
       query: report.query || '',
       config: {
-        params: Array.isArray(config.params) ? config.params : [],
+        params: Array.isArray(config.params) ? config.params.map((p: any) => ({
+          ...p,
+          // Ensure optionsQuery is carried over if it exists on the raw config param
+          optionsQuery: p.optionsQuery || undefined,
+        })) : [],
         columns: Array.isArray(config.columns) ? config.columns : [],
         chart: chartConfig, // Используем извлеченную и обработанную конфигурацию графика
       },
@@ -141,6 +148,26 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [lastShowAsChartPreference, setLastShowAsChartPreference] = useState<boolean>(false);
   const [filterText, setFilterText] = useState<string>('');
+
+const { customerData: rawCustomerData } = useCustomer(); // Renamed to avoid confusion
+
+  // Transform rawCustomerData to the shape expected by QueryParam's reportContext
+  const reportContextValue = useMemo(() => {
+    if (!rawCustomerData) { // rawCustomerData is of type { customer?: number; point_id?: number; } | null
+      return undefined;
+    }
+
+    const context: { [key: string]: number | null | undefined } = {};
+
+    if (rawCustomerData.customer !== undefined) {
+      context.customer = rawCustomerData.customer; // Assign if present; number | undefined is compatible
+    }
+    if (rawCustomerData.point_id !== undefined) {
+      context.point_id = rawCustomerData.point_id; // Assign if present
+    }
+
+    return context;
+  }, [rawCustomerData]);
 
   useEffect(() => {
     const loadReports = async () => {
@@ -572,6 +599,7 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
                 onClose={handleParamDialogClose}
                 initialParams={queryParams}
                 initialShowAsChart={lastShowAsChartPreference}
+                reportContext={reportContextValue} // Pass the transformed customer context
               />
             ) : selectedReport ? (
                 // Случай, когда отчет выбран, но параметров нет (хотя логика handleExecuteReport должна это предотвращать)
