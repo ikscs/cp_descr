@@ -93,12 +93,17 @@ const ReportResult: React.FC<ReportResultProps> = ({
         });
         return rowData;
       });
-      let columns = executionResult.columns.map((col, index) => ({
+      // let columns = executionResult.columns.map((col, index) => ({
+      //   key: col,
+      //   name:
+      //     executionResult.rows.length > 0
+      //       ? executionResult.rows[0][index]
+      //       : col,
+      //   width: 20,
+      // }));
+      const columns = executionResult.columns.map((col) => ({
         key: col,
-        name:
-          executionResult.rows.length > 0
-            ? executionResult.rows[0][index]
-            : col,
+        name: col,
         width: 20,
       }));
       toExcel(columns, data, report.name);
