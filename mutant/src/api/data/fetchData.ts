@@ -44,6 +44,7 @@ interface IFetchBody {
     query?: string;
     // method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; // Add method
     // data?: any; // Add data
+    returning?: string;
   }
   
 
@@ -93,6 +94,10 @@ export const fetchData: FetchData = async (props: IFetchBody) => {
           });
         
         console.log('response', response.status);
+        // Сначала получаем ответ как текст
+        // const responseText = await response.text();
+        // console.log('Raw response text from server:', responseText); 
+        // Затем парсим его как JSON
         const result = await response.json();
         console.log('result', result);
         return result

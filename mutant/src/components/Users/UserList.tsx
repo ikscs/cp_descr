@@ -35,7 +35,7 @@ const UserList: React.FC = () => {
       if (err instanceof Error) {
         setError(err);
       } else {
-        setError(new Error('An unexpected error occurred.'));
+        setError(new Error('Сталася непередбачена помилка.'));
       }
     } finally {
       setIsLoading(false);
@@ -72,7 +72,7 @@ const UserList: React.FC = () => {
       handleCloseModal();
     } catch (err) {
       console.error('Error updating user:', err);
-      setError(new Error('Failed to update user.'));
+      setError(new Error('Не вдалося оновити користувача.'));
     }
   };
 
@@ -88,7 +88,7 @@ const UserList: React.FC = () => {
       handleCloseModal();
     } catch (err) {
       console.error('Error creating user:', err);
-      setError(new Error('Failed to create user.'));
+      setError(new Error('Не вдалося створити користувача.'));
     }
   };
 
@@ -101,7 +101,7 @@ const UserList: React.FC = () => {
   };
 
   const handleDeleteUser = async (userId: number) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) {
+    if (!window.confirm('Ви впевнені, що хочете видалити цього користувача?')) {
       return;
     }
     try {
@@ -109,7 +109,7 @@ const UserList: React.FC = () => {
       setUsers(users.filter((user) => user.userId !== userId));
     } catch (err) {
       console.error('Error deleting user:', err);
-      setError(new Error('Failed to delete user.'));
+      setError(new Error('Не вдалося видалити користувача.'));
     }
   };
 
@@ -117,18 +117,18 @@ const UserList: React.FC = () => {
     { field: 'userId', headerName: 'ID', width: 70 },
     { field: 'username', headerName: 'Username', width: 150 },
     { field: 'email', headerName: 'Email', width: 200 },
-    { field: 'roles', headerName: 'Roles', width: 250 },
+    { field: 'roles', headerName: 'Ролі', width: 250 },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: 'Дії',
       width: 250,
       renderCell: (params) => (
         <>
           <Button onClick={() => handleOpenModal(params.row)} size="small">
-            Редактировать
+            Редагувати
           </Button>
           <Button onClick={() => handleDeleteUser(params.row.userId)} size="small">
-            Удалить
+            Видалити
           </Button>
         </>
       ),
@@ -151,7 +151,7 @@ const UserList: React.FC = () => {
     <Box sx={{ width: '100%' }}>
       <Box sx={{ mb: 2 }}>
         <Button variant="contained" onClick={() => handleOpenModal(null)}>
-          Добавить пользователя
+          Додати користувача
         </Button>
       </Box>
 
@@ -189,7 +189,7 @@ const UserList: React.FC = () => {
         >
           <UserForm
             user={selectedUser === null ? undefined : selectedUser}
-            title={selectedUser === null ? 'Добавить пользователя' : 'Редактировать пользователя'}
+            title={selectedUser === null ? 'Додати користувача' : 'Редагувати користувача'}
             onSave={handleSave}
             onCancel={handleCloseModal}
             tenantId={tenantId}

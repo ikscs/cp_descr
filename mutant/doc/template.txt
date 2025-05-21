@@ -1,0 +1,61 @@
+const jsonString = '{"host": "188.231.138.95", "port": 64136, "user": "admin", "proto": "https", "password": "558447scs"}';
+
+const templateString = `{
+  "fields": [
+    {
+      "name": "host",
+      "label": "Хост",
+      "type": "text"
+    },
+    {
+      "name": "port",
+      "label": "Порт",
+      "type": "number"
+    },
+    {
+      "name": "user",
+      "label": "Пользователь",
+      "type": "text"
+    },
+    {
+      "name": "proto",
+      "label": "Протокол",
+      "type": "select",
+      "options": [
+        { "value": "http", "label": "HTTP" },
+        { "value": "https", "label": "HTTPS" }
+      ]
+    },
+    {
+      "name": "password",
+      "label": "Пароль",
+      "type": "text" 
+    }
+  ]
+}`;
+
+const templateString1 = `{
+  "fields": [
+    {
+      "name": "login",
+      "label": "Пользователь",
+      "type": "text"
+    },
+    {
+      "name": "password",
+      "label": "Пароль",
+      "type": "text" 
+    }
+  ]
+}`;
+
+try {
+  const formTemplate = stringToJsonFormTemplate(templateString);
+  console.log("Успешно распарсенный JsonFormTemplate:", formTemplate);
+
+  // Пример того, как можно было бы использовать этот шаблон для генерации формы
+  // или для валидации данных из jsonString (хотя stringToJsonFormTemplate не для этого)
+
+} catch (error) {
+  console.error("Ошибка при обработке шаблона:", error);
+}

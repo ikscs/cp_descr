@@ -72,9 +72,9 @@ const ReportDayControl: React.FC<ReportDayControlProps> = ({
             variant="outlined"
             sx={{
                 minWidth: '180px', // To maintain similar width
+                cursor: 'pointer', // Indicate the whole TextField is clickable
                 '& .MuiInputBase-input': {
                     textAlign: 'center',
-                    cursor: 'pointer', // Indicate it's clickable
                 },
                 '& .MuiOutlinedInput-notchedOutline': { // Target the fieldset for outlined variant
                     border: 'none', // Remove the border

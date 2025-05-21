@@ -9,6 +9,8 @@ export interface CustomerData {
   customer?: number;
   point_id?: number;
   points?: CustomerPoint[];
+  country?: string;
+  city?: string;
 }
 
 export interface CustomerContextType {

@@ -14,6 +14,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import BadgeIcon from '@mui/icons-material/Badge';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import RoleList from './components/Roles/RoleList';
+import VideocamIcon from '@mui/icons-material/Videocam'; // Используем VideocamIcon для "Реєстратори"
 import { tenantId } from './globals_VITE';
 
 import { /*TenantProvider,*/ useTenant } from './context/TenantContext';
@@ -27,9 +28,12 @@ import DepartmentList from './pages/Enterprise/components/departments/Department
 import PositionList from './pages/Enterprise/components/positions/PositionList';
 import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
 import AppFooter from './components/AppFooter';
-import ViewerReportList from './pages/Reports/ViewerReportList'; // Import the new ViewerReportList
+import ViewerReportList from './pages/Reports/ViewerReportList';
+import PointList from './components/Points/PointList';
+import OriginView from './components/Origins/OriginView';
 import { CustomerData, CustomerProvider, type CustomerPoint } from './context/CustomerContext';
 import { getPoints } from './api/data/customerTools';
+import { loadCustomerData } from './api/data/customerDataLoader';
 
 // Protected Route Component
 const ProtectedRoute = ({
@@ -64,13 +68,13 @@ function App() {
     //   icon: <HomeIcon />,
     // },
     {
-      text: 'Дашборд',
+      text: 'Дашборд', // Already Ukrainian, but confirming
       path: '/dashboard',
       icon: <DashboardIcon />,
       role: 'viewer',
     },
     // {
-    //   text: 'Панель управління (пропорційна)',
+    //   text: 'Панель управління (пропорційна)', // Already Ukrainian
     //   path: '/dashboard_aspect_ratio',
     //   icon: <DashboardIcon />,
     //   role: 'admin',
@@ -88,43 +92,45 @@ function App() {
     //   role: 'admin',
     // },
     {
-      text: 'Администрирование',
+      text: 'Адміністрування',
       icon: <AdminPanelSettingsIcon />,
       items: [
-        { text: 'Пользователи', path: '/users', icon: <PeopleIcon /> },
-        { text: 'Роли', path: '/roles', icon: <BadgeIcon /> },
+        { text: 'Користувачі', path: '/users', icon: <PeopleIcon /> },
+        { text: 'Ролі', path: '/roles', icon: <BadgeIcon /> },
+        { text: 'Пункти обліку', path: '/points', icon: <BadgeIcon />, role: 'admin' },
+        { text: 'Реєстратори', path: '/origins', icon: <VideocamIcon />, role: 'admin' },
       ],
       role: 'admin',
     },
     {
-      text: 'Предприятие',
+      text: 'Підприємство',
       icon: <AdminPanelSettingsIcon />,
       items: [
-        { text: 'Подразделения', path: 'enterprise/departments', icon: <BadgeIcon /> },
-        { text: 'Должности', path: '/enterprise/positions', icon: <BadgeIcon /> },
-        { text: 'Сотрудники', path: '/enterprise/employees', icon: <PeopleIcon /> },
-        { text: 'Изображения сотрудников', path: '/enterprise/images', icon: <PeopleIcon /> },
+        { text: 'Підрозділи', path: 'enterprise/departments', icon: <BadgeIcon /> },
+        { text: 'Посади', path: '/enterprise/positions', icon: <BadgeIcon /> },
+        { text: 'Співробітники', path: '/enterprise/employees', icon: <PeopleIcon /> },
+        { text: 'Зображення співробітників', path: '/enterprise/images', icon: <PeopleIcon /> },
       ],
       role: 'owner',
     },
     {
-      text: 'Звіти',
+      text: 'Звіти', // Already Ukrainian
       path: '/viewerReports', // Corrected path for consistency
       icon: <BarChartIcon />,
       role: 'viewer',
     },
     {
-      text: 'Звіти всі',
+      text: 'Звіти всі', // Already Ukrainian
       path: '/reports',
       icon: <BarChartIcon />,
       role: 'admin',
     },
     {
-      text: 'Настройки',
+      text: 'Налаштування',
       icon: <SettingsIcon />,
       items: [
-        { text: 'Общее', path: '/settings/general' },
-        { text: 'Редактор отчетов', path: '/settings/report-list' },
+        { text: 'Загальні', path: '/settings/general' },
+        { text: 'Редактор звітів', path: '/settings/report-list' },
       ],
       role: 'editor',
     },
@@ -186,27 +192,6 @@ function App() {
   }, [childTenantId, isLoadingTenantId, tenantIdError, setChildTenantId]
   ); // Зависимости для обновления контекста
   // --- Конец логики определения childTenantId ---
-
-  // Mock function to fetch points for a customer
-  const fetchPointsForCustomer = async (customerId: number): Promise<CustomerPoint[]> => {
-    console.log(`[App] Mock fetching points for customer ID: ${customerId}`);
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Mocked data based on the example query: SELECT point_id as value, name as label from pcnt.point WHERE customer_id = :customer
-    // Replace with actual API call
-    if (customerId === 1) { // Example customer ID
-      return [
-        { value: 5, label: 'Store A - Downtown' },
-        { value: 4, label: 'Store B - Mall' },
-      ];
-    } else if (customerId === 2) { // Another example
-      return [
-        { value: 201, label: 'Warehouse X' },
-      ];
-    }
-    return []; // Default to empty array if no specific mock or for other customer IDs
-  };
   
   // Effect to fetch points when customerData.customer is set or changes
   useEffect(() => {
@@ -214,9 +199,8 @@ function App() {
       if (customerData?.customer) {
         setIsLoadingPoints(true);
         try {
-          // console.log(`[App] Fetching points for customer ID: ${customerData.customer} with type: ${typeof customerData.customer}`);
+          console.log(`[App] Fetching points for customer ID: ${customerData.customer}`);
           const customerAsNumber = Number(customerData.customer);
-          // const points = await fetchPointsForCustomer(customerAsNumber);
           const points = await getPoints(customerAsNumber);
           setCustomerData(prevData => prevData ? { ...prevData, points } : null);
           console.log(`[App] Fetched points for customer ${customerData.customer}:`, points);
@@ -233,7 +217,24 @@ function App() {
       }
     };
     loadPoints();
-  }, [customerData?.customer]); // Dependency: re-run when the customer ID in customerData changes
+
+    const load = async () => {
+      if (customerData?.customer) {
+        const loadedCustomerData = await loadCustomerData(Number(customerData.customer));
+        console.log(`[App] loadedCustomerData for customer ${customerData.customer}:`, loadedCustomerData);
+        setCustomerData(prevData => prevData ? { 
+          ...prevData, 
+          points: loadedCustomerData?.points || [],
+          point_id: loadedCustomerData?.point_id || -1,
+          country: loadedCustomerData?.country || '',
+          city: loadedCustomerData?.city || '',
+        } : null)
+      } else {
+        setCustomerData({});
+      }
+    }
+    // load();
+  }, [customerData?.customer]);
 
   const handleLogout = () => {
     logout();
@@ -244,7 +245,7 @@ function App() {
     setShowLogin(!showLogin);
   };
 
-  const appTitle = 'People Counting (multi user)';
+  const appTitle = 'People Counting (multi-user)';
 
   // Проверяем наличие пользователя
   if (tokens && tokens.accessToken) {
@@ -299,6 +300,8 @@ function App() {
             <Route path="/dashboard" element={<DashboardView />} />
             <Route path="/users" element={<Users />} />
             <Route path="/roles" element={<RoleList />} />
+            <Route path="/points" element={<ProtectedRoute user={user} requiredRole="admin"><PointList /></ProtectedRoute>} />
+            <Route path="/origins" element={<ProtectedRoute user={user} requiredRole="admin"><OriginView /></ProtectedRoute>} />
             <Route path="/reports" element={<ReportList />} />
             <Route path="/viewerReports" element={<ViewerReportList />} /> 
             <Route path="/settings/general" element={<GeneralSettings />} />
@@ -355,9 +358,8 @@ function App() {
           <Route path="/" element={
             <>
               {showLogin ? <LoginForm /> : <SignupForm />}
-              <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
-                {/* {showLogin ? 'Реєстрация' : 'Війти'} - {useUserfront()?.tenantId} Показываем ID тенанта из Userfront */}
-                {showLogin ? 'Реєстрация' : 'Війти'} - {tenantId}
+              <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>                
+                {showLogin ? 'Реєстрація' : 'Увійти'} - {tenantId}
               </Button>
               {/* Optionally add a link to the reset form */}
               {/* <Link to="/reset">Forgot Password?</Link> */}
