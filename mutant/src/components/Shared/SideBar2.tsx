@@ -5,7 +5,7 @@ import {
   Drawer,
   IconButton,
   List,
-  ListItemButton, // Changed from ListItem for better click handling and selected state
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Tooltip,
@@ -19,19 +19,21 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
-// Определение типа MenuItem (аналогично MainMenu2)
-// В идеале, этот тип должен быть вынесен в общий файл типов, например, src/types/navigation.ts
+// Ключі для localStorage
+const LOCAL_STORAGE_KEY_COLLAPSED = 'sidebar2IsCollapsed';
+const LOCAL_STORAGE_KEY_OPEN_SUBMENUS = 'sidebar2OpenSubMenus';
+
 export interface MenuItem {
   text: string;
   path?: string;
   icon?: JSX.Element;
   items?: MenuItem[];
-  role?: string; // Роль все еще может быть полезна для внутренней логики SideBar, если потребуется
+  role?: string;
   onClick?: () => void;
-  external?: boolean; // Для внешних ссылок
+  external?: boolean;
 }
 
-interface SideBarProps {
+interface SideBar2Props {
   menuItems: MenuItem[];
   drawerTitle?: string;
   initialCollapsed?: boolean;
@@ -43,7 +45,7 @@ interface SideBarProps {
 const DefaultCollapsedWidth = 60;
 const DefaultExpandedWidth = 280;
 
-const SideBar: React.FC<SideBarProps> = ({
+const SideBar2: React.FC<SideBar2Props> = ({
   menuItems,
   drawerTitle = "Меню",
   initialCollapsed = true,
@@ -53,21 +55,76 @@ const SideBar: React.FC<SideBarProps> = ({
 }) => {
   const theme = useTheme();
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(initialCollapsed);
-  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
+
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedIsCollapsed = localStorage.getItem(LOCAL_STORAGE_KEY_COLLAPSED);
+      if (savedIsCollapsed !== null) {
+        try {
+          return JSON.parse(savedIsCollapsed) as boolean;
+        } catch (e) {
+          console.error(`Error parsing ${LOCAL_STORAGE_KEY_COLLAPSED} from localStorage:`, e);
+        }
+      }
+    }
+    return initialCollapsed;
+  });
+
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>(() => {
+    let initialOpenSubMenus = {};
+    if (typeof window !== 'undefined') {
+      // Завжди завантажуємо збережений стан відкритих підменю,
+      // незалежно від того, чи панель згорнута при ініціалізації.
+      // Логіка відображення подбає про те, щоб не показувати їх, якщо панель згорнута.
+      const savedOpenSubMenus = localStorage.getItem(LOCAL_STORAGE_KEY_OPEN_SUBMENUS);
+      if (savedOpenSubMenus !== null) {
+        try {
+          const parsed = JSON.parse(savedOpenSubMenus);
+          if (typeof parsed === 'object' && parsed !== null) {
+            initialOpenSubMenus = parsed as Record<string, boolean>;
+          }
+        } catch (e) {
+          console.error(`Error parsing ${LOCAL_STORAGE_KEY_OPEN_SUBMENUS} from localStorage:`, e);
+        }
+      }
+    }
+    return initialOpenSubMenus;
+  });
+
   const [isHidingTooltipForCollapseAnimation, setIsHidingTooltipForCollapseAnimation] = useState(false);
 
-  // Синхронизация состояния isCollapsed с initialCollapsed, если оно изменится извне (редко, но возможно)
+  // Зберігаємо isCollapsed в localStorage при його зміні
   useEffect(() => {
-    setIsCollapsed(initialCollapsed);
-  }, [initialCollapsed]);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY_COLLAPSED, JSON.stringify(isCollapsed)); // Зберігаємо стан isCollapsed
+      } catch (e) {
+        console.error(`Error saving ${LOCAL_STORAGE_KEY_COLLAPSED} to localStorage:`, e);
+      }
+    }
+  }, [isCollapsed]);
 
-  // При изменении isCollapsed (особенно при сворачивании), закрываем все подменю
+  // Цей useEffect видалено, оскільки ми більше не хочемо скидати openSubMenus при згортанні.
+  // Стан openSubMenus тепер зберігається незалежно.
+  /*
   useEffect(() => {
     if (isCollapsed) {
       setOpenSubMenus({});
+      // localStorage.setItem(LOCAL_STORAGE_KEY_OPEN_SUBMENUS, JSON.stringify({})); // Це також видалено
     }
   }, [isCollapsed]);
+  */
+
+  // Зберігаємо openSubMenus в localStorage при їх зміні (завжди)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY_OPEN_SUBMENUS, JSON.stringify(openSubMenus));
+      } catch (e) {
+        console.error(`Error saving ${LOCAL_STORAGE_KEY_OPEN_SUBMENUS} to localStorage:`, e);
+      }
+    }
+  }, [openSubMenus]); // Залежність тільки від openSubMenus
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -81,7 +138,7 @@ const SideBar: React.FC<SideBarProps> = ({
     if (!isCollapsed) { // Якщо панель розгорнута і зараз буде згортатися
       setIsHidingTooltipForCollapseAnimation(true);
       setTimeout(() => {
-        if (mountedRef.current) {
+        if (mountedRef.current) { // Перевірка, чи компонент все ще змонтований
           setIsHidingTooltipForCollapseAnimation(false);
         }
       }, theme.transitions.duration.leavingScreen); // Тривалість анімації згортання
@@ -90,12 +147,12 @@ const SideBar: React.FC<SideBarProps> = ({
   };
 
   const handleSubMenuToggle = (text: string) => {
-    if (isCollapsed) {
-      // Если панель свернута, разворачиваем её и открываем это подменю
-      setIsCollapsed(false);
-      setOpenSubMenus(prev => ({ ...prev, [text]: true })); // Явно открываем подменю
+    if (isCollapsed) { // Якщо панель згорнута
+      setIsCollapsed(false); // Розгортаємо панель
+      // Відкриваємо підменю ПІСЛЯ того, як isCollapsed оновиться і useEffect для збереження спрацює
+      // Це гарантує, що openSubMenus не буде збережено як порожній об'єкт
+      setOpenSubMenus(prev => ({ ...prev, [text]: true }));
     } else {
-      // Если панель уже развернута, просто переключаем состояние подменю
       setOpenSubMenus(prev => ({ ...prev, [text]: !prev[text] }));
     }
   };
@@ -115,7 +172,7 @@ const SideBar: React.FC<SideBarProps> = ({
           sx={{
             minWidth: 0,
             justifyContent: 'center',
-            mr: sidebarIsCurrentlyCollapsed ? 0 : 1.5, // Отступ справа только если текст виден
+            mr: sidebarIsCurrentlyCollapsed ? 0 : 1.5,
             color: isSelected ? theme.palette.primary.main : 'inherit',
           }}
         >
@@ -130,7 +187,12 @@ const SideBar: React.FC<SideBarProps> = ({
       if (hasSubItems) {
         return (
           <React.Fragment key={itemKey}>
-            <Tooltip title={sidebarIsCurrentlyCollapsed ? item.text : ''} placement="right">
+            <Tooltip
+              title={sidebarIsCurrentlyCollapsed ? item.text : ''}
+              placement="right"
+              disableHoverListener={!sidebarIsCurrentlyCollapsed || isHidingTooltipForCollapseAnimation}
+              enterDelay={500} // Увеличиваем задержку появления тултипа
+            >
               <ListItemButton
                 onClick={() => handleSubMenuToggle(item.text)}
                 sx={{
@@ -155,7 +217,6 @@ const SideBar: React.FC<SideBarProps> = ({
         );
       }
 
-      // Элемент без подменю
       const listItemProps: any = {
         selected: isSelected,
         sx: {
@@ -180,7 +241,13 @@ const SideBar: React.FC<SideBarProps> = ({
       }
 
       return (
-        <Tooltip title={sidebarIsCurrentlyCollapsed ? item.text : ''} placement="right" key={itemKey}>
+        <Tooltip
+          title={sidebarIsCurrentlyCollapsed ? item.text : ''}
+          placement="right"
+          key={itemKey}
+          enterDelay={500} // Увеличиваем задержку появления тултипа
+          disableHoverListener={!sidebarIsCurrentlyCollapsed || isHidingTooltipForCollapseAnimation}
+        >
           <ListItemButton {...listItemProps}>
             {commonListItemIcon}
             {commonListItemText}
@@ -193,15 +260,14 @@ const SideBar: React.FC<SideBarProps> = ({
   if (expandMode === 'overlay') {
     return (
       <>
-        {/* Кнопка для открытия Drawer, если он свернут. В App.tsx ее можно разместить в хедере. */}
         <IconButton
           onClick={handleDrawerToggle}
           sx={{
-            display: isCollapsed ? 'inline-flex' : 'none', // Показываем, только если Drawer свернут
-            position: 'fixed', // Пример позиционирования, лучше управлять из App.tsx
+            display: isCollapsed ? 'inline-flex' : 'none',
+            position: 'fixed',
             top: theme.spacing(1),
             left: theme.spacing(1),
-            zIndex: theme.zIndex.drawer + 1, // Выше Drawer, если он временный
+            zIndex: theme.zIndex.drawer + 1,
           }}
         >
           <MenuIcon />
@@ -223,7 +289,6 @@ const SideBar: React.FC<SideBarProps> = ({
     );
   }
 
-  // expandMode === 'push'
   return (
     <Box
       component="nav"
@@ -242,17 +307,18 @@ const SideBar: React.FC<SideBarProps> = ({
         bgcolor: 'background.paper'
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between', p: 1, minHeight: 64 /* Примерная высота хедера */ }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between', p: 1, minHeight: 64 }}>
         {!isCollapsed && <Typography variant="h6" noWrap sx={{ ml: 1 }}>{drawerTitle}</Typography>}
         <Tooltip
           title={isCollapsed ? "Розгорнути меню" : "Згорнути меню"}
           placement="right"
-          key={isHidingTooltipForCollapseAnimation ? 'tooltip-hiding' : 'tooltip-normal'} // Додано для примусового перемонтажу
-          open={isHidingTooltipForCollapseAnimation ? false : undefined} // Керуємо видимістю під час анімації
+          enterDelay={500} // Увеличиваем задержку появления тултипа
+          key={isHidingTooltipForCollapseAnimation ? 'tooltip-hiding' : 'tooltip-normal'}
+          open={isHidingTooltipForCollapseAnimation ? false : undefined}
           componentsProps={{
             tooltip: {
               sx: {
-                fontSize: '0.875rem', // Наприклад, 14px. Стандартно близько 0.6875rem (11px)
+                fontSize: '0.875rem',
               },
             },
           }}
@@ -269,4 +335,4 @@ const SideBar: React.FC<SideBarProps> = ({
   );
 };
 
-export default SideBar;
+export default SideBar2;
