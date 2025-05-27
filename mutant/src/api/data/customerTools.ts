@@ -15,7 +15,7 @@ export const getPoints = async (customer_id: number): Promise<CustomerPoint[]> =
     try {
         const params = {
             from: 'pcnt.point',
-            fields: 'point_id AS value, name AS label', 
+            // fields: 'point_id AS value, name AS label', 
             order: 'name',
             where: { customer_id },
         };

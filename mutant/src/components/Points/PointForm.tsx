@@ -1,6 +1,7 @@
 // src/components/Points/PointForm.tsx
 import React from 'react';
-import { Formik, Form, Field, type FormikProps } from 'formik';
+// import { Formik, Form, Field, type FormikProps } from 'formik';
+import { Formik, Form, Field, } from 'formik';
 import * as Yup from 'yup';
 import {
   Box,
@@ -78,7 +79,7 @@ const PointForm: React.FC<PointFormProps> = ({
       }}
       enableReinitialize // Позволяет форме реинициализироваться при изменении 'point'
     >
-      {(formikProps: FormikProps<PointFormValues>) => (
+      {(/*formikProps: FormikProps<PointFormValues>*/) => (
         <Form>
           <Typography variant="h6" gutterBottom>
             {title}

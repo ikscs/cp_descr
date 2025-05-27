@@ -206,7 +206,7 @@ const JsonForm: React.FC<JsonFormProps> = ({
       }}
       enableReinitialize
     >
-      {({ errors, touched, isSubmitting, values, setFieldValue }) => (
+      {({ errors, touched, isSubmitting /*, values, setFieldValue */ }) => (
         <Form>
           {title && (
             <Typography variant="h6" gutterBottom>

@@ -264,7 +264,7 @@ const getCustomerOrigins = async (customerId: number): Promise<CustomerOrigin[]>
   try {
     const params = {
       from: VIEW_NAME,
-      fields: 'customer_id, origin, id, point_id, ref_id, origin_type_id, credentials, is_enabled, name',
+      fields: 'customer_id, origin, id, point_id, origin_type_id, credentials, is_enabled, name',
       where: { customer_id: customerId },
       order: 'name', // Optional: order by origin name
     };

@@ -1,6 +1,6 @@
 // src/api/pointApi.ts
 import { fetchData, postData, getBackend, escapeSingleQuotes } from './fetchData';
-import { selectData, insertData } from './genericApi';
+import { selectData, /*insertData*/ } from './genericApi';
 // import { type ISelectParams } from './genericApiTypes'; // Not directly used in modified/added code, but may be used by other functions
 import type { IFetchResponse, IPostResponse } from './fetchData';
 

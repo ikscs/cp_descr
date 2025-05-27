@@ -215,6 +215,7 @@ const DashboardView: React.FC = () => {
         const filename = `export_${EXPORT_TABLE_NAME}`;
         try {
             await dataToExcel(EXPORT_TABLE_NAME, filename);
+            // '*', {customer: customerData?.customer||null, });
             console.log('Export successful');
         } catch (error) {
             console.error('Export failed:', error);

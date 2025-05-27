@@ -20,7 +20,8 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import { pointApi } from '../../api/data/pointApi';
 import { useCustomer } from '../../context/CustomerContext'; // Import useCustomer
-import { originTypeApi, OriginTypeOption, type OriginTypeOption as ApiOriginTypeOption } from '../../api/data/originTypeApi'; // Import OriginTypeOption
+// import { originTypeApi, OriginTypeOption, type OriginTypeOption as ApiOriginTypeOption } from '../../api/data/originTypeApi'; // Import OriginTypeOption
+import { originTypeApi, OriginTypeOption, } from '../../api/data/originTypeApi'; // Import OriginTypeOption
 import JsonForm, { type JsonFormTemplate } from '../common/JsonForm';
 // import type { Point } from '../../api/data/pointApi'; // Not directly used, but good for context if pointApi returns full Point objects
 

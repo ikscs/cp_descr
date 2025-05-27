@@ -106,7 +106,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           if (reportContext && typeof finalQuery === 'string') {
             for (const key in reportContext) {
               if (Object.prototype.hasOwnProperty.call(reportContext, key)) {
-                const placeholder = `:${key}`;
+                // const placeholder = `:${key}`;
                 const value = reportContext[key];
                 let replacementValue: string; 
 

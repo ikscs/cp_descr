@@ -19,7 +19,8 @@ import LineChart from '../Charts/LineChart';
 import CircularChart from '../Charts/CircularChart';
 import type { ParsedReport, ReportExecutionResult, ChartData } from './ReportList';
 // Используем новые утилиты и компонент для сводного графика
-import { AggregationType, generatePivotData, prepareChartDataFromPivoted, aggregationTypeLabels } from './pivotUtils';
+// import { AggregationType, generatePivotData, prepareChartDataFromPivoted, aggregationTypeLabels } from './pivotUtils';
+import { AggregationType, generatePivotData, prepareChartDataFromPivoted, } from './pivotUtils';
 import PivotChartContent from './PivotChartContent';
 
 const backend = getBackend();

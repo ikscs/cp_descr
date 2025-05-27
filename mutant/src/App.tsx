@@ -15,6 +15,7 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import RoleList from './components/Roles/RoleList';
 import VideocamIcon from '@mui/icons-material/Videocam'; // Используем VideocamIcon для "Реєстратори"
+import GroupIcon from '@mui/icons-material/Group';
 import { tenantId } from './globals_VITE';
 
 import { /*TenantProvider,*/ useTenant } from './context/TenantContext';
@@ -31,9 +32,11 @@ import AppFooter from './components/AppFooter';
 import ViewerReportList from './pages/Reports/ViewerReportList';
 import PointList from './components/Points/PointList';
 import OriginView from './components/Origins/OriginView';
-import { CustomerData, CustomerProvider, type CustomerPoint } from './context/CustomerContext';
+import { CustomerData, CustomerProvider, } from './context/CustomerContext';
+// import { CustomerData, CustomerProvider, type CustomerPoint } from './context/CustomerContext';
+// import { loadCustomerData } from './api/data/customerDataLoader';
 import { getPoints } from './api/data/customerTools';
-import { loadCustomerData } from './api/data/customerDataLoader';
+import GroupList from './components/Groups/GroupList';
 
 // Protected Route Component
 const ProtectedRoute = ({
@@ -60,7 +63,7 @@ function App() {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [isLoadingCustomerData, setIsLoadingCustomerData] = useState(true);  
   const [isLoadingPoints, setIsLoadingPoints] = useState(false);
-
+  
   const menuItems0: MenuItem[] = [
     // {
     //   text: 'Главная',
@@ -73,24 +76,6 @@ function App() {
       icon: <DashboardIcon />,
       role: 'viewer',
     },
-    // {
-    //   text: 'Панель управління (пропорційна)', // Already Ukrainian
-    //   path: '/dashboard_aspect_ratio',
-    //   icon: <DashboardIcon />,
-    //   role: 'admin',
-    // },
-    // {
-    //   text: 'Пример круговой диаграммы',
-    //   path: '/testdashboard',
-    //   icon: <DashboardIcon />,
-    //   role: 'admin',
-    // },
-    // {
-    //   text: 'Пример пропорции',
-    //   path: '/testdashboard_aspect_ratio',
-    //   icon: <DashboardIcon />,
-    //   role: 'admin',
-    // },
     {
       text: 'Адміністрування',
       icon: <AdminPanelSettingsIcon />,
@@ -99,6 +84,7 @@ function App() {
         { text: 'Ролі', path: '/roles', icon: <BadgeIcon /> },
         { text: 'Пункти обліку', path: '/points', icon: <BadgeIcon />, role: 'admin' },
         { text: 'Реєстратори', path: '/origins', icon: <VideocamIcon />, role: 'admin' },
+        { text: 'Групи', path: '/groups', icon: <GroupIcon />, role: 'admin' },
       ],
       role: 'admin',
     },
@@ -196,12 +182,16 @@ function App() {
   // Effect to fetch points when customerData.customer is set or changes
   useEffect(() => {
     const loadPoints = async () => {
+      console.log('[App] isLoadingPoints:', isLoadingPoints);
       if (customerData?.customer) {
         setIsLoadingPoints(true);
         try {
           console.log(`[App] Fetching points for customer ID: ${customerData.customer}`);
           const customerAsNumber = Number(customerData.customer);
-          const points = await getPoints(customerAsNumber);
+          const points = (await getPoints(customerAsNumber)).map((point => ({
+            value: (point as any).point_id,
+            label: (point as any).name,
+          })));
           setCustomerData(prevData => prevData ? { ...prevData, points } : null);
           console.log(`[App] Fetched points for customer ${customerData.customer}:`, points);
         } catch (error) {
@@ -218,21 +208,21 @@ function App() {
     };
     loadPoints();
 
-    const load = async () => {
-      if (customerData?.customer) {
-        const loadedCustomerData = await loadCustomerData(Number(customerData.customer));
-        console.log(`[App] loadedCustomerData for customer ${customerData.customer}:`, loadedCustomerData);
-        setCustomerData(prevData => prevData ? { 
-          ...prevData, 
-          points: loadedCustomerData?.points || [],
-          point_id: loadedCustomerData?.point_id || -1,
-          country: loadedCustomerData?.country || '',
-          city: loadedCustomerData?.city || '',
-        } : null)
-      } else {
-        setCustomerData({});
-      }
-    }
+    // const load = async () => {
+    //   if (customerData?.customer) {
+    //     const loadedCustomerData = await loadCustomerData(Number(customerData.customer));
+    //     console.log(`[App] loadedCustomerData for customer ${customerData.customer}:`, loadedCustomerData);
+    //     setCustomerData(prevData => prevData ? { 
+    //       ...prevData, 
+    //       points: loadedCustomerData?.points || [],
+    //       point_id: loadedCustomerData?.point_id || -1,
+    //       country: loadedCustomerData?.country || '',
+    //       city: loadedCustomerData?.city || '',
+    //     } : null)
+    //   } else {
+    //     setCustomerData({});
+    //   }
+    // }
     // load();
   }, [customerData?.customer]);
 
@@ -302,6 +292,7 @@ function App() {
             <Route path="/roles" element={<RoleList />} />
             <Route path="/points" element={<ProtectedRoute user={user} requiredRole="admin"><PointList /></ProtectedRoute>} />
             <Route path="/origins" element={<ProtectedRoute user={user} requiredRole="admin"><OriginView /></ProtectedRoute>} />
+            <Route path="/groups" element={<ProtectedRoute user={user} requiredRole="admin"><GroupList /></ProtectedRoute>} />
             <Route path="/reports" element={<ReportList />} />
             <Route path="/viewerReports" element={<ViewerReportList />} /> 
             <Route path="/settings/general" element={<GeneralSettings />} />

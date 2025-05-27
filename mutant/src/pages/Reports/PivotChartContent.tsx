@@ -1,9 +1,9 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, } from '@mui/material';
 import LineChart from '../Charts/LineChart';
 import type { ChartData } from './ReportList';
 import type { AggregationType } from './pivotUtils'; // Import types
-import { aggregationTypeLabels } from './pivotUtils'; // Import labels
+// import { aggregationTypeLabels } from './pivotUtils'; // Import labels
 
 interface PivotChartContentProps {
   chartData: ChartData;
@@ -20,16 +20,16 @@ interface PivotChartContentProps {
 const PivotChartContent: React.FC<PivotChartContentProps> = ({
   chartData,
   reportName,
-  xAxisField,
-  yAxisField,
-  valueField,
-  aggregation,
+  // xAxisField,
+  // yAxisField,
+  // valueField,
+  // aggregation,
   onClose,
   onReopenParamDialog,
 }) => {
   // Construct a descriptive title/subtitle
   const chartTitle = `Графік для зведеної таблиці: ${reportName}`;
-  const chartSubtitle = `${aggregationTypeLabels[aggregation]} для «${valueField}» за «${xAxisField}» та «${yAxisField}»`;
+  // const chartSubtitle = `${aggregationTypeLabels[aggregation]} для «${valueField}» за «${xAxisField}» та «${yAxisField}»`;
 
   return (
     <Box sx={{ height: '100%', minHeight: '400px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
