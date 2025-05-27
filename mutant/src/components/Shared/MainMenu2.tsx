@@ -77,7 +77,9 @@ const MainMenu: React.FC<MainMenuProps> = ({
                 <MenuIcon /> {/* Іконка змінена тут */}
               </IconButton>
             </Tooltip>
-            <Typography variant="h6">
+            <Typography variant="h5"
+              sx={{ fontWeight: 'bold', marginLeft: '1rem', marginTop: '0.5rem' }}
+            >
               {drawerTitle}
             </Typography>
           </Box>
