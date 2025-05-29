@@ -1,0 +1,22 @@
+2025-03
+
+- Added group management functionality with CRUD operations
+- Added form validation using RJSF (React JSON Schema Form)
+- Added Material-UI integration for consistent styling
+- Added point selection dropdown in group forms
+
+- Fixed point_id handling to use -1 as default instead of null
+- Fixed form submission to properly handle point_id values
+- Improved error handling in group operations
+- Enhanced form validation feedback
+
+- Improved modal responsiveness for different screen sizes
+- Added loading states and disabled buttons during submissions
+- Added confirmation dialog for group deletion
+- Fixed group list refresh after CRUD operations
+- Added error alerts for failed operations
+- Enhanced form field validation with proper error messages
+- Added cancel button to form modal
+- Fixed point options loading in group forms
+- Improved form field layout and spacing
+- Added proper type definitions for all components

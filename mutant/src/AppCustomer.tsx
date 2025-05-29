@@ -1,0 +1,113 @@
+import React, { type JSX } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import AuthenticatedLayout from './AuthenticatedLayout';
+import { type MenuItem } from './components/Shared/SideBar';
+import { CustomerProvider, type CustomerData } from './context/CustomerContext'; // Предполагаемый путь
+import { Box } from '@mui/material';
+
+import DashboardView from './pages/dashboard/DashboardView';
+import Users from './components/Users/UserList';
+import RoleList from './components/Roles/RoleList';
+import PointList from './components/Points/PointList';
+import OriginView from './components/Origins/OriginView';
+import GroupList from './components/Groups/GroupList';
+import ReportList from './pages/Reports/ReportList';
+import ViewerReportList from './pages/Reports/ViewerReportList';
+import GeneralSettings from './pages/Settings/GeneralSettings';
+import ReportListSettings from './pages/Settings/ReportListSettings';
+import DepartmentList from './pages/Enterprise/components/departments/DepartmentList';
+import PositionList from './pages/Enterprise/components/positions/PositionList';
+import EmployeeList from './pages/Enterprise/components/employees/EmployeeList';
+import { CustomerPage } from './pages/CustomerPage';
+import { PasswordResetForm } from '@userfront/react'; // На случай если пользователь захочет сбросить пароль будучи залогиненым
+import { FormsList } from './components/forms/FormsList';
+import { FormHistory } from './components/forms/FormHistory';
+import { DatabaseFormWizard } from './components/forms/DatabaseFormWizard';
+import { FormEditor } from './components/forms/FormEditor';
+
+// Protected Route Component
+const ProtectedRoute = ({
+  user,
+  requiredRole,
+  children,
+}: {
+  user: any;
+  requiredRole: string;
+  children: JSX.Element;
+}) => {
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (requiredRole && !user.hasRole(requiredRole)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+interface AppCustomerProps {
+  user: any; // Замените 'any' на более конкретный тип пользователя
+  menuItems: MenuItem[];
+  appTitle: string;
+  onLogout: () => void;
+  customerData: CustomerData | null;
+  isLoadingCustomerData: boolean;
+}
+
+const AppCustomer: React.FC<AppCustomerProps> = ({
+  user,
+  menuItems,
+  appTitle,
+  onLogout,
+  customerData,
+  isLoadingCustomerData,
+}) => {
+  return (
+    <CustomerProvider customerData={customerData} isLoading={isLoadingCustomerData}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          position: 'relative'
+        }}
+      >
+        <AuthenticatedLayout
+          user={user}
+          menuItems={menuItems}
+          appTitle={appTitle}
+          onLogout={onLogout}
+        >
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardView />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/roles" element={<RoleList />} />
+            <Route path="/points" element={<ProtectedRoute user={user} requiredRole="admin"><PointList /></ProtectedRoute>} />
+            <Route path="/origins" element={<ProtectedRoute user={user} requiredRole="admin"><OriginView /></ProtectedRoute>} />
+            <Route path="/groups" element={<ProtectedRoute user={user} requiredRole="admin"><GroupList /></ProtectedRoute>} />
+            <Route path="/reports" element={<ReportList />} />
+            <Route path="/viewerReports" element={<ViewerReportList />} />
+            <Route path="/settings/general" element={<GeneralSettings />} />
+            <Route path="/settings/report-list" element={<ProtectedRoute user={user} requiredRole="editor"><ReportListSettings /></ProtectedRoute>} />
+            <Route path="/enterprise/departments" element={<ProtectedRoute user={user} requiredRole="owner"><DepartmentList /></ProtectedRoute>} />
+            <Route path="/enterprise/positions" element={<ProtectedRoute user={user} requiredRole="owner"><PositionList /></ProtectedRoute>} />
+            <Route path="/enterprise/employees" element={<ProtectedRoute user={user} requiredRole="owner"><EmployeeList /></ProtectedRoute>} />
+            <Route path="/customers" element={<CustomerPage />} />
+            <Route path="/reset" element={<PasswordResetForm />} />
+            <Route path="/forms" element={<FormsList />} />
+            <Route path="/forms/new" element={<DatabaseFormWizard />} />
+            <Route path="/forms/:id/edit" element={<FormEditor />} />
+            <Route path="/forms/:id/history" element={<FormHistory />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </AuthenticatedLayout>
+      </Box>
+    </CustomerProvider>
+  );
+};
+
+export default AppCustomer;

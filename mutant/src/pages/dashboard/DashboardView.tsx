@@ -48,11 +48,11 @@ const getInitialDates = (granularity: DashboardUserGranularity): { startDate: Da
             mode = 'PERIOD';
             break;
         case 'MONTH':
-            d1 = subDaysFns(d2, 29); 
+            d1 = subDaysFns(d2, 29);
             mode = 'PERIOD';
             break;
         case 'YEAR':
-            d1 = subDaysFns(d2, 364); 
+            d1 = subDaysFns(d2, 364);
             mode = 'PERIOD';
             break;
         default: // Fallback на месяц
@@ -151,7 +151,7 @@ const DashboardView: React.FC = () => {
                 handleResult(results[1], setParsedReport23, REPORT_ID_23);
                 handleResult(results[2], setParsedReport24, REPORT_ID_24);
                 handleResult(results[3], setParsedReportPivot, REPORT_ID_Pivot);
-                
+
                 if (firstError) {
                     setFetchError(firstError);
                 }
@@ -186,7 +186,7 @@ const DashboardView: React.FC = () => {
         // Assuming dateAndModeParams contains {name: 'd1', ...}, {name: 'd2', ...}, {name: 'mode', ...}
         setReportParams(prevParams => {
             const pointParam = prevParams.find(p => p.name === 'point') || { name: 'point', value: -1 };
-            
+
             // Create a map from the new date/mode params for easy lookup
             const newParamsMap = new Map(dateAndModeParams.map(p => [p.name, p]));
 
@@ -195,7 +195,7 @@ const DashboardView: React.FC = () => {
                 .filter(p => p.name !== 'point' && !newParamsMap.has(p.name)) // Keep other old params
                 .concat(dateAndModeParams) // Add new date/mode params
                 .concat([pointParam]); // Add the point param
-            
+
             // Deduplicate (just in case, ensuring pointParam is the one used for 'point')
             const finalMap = new Map(resultParams.map(p => [p.name, p]));
             finalMap.set('point', pointParam); // Ensure our point is authoritative
@@ -215,7 +215,10 @@ const DashboardView: React.FC = () => {
         const filename = `export_${EXPORT_TABLE_NAME}`;
         try {
             await dataToExcel(EXPORT_TABLE_NAME, filename);
-            // '*', {customer: customerData?.customer||null, });
+            // todo: dataToExcel - add customer filter
+            // await dataToExcel(EXPORT_TABLE_NAME, filename, '*', {
+            //     customer: customerData?.customer||null, 
+            // });
             console.log('Export successful');
         } catch (error) {
             console.error('Export failed:', error);
@@ -237,183 +240,183 @@ const DashboardView: React.FC = () => {
             flexDirection: 'column',
             justifyContent: 'center',
         }}>
-        <Box sx={{
-            width: '100%',
-            maxWidth: "1300px",
-            margin: "0 auto",
-            padding: 1,
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            display: 'flex',
-            flexDirection: 'column',
-         }}>
+            <Box sx={{
+                width: '100%',
+                maxWidth: "1300px",
+                margin: "0 auto",
+                padding: 1,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                display: 'flex',
+                flexDirection: 'column',
+            }}>
 
-            {isLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
-                    <CircularProgress />
-                    <Typography sx={{ ml: 2 }}>Завантаження даних звітів...</Typography>
-                </Box>
-            )}
-            {fetchError && !isLoading && (
-                <Alert severity="error" sx={{ my: 2 }}>{fetchError}</Alert>
-            )}
-
-            {!isLoading && !fetchError && (
-                <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{
-                        my: 2,
-                        alignItems: 'center',
-                        width: '100%',
-                        flexWrap: 'wrap',
-                        gap: 1,
-                    }}
-                >
-                    <Box sx={{ flexShrink: 0, minWidth: { xs: '100%', sm: 200, md: 240 } }}>
-                        <FormControl fullWidth size="small" variant="outlined">
-                            {/* No InputLabel as per requirement */}
-                            <Select
-                                value={currentPointSelected}
-                                onChange={handlePointChange}
-                                inputProps={{ 'aria-label': 'Оберіть пункт' }}
-                                sx={{ backgroundColor: 'white' }}
-                                disabled={isCustomerLoading}
-                            >
-                                {isCustomerLoading ? (
-                                    <MenuItem value={currentPointSelected} disabled> 
-                                        <em>Завантаження пунктів...</em>
-                                    </MenuItem>
-                                ) : (customerData?.points && customerData.points.length > 0) ? (
-                                    customerData.points.map((point) => (
-                                        <MenuItem key={point.value} value={point.value}>
-                                            {point.label}
-                                        </MenuItem>
-                                    ))
-                                ) : (
-                                    <MenuItem value={-1}><em>{"нема даних"}</em></MenuItem>
-                                )}
-                            </Select>
-                        </FormControl>
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', flexGrow: 1 }}>
-                        <Button
-                            size="small"
-                            variant={activeGranularity === 'DAY' ? 'contained' : 'outlined'}
-                            onClick={() => handleGranularityChange('DAY')}
-                            title='Відображати дані за вчора'
-                        >
-                            День
-                        </Button>
-                        <Button
-                            size="small"
-                            variant={activeGranularity === 'WEEK' ? 'contained' : 'outlined'}
-                            onClick={() => handleGranularityChange('WEEK')}
-                        >
-                            Тиждень
-                        </Button>
-                        <Button
-                            size="small"
-                            variant={activeGranularity === 'MONTH' ? 'contained' : 'outlined'}
-                            onClick={() => handleGranularityChange('MONTH')}
-                        >
-                            Місяць
-                        </Button>
-                        <Button
-                            size="small"
-                            variant={activeGranularity === 'YEAR' ? 'contained' : 'outlined'}
-                            onClick={() => handleGranularityChange('YEAR')}
-                        >
-                            Рік
-                        </Button>
-                    </Box>
-                    <Box sx={{ flexShrink: 0 }}>
-                        <ButtonA
-                            variant="contained"
-                            color="secondary"
-                            onClick={handleExport}
-                            isActive={isExporting}
-                            startIcon={<FileDownloadIcon />}
-                            hideTextOn="md"
-                            size="small"
-                        >
-                            Експорт в Excel
-                        </ButtonA>
-                    </Box>
-                </Stack>
-            )}
-
-            {!isLoading && !fetchError && (
-                <>
-                {activeGranularity === 'DAY' && parsedReport22 && (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 1, mb: 0.5 }}>
-                         <ReportDayControl
-                            onParamsUpdate={handleParamsUpdateFromControl}
-                        />
+                {isLoading && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+                        <CircularProgress />
+                        <Typography sx={{ ml: 2 }}>Завантаження даних звітів...</Typography>
                     </Box>
                 )}
-                {(activeGranularity !== 'DAY' ) && parsedReport22 && (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 1, mb: 0.5 }}>
-                        <ReportPeriodControl
-                            granularity={activeGranularity as ReportGranularity}
-                            onParamsUpdate={handleParamsUpdateFromControl}
-                            activeD1={reportParams.find(p => p.name === 'd1')?.value as string}
-                            activeD2={reportParams.find(p => p.name === 'd2')?.value as string}
-                        />
-                    </Box>)}
-                <Grid container rowSpacing={1} sx={{ my: 2, width: '100%' }}>
-                    {parsedReport22 && (
-                        <Grid item xs={12} md={12}>
-                            <Box sx={{ px: 1.5, pb: 1 }}>
-                            <MiniReport
-                                report={parsedReport22}
-                                parameters={reportParams}
-                                displayMode="chart"
-                                height="330px"
-                            />
-                            </Box>
-                        </Grid>
-                    )}
-                    {parsedReport24 && (
-                        <Grid item xs={12} md={6}>
-                            <Box sx={{ px: 1.5, pb: 1 }}>
-                            <MiniReport
-                                report={parsedReport24}
-                                parameters={reportParams}
-                                displayMode="chart"
-                                height="300px"
-                            />
-                            </Box>
-                        </Grid>
-                    )}
-                    {parsedReport23 && (
-                        <Grid item xs={12} md={6}>
-                            <Box sx={{ px: 1.5, pb: 1 }}>
-                            <MiniReport
-                                report={parsedReport23}
-                                parameters={reportParams}
-                                displayMode="chart"
-                                height="300px"
-                            />
-                            </Box>
-                        </Grid>
-                    )}
-                    {parsedReportPivot && (
-                        <Grid item xs={12} md={12}>
-                            <Box sx={{ px: 1.5, pb: 1 }}>
-                            <MiniReport
-                                report={parsedReportPivot}
-                                parameters={reportParams}
-                                displayMode="pivot"
-                                height="450px"
-                            />
-                            </Box>
-                        </Grid>
-                    )}
-                </Grid>
-                </>
-            )}
+                {fetchError && !isLoading && (
+                    <Alert severity="error" sx={{ my: 2 }}>{fetchError}</Alert>
+                )}
 
-        </Box>
+                {!isLoading && !fetchError && (
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                            my: 2,
+                            alignItems: 'center',
+                            width: '100%',
+                            flexWrap: 'wrap',
+                            gap: 1,
+                        }}
+                    >
+                        <Box sx={{ flexShrink: 0, minWidth: { xs: '100%', sm: 200, md: 240 } }}>
+                            <FormControl fullWidth size="small" variant="outlined">
+                                {/* No InputLabel as per requirement */}
+                                <Select
+                                    value={currentPointSelected}
+                                    onChange={handlePointChange}
+                                    inputProps={{ 'aria-label': 'Оберіть пункт' }}
+                                    sx={{ backgroundColor: 'white' }}
+                                    disabled={isCustomerLoading}
+                                >
+                                    {isCustomerLoading ? (
+                                        <MenuItem value={currentPointSelected} disabled>
+                                            <em>Завантаження пунктів...</em>
+                                        </MenuItem>
+                                    ) : (customerData?.points && customerData.points.length > 0) ? (
+                                        customerData.points.map((point) => (
+                                            <MenuItem key={point.value} value={point.value}>
+                                                {point.label}
+                                            </MenuItem>
+                                        ))
+                                    ) : (
+                                        <MenuItem value={-1}><em>{"нема даних"}</em></MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', flexGrow: 1 }}>
+                            <Button
+                                size="small"
+                                variant={activeGranularity === 'DAY' ? 'contained' : 'outlined'}
+                                onClick={() => handleGranularityChange('DAY')}
+                                title='Відображати дані за вчора'
+                            >
+                                День
+                            </Button>
+                            <Button
+                                size="small"
+                                variant={activeGranularity === 'WEEK' ? 'contained' : 'outlined'}
+                                onClick={() => handleGranularityChange('WEEK')}
+                            >
+                                Тиждень
+                            </Button>
+                            <Button
+                                size="small"
+                                variant={activeGranularity === 'MONTH' ? 'contained' : 'outlined'}
+                                onClick={() => handleGranularityChange('MONTH')}
+                            >
+                                Місяць
+                            </Button>
+                            <Button
+                                size="small"
+                                variant={activeGranularity === 'YEAR' ? 'contained' : 'outlined'}
+                                onClick={() => handleGranularityChange('YEAR')}
+                            >
+                                Рік
+                            </Button>
+                        </Box>
+                        <Box sx={{ flexShrink: 0 }}>
+                            <ButtonA
+                                variant="contained"
+                                color="secondary"
+                                onClick={handleExport}
+                                isActive={isExporting}
+                                startIcon={<FileDownloadIcon />}
+                                hideTextOn="md"
+                                size="small"
+                            >
+                                Експорт в Excel
+                            </ButtonA>
+                        </Box>
+                    </Stack>
+                )}
+
+                {!isLoading && !fetchError && (
+                    <>
+                        {activeGranularity === 'DAY' && parsedReport22 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 1, mb: 0.5 }}>
+                                <ReportDayControl
+                                    onParamsUpdate={handleParamsUpdateFromControl}
+                                />
+                            </Box>
+                        )}
+                        {(activeGranularity !== 'DAY') && parsedReport22 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 1, mb: 0.5 }}>
+                                <ReportPeriodControl
+                                    granularity={activeGranularity as ReportGranularity}
+                                    onParamsUpdate={handleParamsUpdateFromControl}
+                                    activeD1={reportParams.find(p => p.name === 'd1')?.value as string}
+                                    activeD2={reportParams.find(p => p.name === 'd2')?.value as string}
+                                />
+                            </Box>)}
+                        <Grid container rowSpacing={1} sx={{ my: 2, width: '100%' }}>
+                            {parsedReport22 && (
+                                <Grid item xs={12} md={12}>
+                                    <Box sx={{ px: 1.5, pb: 1 }}>
+                                        <MiniReport
+                                            report={parsedReport22}
+                                            parameters={reportParams}
+                                            displayMode="chart"
+                                            height="330px"
+                                        />
+                                    </Box>
+                                </Grid>
+                            )}
+                            {parsedReport24 && (
+                                <Grid item xs={12} md={6}>
+                                    <Box sx={{ px: 1.5, pb: 1 }}>
+                                        <MiniReport
+                                            report={parsedReport24}
+                                            parameters={reportParams}
+                                            displayMode="chart"
+                                            height="300px"
+                                        />
+                                    </Box>
+                                </Grid>
+                            )}
+                            {parsedReport23 && (
+                                <Grid item xs={12} md={6}>
+                                    <Box sx={{ px: 1.5, pb: 1 }}>
+                                        <MiniReport
+                                            report={parsedReport23}
+                                            parameters={reportParams}
+                                            displayMode="chart"
+                                            height="300px"
+                                        />
+                                    </Box>
+                                </Grid>
+                            )}
+                            {parsedReportPivot && (
+                                <Grid item xs={12} md={12}>
+                                    <Box sx={{ px: 1.5, pb: 1 }}>
+                                        <MiniReport
+                                            report={parsedReportPivot}
+                                            parameters={reportParams}
+                                            displayMode="pivot"
+                                            height="450px"
+                                        />
+                                    </Box>
+                                </Grid>
+                            )}
+                        </Grid>
+                    </>
+                )}
+
+            </Box>
         </Box>
     );
 };

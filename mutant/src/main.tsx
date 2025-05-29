@@ -1,31 +1,39 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { UserfrontProvider } from "@userfront/react";
-import App from './App';
-import { CssBaseline } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
-import { TenantProvider } from './context/TenantContext'; 
-import { tenantId, basename, } from './globals_VITE';
-// import { CustomerProvider } from './context/CustomerContext';
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { UserfrontProvider } from '@userfront/react';
+import App from './App';
+import './index.css';
+import { tenantId } from './globals_VITE';
 
-console.log('tenantId', tenantId);
 if (!tenantId) {
-  throw new Error("TENANT_ID is not defined in .env");
+  throw new Error('TENANT_ID is not defined in .env');
 }
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+    background: {
+      default: '#f5f5f5',
+    },
+  },
+});
 
-root.render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <UserfrontProvider tenantId={tenantId}>
-      <TenantProvider>
-        <BrowserRouter basename={basename}>
-          <CssBaseline />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <UserfrontProvider tenantId={tenantId}>
+        <BrowserRouter>
           <App />
         </BrowserRouter>
-      </TenantProvider>
-    </UserfrontProvider>
+      </UserfrontProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
