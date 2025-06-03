@@ -3,7 +3,8 @@ import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 
 // Базовый URL для вашего API
 // const API_BASE_URL = 'https://jsonplaceholder.typicode.com'; // Пример: используем JSONPlaceholder
-const API_BASE_URL = 'https://cnt.theweb.place/back';
+// todo: заменить на ваш реальный URL
+const API_BASE_URL = 'https://vca.theweb.place/back';
 
 // Создаем экземпляр Axios с базовыми настройками
 const axiosInstance = axios.create({

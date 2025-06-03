@@ -6,7 +6,7 @@ import { CustomerDetailsForm } from '../../components/Customer/CustomerDetailsFo
 const GeneralSettings = () => {
   return (
     <Box p={2}>
-      <Typography variant="h4">Общие настройки</Typography>
+      <Typography variant="h4">Загальні налаштування</Typography>
       <CustomerDetailsForm />
     </Box>
   );

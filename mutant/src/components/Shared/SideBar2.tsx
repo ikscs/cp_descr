@@ -18,10 +18,12 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-
-// Ключі для localStorage
-const LOCAL_STORAGE_KEY_COLLAPSED = 'sidebar2IsCollapsed';
-const LOCAL_STORAGE_KEY_OPEN_SUBMENUS = 'sidebar2OpenSubMenus';
+import {
+  getSidebarCollapsedState,
+  saveSidebarCollapsedState,
+  getSidebarOpenSubmenus,
+  saveSidebarOpenSubmenus,
+} from '../../utils/localStorage';
 
 export interface MenuItem {
   text: string;
@@ -42,6 +44,7 @@ interface SideBar2Props {
   expandedWidth?: number;
 }
 
+// Видаляємо константи, оскільки вони тепер в утилітах
 const DefaultCollapsedWidth = 60;
 const DefaultExpandedWidth = 280;
 
@@ -56,75 +59,25 @@ const SideBar2: React.FC<SideBar2Props> = ({
   const theme = useTheme();
   const location = useLocation();
 
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedIsCollapsed = localStorage.getItem(LOCAL_STORAGE_KEY_COLLAPSED);
-      if (savedIsCollapsed !== null) {
-        try {
-          return JSON.parse(savedIsCollapsed) as boolean;
-        } catch (e) {
-          console.error(`Error parsing ${LOCAL_STORAGE_KEY_COLLAPSED} from localStorage:`, e);
-        }
-      }
-    }
-    return initialCollapsed;
-  });
+  const [isCollapsed, setIsCollapsed] = useState(() =>
+    getSidebarCollapsedState(initialCollapsed)
+  );
 
-  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>(() => {
-    let initialOpenSubMenus = {};
-    if (typeof window !== 'undefined') {
-      // Завжди завантажуємо збережений стан відкритих підменю,
-      // незалежно від того, чи панель згорнута при ініціалізації.
-      // Логіка відображення подбає про те, щоб не показувати їх, якщо панель згорнута.
-      const savedOpenSubMenus = localStorage.getItem(LOCAL_STORAGE_KEY_OPEN_SUBMENUS);
-      if (savedOpenSubMenus !== null) {
-        try {
-          const parsed = JSON.parse(savedOpenSubMenus);
-          if (typeof parsed === 'object' && parsed !== null) {
-            initialOpenSubMenus = parsed as Record<string, boolean>;
-          }
-        } catch (e) {
-          console.error(`Error parsing ${LOCAL_STORAGE_KEY_OPEN_SUBMENUS} from localStorage:`, e);
-        }
-      }
-    }
-    return initialOpenSubMenus;
-  });
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>(() =>
+    getSidebarOpenSubmenus({})
+  );
 
   const [isHidingTooltipForCollapseAnimation, setIsHidingTooltipForCollapseAnimation] = useState(false);
 
   // Зберігаємо isCollapsed в localStorage при його зміні
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(LOCAL_STORAGE_KEY_COLLAPSED, JSON.stringify(isCollapsed)); // Зберігаємо стан isCollapsed
-      } catch (e) {
-        console.error(`Error saving ${LOCAL_STORAGE_KEY_COLLAPSED} to localStorage:`, e);
-      }
-    }
+    saveSidebarCollapsedState(isCollapsed);
   }, [isCollapsed]);
 
-  // Цей useEffect видалено, оскільки ми більше не хочемо скидати openSubMenus при згортанні.
-  // Стан openSubMenus тепер зберігається незалежно.
-  /*
+  // Зберігаємо openSubMenus в localStorage при їх зміні
   useEffect(() => {
-    if (isCollapsed) {
-      setOpenSubMenus({});
-      // localStorage.setItem(LOCAL_STORAGE_KEY_OPEN_SUBMENUS, JSON.stringify({})); // Це також видалено
-    }
-  }, [isCollapsed]);
-  */
-
-  // Зберігаємо openSubMenus в localStorage при їх зміні (завжди)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(LOCAL_STORAGE_KEY_OPEN_SUBMENUS, JSON.stringify(openSubMenus));
-      } catch (e) {
-        console.error(`Error saving ${LOCAL_STORAGE_KEY_OPEN_SUBMENUS} to localStorage:`, e);
-      }
-    }
-  }, [openSubMenus]); // Залежність тільки від openSubMenus
+    saveSidebarOpenSubmenus(openSubMenus);
+  }, [openSubMenus]);
 
   const mountedRef = useRef(true);
   useEffect(() => {

@@ -16,12 +16,14 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DescriptionIcon from '@mui/icons-material/Description';
+import PersonIcon from '@mui/icons-material/Person';
 
 import { CustomerData } from './context/CustomerContext';
 import AppCustomer from './AppCustomer';
 import AppNewbie from './AppNewbie';
-import { getPoints } from './api/data/customerTools';
+import { getCustomer, getPoints } from './api/data/customerTools';
 import { Box } from '@mui/material';
+import { setApiToken } from './api/data/fetchData';
 
 function App(): JSX.Element {
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ function App(): JSX.Element {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [isLoadingCustomerData, setIsLoadingCustomerData] = useState<boolean>(true);
   const [isLoadingPoints, setIsLoadingPoints] = useState(false);
+  // const [customerName, setCustomerName] = useState<string>('');
 
   const appTitle = 'People Counting / multiuser';
 
@@ -53,8 +56,10 @@ function App(): JSX.Element {
         editor: user.hasRole('editor'),
         owner: user.hasRole('owner')
       } : 'hasRole function not available');
+      setApiToken(Userfront.tokens.accessToken);
     } else {
       console.log('No tokens');
+      setApiToken(null);
     }
 
     if (!isUserfrontLoading) {
@@ -94,6 +99,8 @@ function App(): JSX.Element {
           { text: 'Пункти обліку', path: '/points', icon: <LocationOnIcon /> },
           { text: 'Джерела', path: '/origins', icon: <SourceIcon /> },
           { text: 'Групи', path: '/groups', icon: <GroupWorkIcon /> },
+          { text: 'Персони', path: '/persons', icon: <PersonIcon /> },
+          { text: 'Звіти', path: '/settings/report-list', icon: <AssessmentIcon /> },
         ],
       },
     ];
@@ -116,11 +123,10 @@ function App(): JSX.Element {
         icon: <SettingsIcon />,
         items: [
           { text: 'Загальні', path: '/settings/general', icon: <SettingsIcon /> },
-          { text: 'Користувачі', path: '/users', icon: <PeopleIcon /> },
           { text: 'Пункти обліку', path: '/points', icon: <LocationOnIcon /> },
-          { text: 'Джерела', path: '/origins', icon: <SourceIcon /> },
-          { text: 'Групи', path: '/groups', icon: <GroupWorkIcon /> },
-          { text: 'Звіти', path: '/settings/report-list', icon: <AssessmentIcon /> },
+          { text: 'Групи Персон', path: '/groups', icon: <GroupWorkIcon /> },
+          { text: 'Персони', path: '/persons', icon: <PersonIcon /> },
+          { text: 'Користувачі', path: '/users', icon: <PeopleIcon /> },
         ],
       },
     ];
@@ -164,6 +170,15 @@ function App(): JSX.Element {
       }
     };
     loadPoints();
+
+    const loadCustomerName = async () => {
+      const dbCustomer = await getCustomer(customerData?.customer || 0);
+      if (dbCustomer && dbCustomer.length > 0) {
+        document.title = ` ${appTitle} - ${dbCustomer[0].legal_name}`;
+      }
+    }
+    loadCustomerName();
+
   }, [customerData?.customer]);
 
   const handleLogout = () => {

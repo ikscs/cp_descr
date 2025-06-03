@@ -8,17 +8,22 @@ import {
   Alert,
   CircularProgress,
   Typography,
+  Stack,
+  Tooltip,
 } from '@mui/material';
 import { DataGrid, type GridColDef, type GridRenderCellParams, type GridRowIdGetter } from '@mui/x-data-grid'; // Import GridRowIdGetter
 import { Point, pointApi } from '../../api/data/pointApi';
 import { useCustomer } from '../../context/CustomerContext'; // Import useCustomer
 import { getCustomer } from '../../api/data/customerTools';
+import PointAdvancedForm from './PointAdvancedForm';
 
 const PointList: React.FC = () => {
   const { customerData, isLoading: isCustomerLoading } = useCustomer(); // Access customer context
   const [points, setPoints] = useState<Point[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<PointFormValues | null>(null);
+  const [selectedAdvancedPoint, setSelectedAdvancedPoint] = useState<Point | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   // todo: перенести в customerContext
@@ -126,7 +131,7 @@ const PointList: React.FC = () => {
       if (selectedPoint && selectedPoint.point_id) {
         await pointApi.updatePoint(selectedPoint.point_id, values);
       } else {
-        await pointApi.createPoint({...values, customer_id: customerAsNumber});
+        await pointApi.createPoint({ ...values, customer_id: customerAsNumber });
       }
       await getPoints(); // Обновить список точек
       handleCloseModal();
@@ -156,6 +161,16 @@ const PointList: React.FC = () => {
     }
   };
 
+  const handleOpenAdvancedModal = (point: Point) => {
+    setSelectedAdvancedPoint(point);
+    setIsAdvancedModalOpen(true);
+  };
+
+  const handleCloseAdvancedModal = () => {
+    setIsAdvancedModalOpen(false);
+    setSelectedAdvancedPoint(null);
+  };
+
   const columns: GridColDef[] = [
     { field: 'point_id', headerName: 'ID', width: 100 }, // Изменено с 'id' на 'point_id' для отображения
     { field: 'name', headerName: 'Назва', width: 200, flex: 1 },
@@ -166,7 +181,7 @@ const PointList: React.FC = () => {
       width: 300,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Point>) => (
-        <>
+        <Stack direction="row" spacing={1}>
           <Button
             onClick={() => handleOpenModal(params.row)}
             size="small"
@@ -174,6 +189,15 @@ const PointList: React.FC = () => {
           >
             Редагувати
           </Button>
+          <Tooltip title="Камери та реєстратори">
+          <Button
+            onClick={() => handleOpenAdvancedModal(params.row)}
+            size="small"
+            color="info"
+          >
+            Джерела
+          </Button>
+          </Tooltip>
           <Button
             onClick={() => handleDeletePoint(params.row.point_id)}
             size="small"
@@ -181,7 +205,7 @@ const PointList: React.FC = () => {
           >
             Видалити
           </Button>
-        </>
+        </Stack>
       ),
     },
   ];
@@ -213,11 +237,11 @@ const PointList: React.FC = () => {
       )}
 
       {!isCustomerLoading && !customerData?.customer && !error && ( // Message if no customer is selected
-        <Typography sx={{my: 2}}>Будь ласка, оберіть клієнта для відображення точок.</Typography>
+        <Typography sx={{ my: 2 }}>Будь ласка, оберіть клієнта для відображення точок.</Typography>
       )}
 
       {!isLoading && !isCustomerLoading && customerData?.customer && points.length === 0 && !error && (
-         <Typography sx={{my: 2}}>Немає даних для відображення.</Typography>
+        <Typography sx={{ my: 2 }}>Немає даних для відображення.</Typography>
       )}
 
       {!isLoading && points.length > 0 && (
@@ -267,6 +291,33 @@ const PointList: React.FC = () => {
             onSave={handleSavePoint}
             onCancel={handleCloseModal}
           />
+        </Box>
+      </Modal>
+
+      {/* Модальное окно для расширенного редактирования */}
+      <Modal open={isAdvancedModalOpen} onClose={handleCloseAdvancedModal}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: '1200px',
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 1,
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}
+        >
+          {selectedAdvancedPoint && (
+            <PointAdvancedForm
+              point={selectedAdvancedPoint}
+              onClose={handleCloseAdvancedModal}
+            />
+          )}
         </Box>
       </Modal>
     </Box>

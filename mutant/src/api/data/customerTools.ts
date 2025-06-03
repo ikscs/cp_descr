@@ -1,4 +1,4 @@
-import { fetchData, type IFetchResponse, } from './fetchData';
+import { fetchData, getBackend, postData, type IFetchResponse, } from './fetchData';
 import { type CustomerPoint } from '../../context/CustomerContext';
 
 export interface Customer {
@@ -35,8 +35,8 @@ export const getCustomer = async (customer_id: number): Promise<Customer[]> => {
     try {
         const params = {
             from: 'public.customer',
-            // fields: 'customer_id,legal_name,address,country,city',
-            fields: 'country,city',
+            fields: 'customer_id,legal_name,address,country,city',
+            // fields: 'country,city',
             where: { customer_id },
         };
         console.log('[getCustomer] params:', params);
@@ -48,5 +48,34 @@ export const getCustomer = async (customer_id: number): Promise<Customer[]> => {
     } catch (err) {
         console.error('Error fetching customers:', err);
         return [];
+    }
+}
+
+export const putCustomer = async (customer: Customer): Promise<Customer | null> => {
+
+    const updateQuery = 
+        `UPDATE public.customer SET 
+        address=''${customer.address}'',
+        country=''${customer.country}'',
+        city=''${customer.city}''
+        WHERE customer_id = ${customer.customer_id}`;
+
+    try {
+        const backend = getBackend();
+        console.log('[putCustomer] update query:', updateQuery);
+        const result = await postData({
+            backend_point: backend.backend_point_query,
+            query: updateQuery,
+        });
+
+        if (result.ok) {
+            return customer;
+        } else {
+            console.error('Error updating customer:', result.data);
+            return null;
+        }
+    } catch (err) {
+        console.error('Error updating customer:', err);
+        return null;
     }
 }

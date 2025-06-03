@@ -1,0 +1,32 @@
+
+PersonBrowser
+  select group
+  PersonList
+
+PersonList(GenericList)
+  refresh
+  PersonForm
+
+PersonForm(GenericFormRenderer)
+  save
+  cancel
+
+
+------------------------------
+
+сделать personApi аналогично groupApi
+
+export interface Person {
+    person_id: number;
+    group_id: number;
+    name: string;
+}
+
+const TABLE_NAME = 'pcnt.person';
+
+
+------------------------------
+
+в папке Persons сделать PersonList аналогично GroupList, вместо формы - заглушку
+
+в папке Persons сделать форму PersonForm аналогично GroupForm.tsx и вложениям

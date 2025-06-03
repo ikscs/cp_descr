@@ -3,7 +3,7 @@ echo started
 rem npm run build
 
 SET SERV_USER=alavr
-SET SERVER=vca.theweb.place
+SET SERVER=cnt.theweb.place
 SET SRC=dist
 
 SET DST=/opt/vca

@@ -27,13 +27,12 @@ interface GroupFormProps {
   pointOptions: PointOption[]; // Prop for point dropdown options
 }
 
-const GroupForm: React.FC<GroupFormProps> = ({ 
-    group, 
-    onSubmit, 
-    onCancel,
-    pointOptions = [] // Default to an empty array
-  }) => 
-{
+const GroupForm: React.FC<GroupFormProps> = ({
+  group,
+  onSubmit,
+  onCancel,
+  pointOptions = [] // Default to an empty array
+}) => {
   const handleSubmit = ({ formData }: { formData?: Group }) => {
     if (!formData) return;
     // Ensure point_id is null if it's an empty string or undefined,
@@ -48,7 +47,7 @@ const GroupForm: React.FC<GroupFormProps> = ({
     onSubmit(submittedGroup);
   };
 
-  const {schema, uischema} = useMemo(() => {
+  const { schema, uischema } = useMemo(() => {
     // Deep clone the original schema to avoid modifying it globally
     const schema = JSON.parse(JSON.stringify(originalGroupSchema)) as RJSFSchema;
     const uischema = originalUiGroupSchema as UiSchema;
@@ -56,20 +55,20 @@ const GroupForm: React.FC<GroupFormProps> = ({
     if (schema.properties && schema.properties.point_id) {
       const point_id_base = schema.properties.point_id as RJSFSchema;
       if (pointOptions.length > 0) {
-            schema.properties.point_id = {
-                ...point_id_base,
-                "enum": pointOptions.map(opt => opt.point_id),
-                // "ui:enumNames": pointOptions.map(opt => opt.name),
-            } as any;
+        schema.properties.point_id = {
+          ...point_id_base,
+          "enum": pointOptions.map(opt => opt.point_id),
+          // "ui:enumNames": pointOptions.map(opt => opt.name),
+        } as any;
 
-            uischema.point_id = {
-                ...uischema.point_id,
-                "ui:enumNames": pointOptions.map(opt => opt.name),
-                // 'ui:props': {
-                //     ...uischema.point_id['ui:props'],
-                //     "ui:enumNames": pointOptions.map(opt => opt.name),
-                // }
-            }
+        uischema.point_id = {
+          ...uischema.point_id,
+          "ui:enumNames": pointOptions.map(opt => opt.name),
+          // 'ui:props': {
+          //     ...uischema.point_id['ui:props'],
+          //     "ui:enumNames": pointOptions.map(opt => opt.name),
+          // }
+        }
       } else {
         // Fallback if no pointOptions are provided:
         // Keep original schema definition (renders as number input) but update title
@@ -85,6 +84,7 @@ const GroupForm: React.FC<GroupFormProps> = ({
     };
   }, [pointOptions]);
 
+  /*
   // UI Schema for customizing form field appearance and behavior.
   // To align with MD3 style, we use 'filled' variant for text fields
   // and ensure proper spacing. All fields are now visible.
@@ -122,8 +122,9 @@ const GroupForm: React.FC<GroupFormProps> = ({
       },
     },
   };
+  */
 
-//       <Form<Group, RJSFSchema, any>
+  //       <Form<Group, RJSFSchema, any>
   return (
     <Form
       schema={schema} // Use the dynamically generated schema
@@ -134,10 +135,10 @@ const GroupForm: React.FC<GroupFormProps> = ({
       formData={group} // Initial data for the form
       validator={validator as ValidatorType<Group, RJSFSchema, any>}
       onSubmit={handleSubmit}
-      // If using @rjsf/mui, you would add the theme here:
-      // theme={MuiTheme}
-      // onError={(errors) => console.log('Form errors:', errors)} // For debugging validation errors
-      // Pass children to customize action buttons; RJSF won't render its default submit.
+    // If using @rjsf/mui, you would add the theme here:
+    // theme={MuiTheme}
+    // onError={(errors) => console.log('Form errors:', errors)} // For debugging validation errors
+    // Pass children to customize action buttons; RJSF won't render its default submit.
     >
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
         <Button onClick={onCancel} sx={{ mr: 1 }}>

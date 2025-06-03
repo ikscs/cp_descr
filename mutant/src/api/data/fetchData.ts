@@ -1,5 +1,8 @@
 // import { number } from "yup";
 
+// import { UserfrontProvider } from "@userfront/react";
+// import { Userfront } from "@userfront/react"
+// import Userfront from "@userfront/core";
 import { backendType } from "../../globals_VITE"
 
 const backend_rise = {
@@ -13,7 +16,7 @@ const backend_rise = {
   backend_point_report: '/f5.php?func=cp3.js_report_b',
 }
 
-const backend_cnt = {
+const backend_vca = {
   backend_url: 'https://cnt.theweb.place/back',
   backend_point_select: '/f5.php?func=js_select_b',
   backend_point_query: '/f5.php?func=js_query_b',
@@ -27,7 +30,7 @@ const backend_cnt = {
 export const getBackend = () => {
   const backendType1 = backendType
   // console.log('backendType', backendType1)
-  return backendType1 === 'rise' ? backend_rise : backend_cnt
+  return backendType1 === 'rise' ? backend_rise : backend_vca
 }
 
 // const backend = getBackend();
@@ -76,7 +79,12 @@ export type PostData = (props: IFetchBody) => Promise<IPostResponse>;
 
 export const fetchData: FetchData = async (props: IFetchBody) => {
 
-  console.log('fetchData')
+  if (!apiToken.token) {
+    console.error('API token is not set. Please set the token before making requests.');
+    // throw new Error('API token is not set');
+  }
+
+  console.log('fetchData');
   const backend = getBackend();
   const backend_point = props.backend_point || backend.backend_point_select
   const url = backend.backend_url + backend_point
@@ -89,6 +97,7 @@ export const fetchData: FetchData = async (props: IFetchBody) => {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'authorization': `Bearer ${apiToken.token}`, // todo: токен авторизации test
       },
       body: JSON.stringify(props)
     });
@@ -122,6 +131,7 @@ export const postData: PostData = async (props: IFetchBody) => {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'authorization': `Bearer ${apiToken.token}`,
       },
       body: JSON.stringify(props)
     });
@@ -138,4 +148,23 @@ export const postData: PostData = async (props: IFetchBody) => {
     console.error('Error fetching data: ', error);
     throw error;
   }
+};
+
+interface ApiTokenStore {
+  token: string | null;
+}
+
+const apiToken: ApiTokenStore = {
+  token: null, // Userfront.tokens.accessToken,
+}
+
+// установка токена.
+export const setApiToken = (token: string | null) => {
+  apiToken.token = token;
+  console.log('API Token set:', token ? 'Present' : 'Null');
+};
+
+// получение токена
+export const getApiToken = (): string | null => {
+  return apiToken.token;
 };

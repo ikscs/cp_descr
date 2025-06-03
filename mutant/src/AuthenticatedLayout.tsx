@@ -89,7 +89,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
             sx={{
               width: '100%',
               height: '100%',
-              maxWidth: theme => ({ xs: '100%', sm: '600px', md: '900px', lg: '1200px' }),
+              maxWidth: () => ({ xs: '100%', sm: '600px', md: '900px', lg: '1200px' }),
               margin: '0 auto',
               padding: theme => ({
                 xs: theme.spacing(2),

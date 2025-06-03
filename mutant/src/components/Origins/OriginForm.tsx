@@ -37,11 +37,12 @@ export interface OriginFormValues {
 }
 
 // Props for the form component
-interface OriginFormProps {
-  originToEdit?: OriginFormValues; // Data for editing, matches form structure
-  onSave: (values: OriginFormValues) => void; // Callback with form values
+export interface OriginFormProps {
+  originToEdit?: OriginFormValues;
+  onSave: (values: OriginFormValues) => void;
   onCancel: () => void;
   title?: string;
+  lockPointId?: boolean; // New prop to lock point_id field
 }
 
 const OriginForm: React.FC<OriginFormProps> = ({
@@ -49,6 +50,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
   onSave,
   onCancel,
   title = originToEdit ? 'Edit Origin' : 'Add New Origin',
+  lockPointId = false, // Default to false for backward compatibility
 }) => {
   const { customerData, isLoading: isCustomerLoading } = useCustomer(); // Access customer context
   const [points, setPoints] = useState<Array<{ value: number | string; label: string }>>([]);
@@ -211,7 +213,12 @@ const OriginForm: React.FC<OriginFormProps> = ({
                 {({ field, meta }: { field: any; meta: any }) => (
                   <FormControl fullWidth error={meta.touched && !!meta.error}>
                     <InputLabel id="point-id-label">Point</InputLabel>
-                    <Select labelId="point-id-label" label="Point" {...field}>
+                    <Select
+                      labelId="point-id-label"
+                      label="Point"
+                      {...field}
+                      disabled={lockPointId}
+                    >
                       <MenuItem value=""><em>Select a Point</em></MenuItem>
                       {points.map((point) => (
                         <MenuItem key={point.value} value={point.value}>
@@ -232,6 +239,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
                     {...field}
                     fullWidth
                     label="Origin Identifier (URL/Path)"
+                    disabled={true}
                     error={meta.touched && !!meta.error}
                     helperText={(meta.touched && meta.error) || "e.g., rtsp://... or /dev/video0"}
                     title="Note: The backend API might auto-generate or not allow updates to this specific identifier after creation."
@@ -252,7 +260,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
                       ))}
                     </Select>
                     {meta.touched && meta.error && (
-                       <Typography color="error" variant="caption" component="div">{meta.error}</Typography>
+                      <Typography color="error" variant="caption" component="div">{meta.error}</Typography>
                     )}
                   </FormControl>
                 )}

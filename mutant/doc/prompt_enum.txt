@@ -1,0 +1,1678 @@
+Gemini
+
+2.5 Flash
+
+Upgrade
+
+
+
+Show more
+
+
+Conversation with Gemini
+{
+
+  "title": "Group",
+
+  "description": "Schema for a group object",
+
+  "type": "object",
+
+  "required": [
+
+    "name"
+
+  ],
+
+  "properties": {
+
+    "group_id": {
+
+      "type": "integer",
+
+      "title": "Group ID",
+
+      "readOnly": true
+
+    },
+
+    "name": {
+
+      "type": "string",
+
+      "title": "Group Name",
+
+      "minLength": 1
+
+    },
+
+    "point_id": {
+
+      "type": ["integer", "null"],
+
+      "title": "Point ID",
+
+      "enum": [1,2,3],
+
+      "ui:enumNames": ["Point 1", "Point 2", "Point 3"]
+
+    }
+
+  }
+
+}
+
+
+
+неправильно отображается - только enum
+
+
+
+    <Form
+
+      // schema={MSchema} // Use the dynamically generated schema
+
+      schema={originalGroupSchema as RJSFSchema}
+
+      uiSchema={uiSchema}
+
+      formData={group} // Initial data for the form
+
+      validator={validator as ValidatorType<Group, RJSFSchema, any>}
+
+      onSubmit={handleSubmit}
+
+      // If using @rjsf/mui, you would add the theme here:
+
+      // theme={MuiTheme}
+
+      // onError={(errors) => console.log('Form errors:', errors)} // For debugging validation errors
+
+      // Pass children to customize action buttons; RJSF won't render its default submit.
+
+    >
+
+      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+
+        <Button onClick={onCancel} sx={{ mr: 1 }}>
+
+          Cancel
+
+        </Button>
+
+        <Button type="submit" variant="contained">
+
+          Save
+
+        </Button>
+
+      </Box>
+
+    </Form>
+
+
+
+It seems like you're encountering an issue where the point_id field in your RJSF (React JSON Schema Form) form is only displaying the enum values (1, 2, 3) and not the more descriptive ui:enumNames ("Point 1", "Point 2", "Point 3").
+
+This is a common behavior with RJSF, especially when ui:enumNames is defined directly within the properties of the schema. RJSF typically expects ui:enumNames to be defined within the uiSchema object for a custom display of enum values.
+
+Here's how you can correct this by moving ui:enumNames to your uiSchema:
+
+1. Your original groupSchema (JSON Schema):
+
+Keep your groupSchema as it is, but remove ui:enumNames from it:
+
+JSON
+
+{
+  "title": "Group",
+  "description": "Schema for a group object",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "group_id": {
+      "type": "integer",
+      "title": "Group ID",
+      "readOnly": true
+    },
+    "name": {
+      "type": "string",
+      "title": "Group Name",
+      "minLength": 1
+    },
+    "point_id": {
+      "type": ["integer", "null"],
+      "title": "Point ID",
+      "enum": [1, 2, 3]
+    }
+  }
+}
+2. Your uiSchema (UI Schema for RJSF):
+
+Create or modify your uiSchema to include the ui:enumNames for the point_id field.
+
+TypeScript
+
+const uiSchema = {
+  "point_id": {
+    "ui:enumNames": ["Point 1", "Point 2", "Point 3"]
+  }
+};
+3. Your RJSF Form Component:
+
+Ensure you are passing both schema and uiSchema to your Form component:
+
+TypeScript
+
+import React from 'react';
+import Form from '@rjsf/core';
+import validator from '@rjsf/validator-ajv8'; // Or your chosen validator
+import { Box, Button } from '@mui/material'; // Assuming you are using MUI
+
+// Define your Group type based on the schema
+interface Group {
+  group_id?: number;
+  name: string;
+  point_id?: number | null;
+}
+
+// Your originalGroupSchema (as defined above, without ui:enumNames for point_id)
+const originalGroupSchema = { /* ... your schema object ... */ };
+
+// Your uiSchema (as defined above)
+const uiSchema = {
+  "point_id": {
+    "ui:enumNames": ["Point 1", "Point 2", "Point 3"]
+  }
+};
+
+interface GroupFormProps {
+  group: Group;
+  onSubmit: (data: any) => void; // Adjust type as needed
+  onCancel: () => void;
+}
+
+const GroupForm: React.FC<GroupFormProps> = ({ group, onSubmit, onCancel }) => {
+  const handleSubmit = ({ formData }: any) => {
+    onSubmit(formData);
+  };
+
+  return (
+    <Form
+      schema={originalGroupSchema as RJSFSchema} // Use your schema
+      uiSchema={uiSchema} // Pass the uiSchema here
+      formData={group} // Initial data for the form
+      validator={validator as ValidatorType<Group, RJSFSchema, any>}
+      onSubmit={handleSubmit}
+    >
+      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button onClick={onCancel} sx={{ mr: 1 }}>
+          Cancel
+        </Button>
+        <Button type="submit" variant="contained">
+          Save
+        </Button>
+      </Box>
+    </Form>
+  );
+};
+
+export default GroupForm;
+Explanation:
+
+JSON Schema (schema prop): This defines the data structure and validation rules for your form. The enum keyword here specifies the valid data values for point_id.
+UI Schema (uiSchema prop): This is specific to RJSF and dictates how the form fields are rendered. ui:enumNames within the uiSchema tells RJSF to display the provided strings instead of the raw enum values in the dropdown or radio button options.
+By separating the display names into the uiSchema, you adhere to RJSF's convention for customizing UI elements, which should resolve your issue of only seeing the enum values.
+
+
+
+
+
+как вернуть обьект?
+
+
+
+  const MSchema = useMemo((): {RJSFSchema, UiSchema} => {...}
+
+
+
+It looks like you're trying to return an object containing both an RJSFSchema and a UiSchema from a useMemo hook, and you're asking how to properly structure that return.
+
+The way you've written useMemo((): {RJSFSchema, UiSchema} => {...}) suggests you want to return an object that has two properties: one for the schema and one for the UI schema. This is a good approach for keeping them logically grouped.
+
+Here's how you can correctly return such an object from useMemo:
+
+TypeScript
+
+import React, { useMemo } from 'react';
+import { RJSFSchema, UiSchema } from '@rjsf/utils'; // Import necessary types
+
+// Assuming these are your base schema and uiSchema parts
+const baseSchema: RJSFSchema = {
+  title: "Group",
+  type: "object",
+  properties: {
+    group_id: { type: "integer", title: "Group ID", readOnly: true },
+    name: { type: "string", title: "Group Name", minLength: 1 },
+    point_id: { type: ["integer", "null"], title: "Point ID", enum: [1, 2, 3] }
+  },
+  required: ["name"]
+};
+
+const baseUiSchema: UiSchema = {
+  point_id: {
+    "ui:enumNames": ["Point 1", "Point 2", "Point 3"]
+  }
+};
+
+function MyFormContainer() {
+  const { schema, uiSchema } = useMemo(() => {
+    // You can perform any logic here to dynamically generate or combine
+    // your schema and uiSchema if needed.
+    // For now, we'll just return the base ones.
+
+    const MSchema: RJSFSchema = {
+      ...baseSchema, // Start with your base schema
+      // You could add or override properties here if needed
+      // For example:
+      // properties: {
+      //   ...baseSchema.properties,
+      //   newField: { type: "string" }
+      // }
+    };
+
+    const MUISchema: UiSchema = {
+      ...baseUiSchema, // Start with your base uiSchema
+      // You could add or override uiSchema properties here
+    };
+
+    // Return an object with 'schema' and 'uiSchema' properties
+    return {
+      schema: MSchema,
+      uiSchema: MUISchema
+    };
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Now you can use 'schema' and 'uiSchema' with your RJSF Form component
+  return (
+    // <Form
+    //   schema={schema}
+    //   uiSchema={uiSchema}
+    //   // ... other props
+    // />
+    <div>
+      <pre>Schema: {JSON.stringify(schema, null, 2)}</pre>
+      <pre>UISchema: {JSON.stringify(uiSchema, null, 2)}</pre>
+    </div>
+  );
+}
+
+export default MyFormContainer;
+Key Points:
+Destructuring Assignment: When you define const { schema, uiSchema } = useMemo(...), you're using JavaScript's destructuring assignment. This means the object returned by useMemo must have properties named schema and uiSchema for this to work correctly.
+Return an Object Literal: Inside the useMemo callback, you simply need to return a plain JavaScript object literal { schema: MSchema, uiSchema: MUISchema }.
+Type Annotation: The type annotation (): {RJSFSchema, UiSchema} is a bit off. If you want to specify the return type of the useMemo callback, it should be (): { schema: RJSFSchema; uiSchema: UiSchema; }. However, TypeScript can often infer this, so it might not be strictly necessary unless you need explicit type checks.
+Dynamic Generation (Optional): The power of useMemo here is that you can perform complex logic inside the callback to generate or modify your MSchema and MUISchema based on dependencies. If your schema or UI schema needs to change based on component props or state, you would add those to the dependency array []. If they are static, an empty array is fine.
+This setup allows you to encapsulate the logic for generating or retrieving your form's schema and UI schema, making your component cleaner and potentially more performant if the schema generation is computationally intensive.
+
+
+
+
+
+как задать кастомный параметр в схеме ?
+
+
+You can add custom parameters (often called "keywords" or "annotations") to your JSON Schema. While standard JSON Schema validators might ignore them, RJSF (React JSON Schema Form) provides ways to utilize these custom parameters for rendering or behavior.
+
+There are a few common approaches:
+
+1. ui: prefixed properties in uiSchema (Recommended for UI-specific customization)
+This is the most common and idiomatic way to add custom UI-related parameters that RJSF understands. You add properties to your uiSchema object, often prefixed with ui:, to control how a field is rendered without altering the core JSON Schema validation logic.
+
+Example:
+
+Let's say you want to add a custom "help text" that is different from the standard description and should appear in a specific way.
+
+JSON Schema (schema):
+
+JSON
+
+{
+  "title": "My Form",
+  "type": "object",
+  "properties": {
+    "myField": {
+      "type": "string",
+      "title": "My Input Field"
+    }
+  }
+}
+UI Schema (uiSchema):
+
+TypeScript
+
+const uiSchema = {
+  "myField": {
+    // This is a standard RJSF UI property for help text
+    "ui:help": "This is a custom help message for myField.",
+    // You can define your own custom UI properties here as well
+    "ui:customIcon": "info-circle",
+    "ui:readOnlyOnEdit": true // A custom flag for your rendering logic
+  }
+};
+How to use it:
+
+In your RJSF form, you would access these ui: prefixed properties within a custom widget, custom field template, or even a custom field.
+
+For instance, if you're creating a custom StringField component, you'd receive uiSchema as part of the props and can then check uiSchema.myField['ui:customIcon'] or uiSchema.myField['ui:readOnlyOnEdit'].
+
+2. Custom Keywords (Advanced - for custom validation or deeper integration)
+JSON Schema allows you to define "custom keywords" that are not part of the standard JSON Schema specification. If you need a custom parameter that affects validation logic or requires a deeper integration with the form's data processing, you might define a custom keyword.
+
+Considerations:
+
+Validator Support: For custom keywords to be validated, your JSON Schema validator (like Ajv, which RJSF uses by default) needs to be configured to understand and process them.
+Portability: Schemas with custom keywords might not be portable to other JSON Schema implementations that don't recognize your custom keywords.
+Complexity: Defining and registering custom keywords with Ajv can be more complex than simply using uiSchema.
+Example (Conceptual - requires Ajv setup):
+
+Let's say you want a custom keyword isEven for a number field.
+
+JSON Schema:
+
+JSON
+
+{
+  "title": "Numbers Form",
+  "type": "object",
+  "properties": {
+    "evenNumber": {
+      "type": "integer",
+      "title": "An Even Number",
+      "isEven": true // Custom keyword
+    }
+  }
+}
+How to make it work with RJSF/Ajv:
+
+Register the custom keyword with Ajv: You would need to get the Ajv instance used by RJSF and add your custom keyword definition to it. This is typically done by passing a custom validator to the Form component.
+
+TypeScript
+
+import Form from '@rjsf/core';
+import { customizeValidator } from '@rjsf/validator-ajv8'; // Or your validator package
+import Ajv from 'ajv';
+
+const ajv = new Ajv(); // Create a new Ajv instance
+
+// Define your custom keyword 'isEven'
+ajv.addKeyword({
+  keyword: 'isEven',
+  type: 'number',
+  validate: (schemaValue: boolean, data: number) => {
+    if (schemaValue === true) {
+      return data % 2 === 0;
+    }
+    return true; // If isEven is false or not present, always validate
+  },
+  errors: false // Do not create a validation error if false
+});
+
+// Create a customized validator with the custom Ajv instance
+const customValidator = customizeValidator({
+  ajv: ajv
+});
+
+// ... inside your React component
+<Form
+  schema={mySchema}
+  validator={customValidator}
+  // ... other props
+/>
+RJSF Field/Widget: If your custom keyword also needs to influence the rendering of the field (e.g., showing a special indicator for even numbers), you'd still likely use uiSchema for rendering hints or create a custom Field Template/Widget that can inspect the schema prop for your custom keyword.
+
+TypeScript
+
+// Inside a custom field template or widget
+// props.schema would contain { "type": "integer", "title": "An Even Number", "isEven": true }
+if (props.schema.isEven) {
+  // Render something special for even numbers
+}
+When to use which:
+uiSchema (ui: prefixed properties):
+For anything purely related to how the form field looks or behaves in the UI (e.g., placeholder text, custom help messages, specific component types, custom styling, conditional UI logic).
+This is the preferred method for most UI customizations as it keeps your JSON Schema clean and focused on data structure and validation.
+Custom Keywords in schema:
+When you need to extend the validation logic of your schema with rules that aren't covered by standard JSON Schema keywords.
+When a parameter is truly part of the data model definition rather than just a UI hint.
+Keep in mind the extra setup for the validator and potential portability issues.
+In most cases where you want to pass a "custom parameter" to control the rendering of a field in RJSF, using uiSchema with a ui: prefix (or simply a custom property name within uiSchema if you prefer) is the simplest and most effective approach.
+
+
+
+
+
+кастомный параметр в схеме мне нужен для описания динамических enum
+
+
+Ah, understanding! When you say "custom parameter in schema for dynamic enums," it points to a common challenge: JSON Schema's enum is static. You need a way to tell RJSF where to get the dynamic enum values from, or how to generate them, which isn't part of the standard enum keyword.
+
+You're right to think about a custom parameter. Here's how you can approach this, primarily using the uiSchema as it's the most flexible and recommended way for UI-specific behaviors like dynamic enums in RJSF.
+
+Recommended Approach: Using uiSchema for Dynamic Enum Sources
+The best practice is to define a custom property in your uiSchema that points to the source or method for generating the dynamic enum. RJSF doesn't have a built-in "dynamic enum" keyword, so you'll usually handle this with a custom field or a custom widget.
+
+Let's use an example where your enum values come from an API endpoint or a pre-loaded array.
+
+1. Your JSON Schema (schema):
+
+Keep your JSON Schema focused on the data type. You can omit enum here if the values are entirely dynamic and not known at schema definition time. If you want to provide a fallback or type hint, you can still include enum with dummy values or an empty array.
+
+JSON
+
+// originalGroupSchema.ts (or .json)
+const groupSchema = {
+  "title": "Group",
+  "description": "Schema for a group object",
+  "type": "object",
+  "required": [
+    "name",
+    "dynamicPoint" // Make sure your dynamic field is required if needed
+  ],
+  "properties": {
+    "group_id": {
+      "type": "integer",
+      "title": "Group ID",
+      "readOnly": true
+    },
+    "name": {
+      "type": "string",
+      "title": "Group Name",
+      "minLength": 1
+    },
+    "dynamicPoint": { // This will be our dynamic enum field
+      "type": ["integer", "null"], // Or string, depending on your ID type
+      "title": "Select a Dynamic Point"
+      // No 'enum' here, as it's dynamic
+    }
+  }
+};
+2. Your UI Schema (uiSchema):
+
+This is where you'll define your custom parameter. Let's call it ui:optionsSource or ui:dynamicEnumSource.
+
+TypeScript
+
+// uiSchema.ts
+const uiSchema = {
+  "dynamicPoint": {
+    "ui:widget": "select", // Explicitly use the select widget
+    "ui:optionsSource": "loadPointsApi", // A custom key indicating where to get options
+    // Or you could pass a direct function/array, but a string key is often cleaner
+    // "ui:optionsSource": (formData, schema, uiSchema) => { /* return options array */ },
+    // "ui:enumNames": ["Default 1", "Default 2"] // You can still use this as a fallback or for initial display if needed
+  }
+};
+3. Implement a Custom Field or Widget:
+
+RJSF's Form component allows you to pass custom fields and widgets. This is where you'll intercept your ui:optionsSource and fetch/provide the dynamic enum data.
+
+a) Using a Custom Widget (Simpler for select):
+
+If your dynamic enum is always rendered as a select dropdown, a custom widget is often the cleanest.
+
+TypeScript
+
+import React, { useState, useEffect } from 'react';
+import { RJSFSchema, UiSchema, WidgetProps } from '@rjsf/utils';
+import Form from '@rjsf/core';
+import validator from '@rjsf/validator-ajv8';
+import { Box, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material'; // Example MUI components
+
+// Mock API function for fetching points
+const fetchDynamicPoints = async () => {
+  // Simulate an API call
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve([
+        { id: 101, name: "API Point Alpha" },
+        { id: 102, name: "API Point Beta" },
+        { id: 103, name: "API Point Gamma" }
+      ]);
+    }, 500);
+  });
+};
+
+// --- Custom Widget for Dynamic Select ---
+const DynamicSelectWidget: React.FC<WidgetProps> = (props) => {
+  const { options, onChange, value, id, label, required, rawErrors, disabled, readonly, placeholder } = props;
+  const uiOptionsSource = (props.options.uiSchema as any)?.ui:optionsSource; // Access custom uiSchema property
+
+  const [dynamicOptions, setDynamicOptions] = useState<{ id: number; name: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      if (uiOptionsSource === "loadPointsApi") { // Check your custom parameter value
+        setLoading(true);
+        setError(null);
+        try {
+          const fetchedPoints: any = await fetchDynamicPoints();
+          setDynamicOptions(fetchedPoints);
+        } catch (err: any) {
+          setError("Failed to load options: " + err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    loadOptions();
+  }, [uiOptionsSource]); // Re-fetch if the source changes
+
+  const displayOptions = dynamicOptions.map(opt => (
+    <MenuItem key={opt.id} value={opt.id}>
+      {opt.name}
+    </MenuItem>
+  ));
+
+  if (loading) return <p>Loading options...</p>;
+  if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
+
+  return (
+    <FormControl fullWidth margin="normal" error={rawErrors && rawErrors.length > 0}>
+      <InputLabel id={`${id}-label`} required={required}>{label}</InputLabel>
+      <Select
+        labelId={`${id}-label`}
+        id={id}
+        value={value ?? ""} // Handle null/undefined values for controlled component
+        onChange={(event) => onChange(event.target.value === "" ? undefined : event.target.value)} // Handle empty string for "null" option
+        disabled={disabled || readonly}
+        placeholder={placeholder}
+      >
+        {/* Add an empty option if the field is nullable */}
+        {props.schema.type?.includes("null") && <MenuItem value=""><em>None</em></MenuItem>}
+        {displayOptions}
+      </Select>
+      {rawErrors && rawErrors.length > 0 && <p style={{ color: 'red' }}>{rawErrors.join(', ')}</p>}
+    </FormControl>
+  );
+};
+
+// --- Your main Form component ---
+interface FormData {
+  group_id?: number;
+  name: string;
+  dynamicPoint?: number | null;
+}
+
+const originalGroupSchema: RJSFSchema = groupSchema; // Your base schema
+
+const uiSchema: UiSchema = {
+  "dynamicPoint": {
+    "ui:widget": "DynamicSelectWidget", // Reference your custom widget by name
+    "ui:optionsSource": "loadPointsApi" // The custom parameter
+  }
+};
+
+const customWidgets = {
+  DynamicSelectWidget: DynamicSelectWidget // Map the string name to your component
+};
+
+interface GroupFormProps {
+  group: FormData;
+  onSubmit: (data: FormData) => void;
+  onCancel: () => void;
+}
+
+const GroupForm: React.FC<GroupFormProps> = ({ group, onSubmit, onCancel }) => {
+  const handleSubmit = ({ formData }: { formData: FormData }) => {
+    console.log("Form data submitted:", formData);
+    onSubmit(formData);
+  };
+
+  return (
+    <Form
+      schema={originalGroupSchema}
+      uiSchema={uiSchema}
+      formData={group}
+      validator={validator}
+      onSubmit={handleSubmit}
+      widgets={customWidgets} // Pass your custom widgets here
+    >
+      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button onClick={onCancel} sx={{ mr: 1 }}>
+          Cancel
+        </Button>
+        <Button type="submit" variant="contained">
+          Save
+        </Button>
+      </Box>
+    </Form>
+  );
+};
+
+export default GroupForm;
+b) Using a Custom Field (More powerful for complex scenarios):
+
+If you need more control over the entire rendering of a field (not just the widget part), you'd create a custom field.
+
+TypeScript
+
+// (Similar setup to custom widget, but you'd define a CustomField instead)
+import { FieldProps } from '@rjsf/utils';
+
+const DynamicEnumField: React.FC<FieldProps> = (props) => {
+  // Access props.uiSchema.ui:optionsSource here
+  // Fetch data, manage state, and then render an appropriate input (like a Select)
+  // You would typically use the RJSF provided widgets or your own MUI Select component
+  // to render the actual dropdown after loading options.
+  // For example:
+  // <Select options={loadedOptions} onChange={props.onChange} value={props.formData} />
+  return (/* ... your custom field rendering logic ... */);
+};
+
+const customFields = {
+  dynamicEnumField: DynamicEnumField // Map a string name to your custom field
+};
+
+// Then in uiSchema:
+const uiSchemaWithField = {
+  "dynamicPoint": {
+    "ui:field": "dynamicEnumField", // Use your custom field
+    "ui:optionsSource": "loadPointsApi"
+  }
+};
+
+// And in your Form component:
+<Form
+  // ...
+  fields={customFields} // Pass your custom fields here
+/>
+Summary of the Approach:
+JSON Schema (schema): Defines the data type (e.g., integer, string) for your dynamic enum field. It might not contain enum if the values are truly dynamic.
+UI Schema (uiSchema):
+Specifies ui:widget (e.g., "select") if you want a dropdown.
+Defines your custom parameter (e.g., "ui:optionsSource": "loadPointsApi"). This parameter's value tells your custom code how to get the options. It could be a string key, an array of static options, or even a function reference.
+Custom RJSF Component (Widget or Field):
+You create a custom React component that RJSF will render for your field.
+Inside this component, you access props.uiSchema to read your custom parameter (ui:optionsSource).
+Based on that parameter, you fetch your dynamic enum data (from an API, Redux store, etc.).
+Once the data is loaded, you render the appropriate HTML input (e.g., a <select> element with <option>s).
+You pass this custom component to the RJSF Form via the widgets or fields prop.
+This pattern is very flexible and allows you to build sophisticated dynamic forms with RJSF.
+
+
+
+
+
+мне кажется проще передавать отдельный описатель Enum со ссылкой на поле
+
+
+You're right, for dynamic enums, especially when they depend on external data or other form fields, passing a separate descriptor or configuration alongside your main schema can often be much cleaner and more manageable than trying to embed complex logic directly into the uiSchema. This approach keeps your JSON Schema focused on data structure and validation, and your UI Schema focused on basic rendering hints, while a third configuration object handles the "how-to-get-options" part.
+
+Here's a robust way to achieve this, using a separate enumOptions or dynamicEnumsConfig object:
+
+The "Separate Enum Descriptor" Approach
+This method involves creating an object that maps field names to their dynamic enum configurations. This object is then passed alongside your schema and uiSchema to your RJSF form wrapper component.
+
+1. Define Your Enum Descriptor Type
+First, let's define a type for our dynamic enum configuration. This helps with clarity and type-checking.
+
+TypeScript
+
+// types.ts or wherever you define your form types
+export type DynamicEnumConfig = {
+  // A key to identify the source (e.g., API endpoint name, function name)
+  sourceKey: string;
+  // Optional: Any parameters needed for the source (e.g., endpoint ID, filter)
+  sourceParams?: Record<string, any>;
+  // Optional: A function to transform raw API data into { value: any, label: string } format
+  transform?: (data: any[]) => { value: any; label: string }[];
+  // Optional: If the enum depends on other form data
+  dependsOn?: string | string[]; // Field name(s) this enum depends on
+};
+
+export type FormDynamicEnums = {
+  [fieldName: string]: DynamicEnumConfig;
+};
+2. Your JSON Schema (schema)
+Your JSON Schema remains clean, defining the data type. You can completely omit the enum and ui:enumNames for fields that will be dynamically populated.
+
+TypeScript
+
+// groupSchema.ts
+import { RJSFSchema } from '@rjsf/utils';
+
+export const groupSchema: RJSFSchema = {
+  "title": "Group",
+  "type": "object",
+  "required": ["name", "dynamicPoint"],
+  "properties": {
+    "group_id": { "type": "integer", "title": "Group ID", "readOnly": true },
+    "name": { "type": "string", "title": "Group Name", "minLength": 1 },
+    "dynamicPoint": { // This is our dynamic enum field
+      "type": ["integer", "null"],
+      "title": "Select a Dynamic Point"
+    },
+    "category": { // Example of another dynamic enum field
+      "type": "string",
+      "title": "Select a Category"
+    }
+  }
+};
+3. Your UI Schema (uiSchema)
+The uiSchema primarily specifies the ui:widget if you want a dropdown. You don't need to put the dynamic enum logic here.
+
+TypeScript
+
+// uiSchema.ts
+import { UiSchema } from '@rjsf/utils';
+
+export const groupUiSchema: UiSchema = {
+  "dynamicPoint": {
+    "ui:widget": "select"
+  },
+  "category": {
+    "ui:widget": "select"
+  }
+};
+4. Your Dynamic Enum Descriptor Object (dynamicEnumsConfig)
+This is where you centralize the configuration for each dynamic enum field.
+
+TypeScript
+
+// dynamicEnumsConfig.ts
+import { FormDynamicEnums } from './types'; // Import your types
+
+// Mock API functions (replace with your actual data fetching logic)
+const apiService = {
+  fetchPoints: async (params?: Record<string, any>) => {
+    console.log("Fetching points with params:", params);
+    return new Promise(resolve => setTimeout(() => resolve([
+      { value: 101, label: "API Point A" },
+      { value: 102, label: "API Point B" },
+      { value: 103, label: "API Point C" },
+    ]), 300));
+  },
+  fetchCategories: async () => {
+    return new Promise(resolve => setTimeout(() => resolve([
+      { id: 'cat1', name: "Category X" },
+      { id: 'cat2', name: "Category Y" },
+    ]), 400));
+  }
+};
+
+export const dynamicEnumsConfig: FormDynamicEnums = {
+  "dynamicPoint": {
+    sourceKey: "pointsApi",
+    // Example transformation: if API returns { id, name }, convert to { value, label }
+    transform: (data: { id: number, name: string }[]) =>
+      data.map(item => ({ value: item.id, label: item.name })),
+    // If 'dynamicPoint' depended on another field (e.g., a 'region' field)
+    // dependsOn: "region"
+  },
+  "category": {
+    sourceKey: "categoriesApi",
+    transform: (data: { id: string, name: string }[]) =>
+      data.map(item => ({ value: item.id, label: item.name })),
+  }
+};
+
+// A registry for your API functions (or other data sources)
+export const enumSources = {
+  pointsApi: apiService.fetchPoints,
+  categoriesApi: apiService.fetchCategories,
+  // Add other dynamic enum sources here
+};
+5. Create a Wrapper Component for Your RJSF Form
+This wrapper will manage the dynamic loading of enum options.
+
+TypeScript
+
+// DynamicFormWrapper.tsx
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import Form from '@rjsf/core';
+import validator from '@rjsf/validator-ajv8';
+import { RJSFSchema, UiSchema, FieldProps, FormProps } from '@rjsf/utils';
+import { Box, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+
+import { groupSchema } from './groupSchema';
+import { groupUiSchema } from './uiSchema';
+import { dynamicEnumsConfig, enumSources } from './dynamicEnumsConfig';
+import { FormDynamicEnums } from './types'; // Import your type
+
+// --- Custom Widget to handle dynamic options ---
+// This widget will receive pre-processed options from the wrapper
+const DynamicSelectWidget: React.FC<FieldProps> = (props) => {
+  // `options` here will already be formatted as { value, label }
+  const { formData, onChange, id, label, required, rawErrors, disabled, readonly, schema } = props;
+  const enumOptions = props.options.enumOptions as { value: any; label: string }[];
+
+  const handleSelectChange = (event: any) => {
+    // RJSF expects `onChange(value)`
+    onChange(event.target.value === "" ? undefined : event.target.value);
+  };
+
+  return (
+    <FormControl fullWidth margin="normal" error={rawErrors && rawErrors.length > 0}>
+      <InputLabel id={`${id}-label`} required={required}>{label}</InputLabel>
+      <Select
+        labelId={`${id}-label`}
+        id={id}
+        value={formData ?? ""} // Handle null/undefined values for controlled component
+        onChange={handleSelectChange}
+        disabled={disabled || readonly}
+      >
+        {/* Add an empty option if the field is nullable */}
+        {schema.type?.includes("null") && <MenuItem value=""><em>None</em></MenuItem>}
+        {enumOptions.map((opt) => (
+          <MenuItem key={String(opt.value)} value={opt.value}>
+            {opt.label}
+          </MenuItem>
+        ))}
+      </Select>
+      {rawErrors && rawErrors.length > 0 && <p style={{ color: 'red' }}>{rawErrors.join(', ')}</p>}
+    </FormControl>
+  );
+};
+
+// --- The Form Wrapper Component ---
+interface DynamicFormWrapperProps<T> extends Omit<FormProps<T>, 'schema' | 'uiSchema' | 'widgets'> {
+  initialFormData: T;
+  onSubmit: (data: T) => void;
+  onCancel: () => void;
+}
+
+function DynamicFormWrapper<T extends Record<string, any>>({
+  initialFormData,
+  onSubmit,
+  onCancel,
+  ...rest
+}: DynamicFormWrapperProps<T>) {
+  const [formData, setFormData] = useState<T>(initialFormData);
+  const [dynamicOptions, setDynamicOptions] = useState<Record<string, { value: any; label: string }[]>>({});
+  const [loadingEnums, setLoadingEnums] = useState<Record<string, boolean>>({});
+  const [enumErrors, setEnumErrors] = useState<Record<string, string | null>>({});
+
+  // Memoize dynamic enum loading
+  useEffect(() => {
+    const loadAllDynamicEnums = async () => {
+      const newDynamicOptions: Record<string, { value: any; label: string }[]> = {};
+      const newLoadingState: Record<string, boolean> = {};
+      const newErrorState: Record<string, string | null> = {};
+
+      for (const fieldName in dynamicEnumsConfig) {
+        const config = dynamicEnumsConfig[fieldName];
+        if (config) {
+          newLoadingState[fieldName] = true;
+          setLoadingEnums(prev => ({ ...prev, ...newLoadingState })); // Update loading state quickly
+          newErrorState[fieldName] = null; // Clear previous errors
+
+          try {
+            const sourceFunction = enumSources[config.sourceKey as keyof typeof enumSources];
+            if (sourceFunction) {
+              // Pass form data or specific dependsOn fields if needed for params
+              const params = config.dependsOn
+                ? Array.isArray(config.dependsOn)
+                  ? config.dependsOn.reduce((acc, dep) => ({ ...acc, [dep]: formData[dep] }), {})
+                  : { [config.dependsOn]: formData[config.dependsOn] }
+                : config.sourceParams;
+
+              const rawData = await sourceFunction(params);
+              const transformedData = config.transform ? config.transform(rawData) : rawData;
+              newDynamicOptions[fieldName] = transformedData;
+            } else {
+              newErrorState[fieldName] = `Unknown enum sourceKey: ${config.sourceKey}`;
+            }
+          } catch (error: any) {
+            newErrorState[fieldName] = `Failed to load ${fieldName} options: ${error.message}`;
+          } finally {
+            newLoadingState[fieldName] = false;
+          }
+        }
+      }
+      setDynamicOptions(newDynamicOptions);
+      setLoadingEnums(newLoadingState);
+      setEnumErrors(newErrorState);
+    };
+
+    loadAllDynamicEnums();
+  }, [formData]); // Re-run if relevant formData fields change (for dependsOn)
+
+  // Dynamically modify the schema for RJSF to include enum values and names
+  const memoizedSchema = useMemo(() => {
+    const newSchema: RJSFSchema = JSON.parse(JSON.stringify(groupSchema)); // Deep copy to avoid mutation
+    const newUiSchema: UiSchema = JSON.parse(JSON.stringify(groupUiSchema));
+
+    for (const fieldName in dynamicEnumsConfig) {
+      const config = dynamicEnumsConfig[fieldName];
+      const options = dynamicOptions[fieldName];
+      const isLoading = loadingEnums[fieldName];
+      const error = enumErrors[fieldName];
+
+      if (newSchema.properties && newSchema.properties[fieldName]) {
+        // Assign the dynamic enum values to the schema
+        if (options && options.length > 0) {
+          (newSchema.properties[fieldName] as RJSFSchema).enum = options.map(opt => opt.value);
+          // And also provide the ui:enumNames for display
+          if (!newUiSchema[fieldName]) newUiSchema[fieldName] = {};
+          newUiSchema[fieldName]["ui:enumNames"] = options.map(opt => opt.label);
+        } else if (!isLoading && !error) {
+          // If no options loaded and not loading, set empty enum to prevent selection
+          (newSchema.properties[fieldName] as RJSFSchema).enum = [];
+          if (!newUiSchema[fieldName]) newUiSchema[fieldName] = {};
+          newUiSchema[fieldName]["ui:enumNames"] = [];
+        }
+
+        // Set the custom widget if not already set by groupUiSchema
+        if (!newUiSchema[fieldName] || !newUiSchema[fieldName]["ui:widget"]) {
+            if (!newUiSchema[fieldName]) newUiSchema[fieldName] = {};
+            newUiSchema[fieldName]["ui:widget"] = "DynamicSelectWidget";
+        }
+
+        // Pass loading/error state to the widget if needed (via ui:options)
+        if (!newUiSchema[fieldName]["ui:options"]) {
+            newUiSchema[fieldName]["ui:options"] = {};
+        }
+        (newUiSchema[fieldName]["ui:options"] as any).loading = isLoading;
+        (newUiSchema[fieldName]["ui:options"] as any).error = error;
+      }
+    }
+    return { schema: newSchema, uiSchema: newUiSchema };
+  }, [dynamicOptions, loadingEnums, enumErrors, formData]); // Re-memoize if dynamic options change
+
+  const customWidgets = useMemo(() => ({
+    DynamicSelectWidget: DynamicSelectWidget,
+    // Add other custom widgets if needed
+  }), []);
+
+  const handleChange = useCallback((data: any) => {
+    setFormData(data.formData); // Update form data
+  }, []);
+
+  const handleSubmit = useCallback((data: any) => {
+    onSubmit(data.formData);
+  }, [onSubmit]);
+
+  const allLoading = Object.values(loadingEnums).some(isLoading => isLoading);
+
+  return (
+    <Form
+      schema={memoizedSchema.schema}
+      uiSchema={memoizedSchema.uiSchema}
+      formData={formData}
+      validator={validator}
+      onSubmit={handleSubmit}
+      onChange={handleChange} // Capture changes to formData
+      widgets={customWidgets}
+      disabled={allLoading} // Optionally disable form while enums are loading
+      {...rest}
+    >
+      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button onClick={onCancel} sx={{ mr: 1 }} disabled={allLoading}>
+          Cancel
+        </Button>
+        <Button type="submit" variant="contained" disabled={allLoading}>
+          Save
+        </Button>
+      </Box>
+      {allLoading && <p>Loading dynamic options...</p>}
+    </Form>
+  );
+}
+
+export default DynamicFormWrapper;
+How it works:
+Centralized Configuration: The dynamicEnumsConfig object serves as the single source of truth for all dynamic enum fields. Each entry specifies:
+
+sourceKey: A key that maps to an actual data-fetching function (e.g., an API call) in enumSources.
+transform (optional): A function to convert raw data from your source into the { value: any, label: string } format RJSF expects for enum and ui:enumNames.
+dependsOn (optional): If an enum's options depend on the value of another field in the form, you list those field names here.
+DynamicFormWrapper Component:
+
+State Management: It uses useState to keep track of the dynamicOptions (the loaded enum options for each field), loadingEnums (to show loading states), and enumErrors.
+useEffect for Data Fetching: The useEffect hook runs when the component mounts and whenever formData (or specific dependsOn fields within it) changes. It iterates through dynamicEnumsConfig, calls the appropriate enumSources function, transforms the data, and updates the dynamicOptions state.
+useMemo for Schema Transformation: This is the crucial part. useMemo dynamically modifies the groupSchema and groupUiSchema right before rendering. For each field defined in dynamicEnumsConfig:
+It takes the dynamicOptions that were fetched and assigns them to the enum property of the field's schema.
+It assigns the corresponding label values to ui:enumNames in the uiSchema.
+It ensures the ui:widget for these fields is set to "select" (or your custom widget name).
+It can optionally pass loading and error states via ui:options to the custom widget for better UX.
+DynamicSelectWidget: This custom widget is a simple Select component that receives the pre-processed enumOptions (which now contain the correct value and label thanks to the wrapper). It's generic and doesn't need to know anything about API calls or sourceKey.
+Form Rendering: The wrapper renders the standard RJSF Form component, passing it the dynamically updated memoizedSchema and uiSchema, along with the custom widgets.
+Advantages of this approach:
+Clean Schema: Your groupSchema remains pure JSON Schema, free of custom UI hints or dynamic loading logic.
+Separation of Concerns: Data fetching logic (enumSources), enum configuration (dynamicEnumsConfig), and UI rendering (uiSchema / DynamicSelectWidget) are all clearly separated.
+Reusability: The DynamicFormWrapper and DynamicSelectWidget are generic and can be reused across many forms with dynamic enums, as long as you provide the appropriate dynamicEnumsConfig and enumSources.
+Centralized Control: All dynamic enum definitions are in one place, making them easy to manage and debug.
+Dependencies: It easily handles cases where one dynamic enum depends on the value of another field in the form (by watching formData in useEffect).
+This pattern is more powerful and scalable for complex forms with multiple dynamic enum fields.
+
+
+
+
+
+мне кажется проще передавать отдельный описатель Enum со ссылкой на поле, а реализовать корректировкой схем как например
+
+
+
+  const {schema, uischema} = useMemo(() => {
+
+    const schema = JSON.parse(JSON.stringify(originalGroupSchema)) as RJSFSchema;
+
+    const uischema = originalUiGroupSchema as UiSchema;
+
+
+
+    if (schema.properties && schema.properties.point_id) {
+
+      const point_id_base = schema.properties.point_id as RJSFSchema;
+
+      if (pointOptions.length > 0) {
+
+            schema.properties.point_id = {
+
+                ...point_id_base,
+
+                "enum": pointOptions.map(opt => opt.point_id),
+
+                // "ui:enumNames": pointOptions.map(opt => opt.name),
+
+            } as any;
+
+
+
+            uischema.point_id = {
+
+                ...uischema.point_id,
+
+                "ui:enumNames": pointOptions.map(opt => opt.name),
+
+            }
+
+      } else {
+
+        schema.properties.point_id = {
+
+          ...point_id_base,
+
+          title: `${point_id_base.title || 'Point'} (No options available)`,
+
+        };
+
+      }
+
+    }
+
+    return {
+
+      schema,
+
+      uischema,
+
+    };
+
+  }, [pointOptions]);
+
+
+
+You've absolutely hit on the most common and often simplest way to handle dynamic enums in RJSF: directly modifying the schema and uiSchema in a useMemo hook based on your fetched dynamic options. This is a very effective and idiomatic RJSF pattern.
+
+Your provided code snippet for useMemo is almost perfect for this approach. Let's refine it slightly to ensure all best practices are covered and clarify how this fits into a full component.
+
+Dynamic Enums by Modifying Schema in useMemo
+This method leverages React's useMemo hook to regenerate your form's schema and uiSchema whenever the dynamic options change.
+
+1. Prepare Your Data
+First, ensure you have your dynamic options (e.g., pointOptions) fetched and available as a state variable or prop.
+
+TypeScript
+
+// Example: In your parent component or a hook
+import React, { useState, useEffect } from 'react';
+
+interface PointOption {
+  point_id: number;
+  name: string;
+}
+
+function MyParentComponent() {
+  const [pointOptions, setPointOptions] = useState<PointOption[]>([]);
+  const [loadingPoints, setLoadingPoints] = useState(true);
+
+  useEffect(() => {
+    const fetchPoints = async () => {
+      setLoadingPoints(true);
+      try {
+        // Simulate an API call
+        const response = await new Promise<PointOption[]>(resolve =>
+          setTimeout(() => resolve([
+            { point_id: 1, name: "Point Alpha" },
+            { point_id: 2, name: "Point Beta" },
+            { point_id: 3, name: "Point Gamma" },
+          ]), 500)
+        );
+        setPointOptions(response);
+      } catch (error) {
+        console.error("Failed to fetch points:", error);
+        // Handle error, maybe set pointOptions to empty array or show message
+        setPointOptions([]);
+      } finally {
+        setLoadingPoints(false);
+      }
+    };
+    fetchPoints();
+  }, []); // Fetch points once on component mount
+
+  // ... rest of your component rendering
+  return (
+    <MyRJSFForm
+      pointOptions={pointOptions}
+      loadingPoints={loadingPoints}
+      // ... other props
+    />
+  );
+}
+2. Your Base Schemas
+Keep your original (non-dynamic) schema and uiSchema as base templates.
+
+TypeScript
+
+// originalGroupSchema.ts
+import { RJSFSchema, UiSchema } from '@rjsf/utils';
+
+export const originalGroupSchema: RJSFSchema = {
+  "title": "Group",
+  "type": "object",
+  "required": ["name"],
+  "properties": {
+    "group_id": { "type": "integer", "title": "Group ID", "readOnly": true },
+    "name": { "type": "string", "title": "Group Name", "minLength": 1 },
+    "point_id": {
+      "type": ["integer", "null"],
+      "title": "Point ID"
+      // No static enum here
+    }
+  }
+};
+
+// originalUiGroupSchema.ts
+export const originalUiGroupSchema: UiSchema = {
+  // You can set default UI options here, like the widget type
+  "point_id": {
+    "ui:widget": "select"
+  }
+};
+3. The useMemo Logic
+This is where you'll dynamically update the schemas.
+
+TypeScript
+
+// Inside your RJSF form component (e.g., MyRJSFForm)
+import React, { useMemo } from 'react';
+import Form from '@rjsf/core';
+import validator from '@rjsf/validator-ajv8'; // Or your chosen validator
+import { RJSFSchema, UiSchema } from '@rjsf/utils';
+import { Box, Button } from '@mui/material';
+
+import { originalGroupSchema } from './originalGroupSchema';
+import { originalUiGroupSchema } from './originalUiGroupSchema';
+
+interface MyRJSFFormProps {
+  formData: any;
+  pointOptions: { point_id: number; name: string }[];
+  loadingPoints: boolean;
+  onSubmit: (data: any) => void;
+  onCancel: () => void;
+}
+
+const MyRJSFForm: React.FC<MyRJSFFormProps> = ({
+  formData,
+  pointOptions,
+  loadingPoints,
+  onSubmit,
+  onCancel,
+}) => {
+
+  const { schema, uiSchema } = useMemo(() => {
+    // Deep clone the schema to avoid modifying the original base schema
+    const newSchema: RJSFSchema = JSON.parse(JSON.stringify(originalGroupSchema));
+    // It's often sufficient to shallow copy uiSchema if you're only adding/overriding top-level properties
+    // However, if you have nested UI properties, consider a deep copy or careful merging.
+    const newUiSchema: UiSchema = { ...originalUiGroupSchema };
+
+    // --- Dynamic Enum Logic for 'point_id' ---
+    if (newSchema.properties && newSchema.properties.point_id) {
+      const pointIdSchema = newSchema.properties.point_id as RJSFSchema;
+
+      if (loadingPoints) {
+        // Show loading state
+        pointIdSchema.title = `${pointIdSchema.title || 'Point ID'} (Loading options...)`;
+        pointIdSchema.readOnly = true; // Make it non-selectable while loading
+      } else if (pointOptions.length > 0) {
+        // Populate enum and ui:enumNames from fetched options
+        pointIdSchema.enum = pointOptions.map(opt => opt.point_id);
+
+        // Ensure uiSchema for point_id exists before adding ui:enumNames
+        if (!newUiSchema.point_id) {
+          newUiSchema.point_id = {};
+        }
+        newUiSchema.point_id["ui:enumNames"] = pointOptions.map(opt => opt.name);
+        pointIdSchema.readOnly = false; // Enable if it was disabled
+      } else {
+        // No options available
+        pointIdSchema.enum = []; // No selectable options
+        if (!newUiSchema.point_id) {
+          newUiSchema.point_id = {};
+        }
+        newUiSchema.point_id["ui:enumNames"] = [];
+        pointIdSchema.title = `${pointIdSchema.title || 'Point ID'} (No options available)`;
+        pointIdSchema.readOnly = true; // Make it non-selectable
+      }
+    }
+
+    return {
+      schema: newSchema,
+      uiSchema: newUiSchema,
+    };
+  }, [pointOptions, loadingPoints]); // Re-run useMemo when pointOptions or loading state changes
+
+  const handleSubmit = ({ formData }: any) => {
+    onSubmit(formData);
+  };
+
+  return (
+    <Form
+      schema={schema}
+      uiSchema={uiSchema}
+      formData={formData}
+      validator={validator}
+      onSubmit={handleSubmit}
+      // You might also want to disable the form itself if loadingPoints
+      disabled={loadingPoints}
+    >
+      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button onClick={onCancel} sx={{ mr: 1 }} disabled={loadingPoints}>
+          Cancel
+        </Button>
+        <Button type="submit" variant="contained" disabled={loadingPoints}>
+          Save
+        </Button>
+      </Box>
+      {loadingPoints && <p>Loading options...</p>}
+    </Form>
+  );
+};
+
+export default MyRJSFForm;
+Key Improvements and Considerations:
+Deep Copying Schema: Crucially, always deep copy your originalGroupSchema (JSON.parse(JSON.stringify(originalGroupSchema))). If you just do a shallow copy ({...originalGroupSchema}), you risk mutating the original schema object, which can lead to unexpected behavior across different instances or renders of your form.
+ui:enumNames Placement: As discussed, ui:enumNames belongs in the uiSchema.
+Handling Loading State: I've added logic to display a "Loading options..." message and disable the field (and optionally the whole form) while the options are being fetched. This provides a better user experience.
+No Options Available: Added logic for when pointOptions might be empty after loading.
+Dependencies of useMemo: Ensure pointOptions and loadingPoints are in the dependency array [] of useMemo. This tells React to recalculate the schemas only when these specific values change.
+uiSchema Merging: When updating uiSchema properties like point_id, use the spread operator (...uischema.point_id) to ensure you don't accidentally overwrite other UI properties that might be defined for that field.
+This approach is highly recommended for its simplicity and directness within the RJSF ecosystem. It keeps your JSON Schema clean while allowing RJSF to render dynamic dropdowns effectively.
+
+
+
+
+
+
+
+Cancel
+
+Update
+
+You're absolutely right! The core logic of dynamically adjusting the schema and uiSchema within useMemo is sound. Now, let's formalize the "descriptor" idea and create a simple utility to streamline this for multiple dynamic enum fields.
+
+The goal is to move the repetitive logic for each dynamic field into a reusable function, making your component's useMemo cleaner.
+
+Formalizing the Dynamic Enum Descriptor
+Let's define a clear structure for how you describe each dynamic enum field.
+
+TypeScript
+
+// src/types/DynamicEnum.ts (or similar path)
+
+/**
+ * Describes how to fetch and process options for a dynamic enum field.
+ */
+export interface DynamicEnumDescriptor<T = any> {
+  /**
+   * The name of the field in your JSON Schema that will have dynamic enums.
+   */
+  fieldName: string;
+  /**
+   * A function that fetches the raw options.
+   * It receives current formData for dependencies.
+   * @returns A Promise resolving to an array of raw option data.
+   */
+  fetchOptions: (formData: T) => Promise<any[]>;
+  /**
+   * An optional function to transform the raw fetched data into
+   * { value: any, label: string } objects, which RJSF expects.
+   * If not provided, assume fetchOptions returns data in this format.
+   */
+  transformOptions?: (rawData: any[]) => { value: any; label: string }[];
+  /**
+   * Optional: An array of field names in the form that this enum depends on.
+   * If any of these fields change, the enum options will be re-fetched.
+   */
+  dependsOn?: string[];
+  /**
+   * Optional: Custom title to display while loading.
+   */
+  loadingTitle?: string;
+  /**
+   * Optional: Custom title to display if no options are available.
+   */
+  noOptionsTitle?: string;
+}
+
+/**
+ * A utility type for a map of field names to their dynamic enum descriptors.
+ */
+export type DynamicEnumDescriptors<T = any> = {
+  [K in keyof T]?: DynamicEnumDescriptor<T>;
+};
+The Utility Function: applyDynamicEnumsToSchema
+This utility will take your base schemas, the dynamic enum descriptors, and the currently loaded options, and return the modified schemas.
+
+TypeScript
+
+// src/utils/schemaUtils.ts (or similar path)
+
+import { RJSFSchema, UiSchema } from '@rjsf/utils';
+import { DynamicEnumDescriptor } from '../types/DynamicEnum'; // Adjust path as needed
+
+/**
+ * Applies dynamic enum options to a base RJSF schema and uiSchema.
+ * This utility function is typically used inside a useMemo hook.
+ *
+ * @param baseSchema The original (non-dynamic) JSON Schema.
+ * @param baseUiSchema The original (non-dynamic) UI Schema.
+ * @param dynamicEnums A map of fieldName to its descriptor and loaded options.
+ * @returns An object containing the modified RJSFSchema and UiSchema.
+ */
+export const applyDynamicEnumsToSchema = <T extends Record<string, any>>(
+  baseSchema: RJSFSchema,
+  baseUiSchema: UiSchema,
+  dynamicEnumStates: {
+    [fieldName: string]: {
+      options: { value: any; label: string }[];
+      isLoading: boolean;
+      error: string | null;
+    };
+  },
+  descriptors: DynamicEnumDescriptor<T>[]
+) => {
+  // Deep clone the schema to avoid mutating the original base schema
+  const newSchema: RJSFSchema = JSON.parse(JSON.stringify(baseSchema));
+  // Shallow copy uiSchema, assuming top-level property changes.
+  // For deep nested UI schema modifications, consider a deep copy or careful merging.
+  const newUiSchema: UiSchema = { ...baseUiSchema };
+
+  descriptors.forEach(descriptor => {
+    const { fieldName, loadingTitle, noOptionsTitle } = descriptor;
+    const { options, isLoading, error } = dynamicEnumStates[fieldName] || { options: [], isLoading: false, error: null };
+
+    if (newSchema.properties && newSchema.properties[fieldName]) {
+      const fieldSchema = newSchema.properties[fieldName] as RJSFSchema;
+
+      if (isLoading) {
+        fieldSchema.title = loadingTitle || `${fieldSchema.title || fieldName} (Loading options...)`;
+        fieldSchema.readOnly = true; // Disable selection while loading
+        // Ensure ui:widget is select for proper display
+        if (!newUiSchema[fieldName]) newUiSchema[fieldName] = {};
+        if (!newUiSchema[fieldName]["ui:widget"]) newUiSchema[fieldName]["ui:widget"] = "select";
+      } else if (error) {
+        fieldSchema.title = `${fieldSchema.title || fieldName} (Error loading: ${error})`;
+        fieldSchema.enum = []; // No options if error
+        fieldSchema.readOnly = true;
+        if (!newUiSchema[fieldName]) newUiSchema[fieldName] = {};
+        newUiSchema[fieldName]["ui:enumNames"] = [];
+      }
+      else if (options.length > 0) {
+        fieldSchema.enum = options.map(opt => opt.value);
+        if (!newUiSchema[fieldName]) newUiSchema[fieldName] = {};
+        newUiSchema[fieldName]["ui:enumNames"] = options.map(opt => opt.label);
+        fieldSchema.readOnly = false; // Enable if it was disabled
+        // Restore original title if it was changed for loading/error
+        if (fieldSchema.title?.includes("(Loading options...)") || fieldSchema.title?.includes("(No options available)")) {
+          fieldSchema.title = baseSchema.properties?.[fieldName]?.title || fieldName;
+        }
+      } else {
+        // No options available
+        fieldSchema.enum = []; // No selectable options
+        if (!newUiSchema[fieldName]) newUiSchema[fieldName] = {};
+        newUiSchema[fieldName]["ui:enumNames"] = [];
+        fieldSchema.title = noOptionsTitle || `${fieldSchema.title || fieldName} (No options available)`;
+        fieldSchema.readOnly = true; // Make it non-selectable
+      }
+    }
+  });
+
+  return { schema: newSchema, uiSchema: newUiSchema };
+};
+Integrating into Your Component
+Now, your component will look much cleaner using this utility.
+
+TypeScript
+
+// src/components/DynamicGroupForm.tsx
+
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import Form from '@rjsf/core';
+import validator from '@rjsf/validator-ajv8';
+import { RJSFSchema, UiSchema } from '@rjsf/utils';
+import { Box, Button } from '@mui/material';
+
+// Import your base schemas
+import { originalGroupSchema } from '../schemas/originalGroupSchema';
+import { originalUiGroupSchema } from '../schemas/originalUiGroupSchema';
+
+// Import your dynamic enum types and utility
+import { DynamicEnumDescriptor } from '../types/DynamicEnum';
+import { applyDynamicEnumsToSchema } from '../utils/schemaUtils';
+
+// Define your form data type
+interface GroupFormData {
+  group_id?: number;
+  name: string;
+  point_id?: number | null;
+  // Add other fields as needed
+}
+
+// --- Mock API Service (replace with your actual API calls) ---
+const mockApiService = {
+  fetchPoints: async (params?: any) => {
+    console.log("Fetching points (simulated API call) with params:", params);
+    return new Promise<{ point_id: number; name: string }[]>(resolve =>
+      setTimeout(() => {
+        // Simulate conditional loading
+        if (params?.someCondition === 'triggerError') {
+            throw new Error("Simulated API error for points.");
+        }
+        resolve([
+          { point_id: 101, name: "API Point One" },
+          { point_id: 102, name: "API Point Two" },
+          { point_id: 103, name: "API Point Three" },
+        ]);
+      }, 500)
+    );
+  },
+  // Add other fetch functions for other dynamic enums
+};
+
+// --- Define your dynamic enum descriptors ---
+// This is the "separate descriptor" you asked for!
+const groupDynamicEnumDescriptors: DynamicEnumDescriptor<GroupFormData>[] = [
+  {
+    fieldName: "point_id",
+    fetchOptions: (formData: GroupFormData) => mockApiService.fetchPoints({ dependsOnName: formData.name }), // Pass formData for dependencies
+    transformOptions: (rawData: { point_id: number; name: string }[]) =>
+      rawData.map(item => ({ value: item.point_id, label: item.name })),
+    dependsOn: ["name"], // Example: point_id options might depend on the 'name' field
+    loadingTitle: "Point ID (Loading from API...)",
+    noOptionsTitle: "Point ID (No options found)",
+  },
+  // Add more descriptors for other dynamic enum fields
+  // {
+  //   fieldName: "another_dynamic_field",
+  //   fetchOptions: (formData) => mockApiService.fetchOtherOptions(formData.someOtherField),
+  //   // ...
+  // },
+];
+
+// --- Main Form Component ---
+interface DynamicGroupFormProps {
+  initialFormData: GroupFormData;
+  onSubmit: (data: GroupFormData) => void;
+  onCancel: () => void;
+}
+
+const DynamicGroupForm: React.FC<DynamicGroupFormProps> = ({
+  initialFormData,
+  onSubmit,
+  onCancel,
+}) => {
+  const [formData, setFormData] = useState<GroupFormData>(initialFormData);
+  const [dynamicEnumStates, setDynamicEnumStates] = useState<
+    Record<string, { options: { value: any; label: string }[]; isLoading: boolean; error: string | null }>
+  >({});
+
+  // Effect to fetch dynamic enum options
+  useEffect(() => {
+    const fetchAllDynamicEnums = async () => {
+      const newStates: typeof dynamicEnumStates = { ...dynamicEnumStates };
+      let anyLoading = false;
+
+      for (const descriptor of groupDynamicEnumDescriptors) {
+        const { fieldName, fetchOptions, dependsOn } = descriptor;
+        const currentFieldState = newStates[fieldName] || { options: [], isLoading: false, error: null };
+
+        // Check if dependencies have changed, or if it's the initial load
+        const dependencyValues = dependsOn?.map(depField => formData[depField]);
+        const prevDependencyValues = (dynamicEnumStates[fieldName] as any)?.prevDependencyValues;
+
+        const dependenciesChanged = dependsOn
+          ? JSON.stringify(dependencyValues) !== JSON.stringify(prevDependencyValues)
+          : false; // For fields without dependencies, always fetch on initial mount or if needed
+
+        // Only fetch if not already loading and dependencies have changed or it's the first time
+        if (!currentFieldState.isLoading && (dependenciesChanged || !currentFieldState.options.length)) {
+          newStates[fieldName] = { ...currentFieldState, isLoading: true, error: null, prevDependencyValues: dependencyValues };
+          setDynamicEnumStates({ ...newStates }); // Update state to show loading immediately
+          anyLoading = true;
+
+          try {
+            const rawData = await fetchOptions(formData);
+            const transformedData = descriptor.transformOptions
+              ? descriptor.transformOptions(rawData)
+              : rawData.map(item => ({ value: item.value || item.id, label: item.label || item.name })); // Basic fallback transform
+
+            newStates[fieldName] = { ...newStates[fieldName], options: transformedData, isLoading: false };
+          } catch (err: any) {
+            console.error(`Error fetching options for ${fieldName}:`, err);
+            newStates[fieldName] = { ...newStates[fieldName], options: [], isLoading: false, error: err.message || "Failed to load options" };
+          } finally {
+            setDynamicEnumStates({ ...newStates });
+          }
+        }
+      }
+      // If no fields are loading, ensure allLoading is false
+      if (!anyLoading) {
+        setDynamicEnumStates(prev => {
+          const updated = { ...prev };
+          for (const key in updated) {
+            updated[key].isLoading = false;
+          }
+          return updated;
+        });
+      }
+    };
+
+    fetchAllDynamicEnums();
+  }, [formData, dynamicEnumStates]); // Re-run effect when formData or dynamicEnumStates changes
+
+  // Use useMemo to generate the RJSF schema and uiSchema based on dynamic options
+  const { schema, uiSchema } = useMemo(() => {
+    return applyDynamicEnumsToSchema(
+      originalGroupSchema,
+      originalUiGroupSchema,
+      dynamicEnumStates,
+      groupDynamicEnumDescriptors
+    );
+  }, [dynamicEnumStates, groupDynamicEnumDescriptors]); // Re-generate when dynamic options state changes
+
+  const handleChange = useCallback((data: any) => {
+    setFormData(data.formData);
+  }, []);
+
+  const handleSubmit = useCallback((data: any) => {
+    onSubmit(data.formData);
+  }, [onSubmit]);
+
+  const overallLoading = Object.values(dynamicEnumStates).some(state => state.isLoading);
+
+  return (
+    <Form
+      schema={schema}
+      uiSchema={uiSchema}
+      formData={formData}
+      validator={validator}
+      onChange={handleChange}
+      onSubmit={handleSubmit}
+      disabled={overallLoading} // Disable the form if any dynamic enums are loading
+    >
+      {overallLoading && <p>Loading options...</p>}
+      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button onClick={onCancel} sx={{ mr: 1 }} disabled={overallLoading}>
+          Cancel
+        </Button>
+        <Button type="submit" variant="contained" disabled={overallLoading}>
+          Save
+        </Button>
+      </Box>
+    </Form>
+  );
+};
+
+export default DynamicGroupForm;
+Explanation of Changes:
+DynamicEnumDescriptor Interface: This formally defines what information is needed for each dynamic enum field.
+applyDynamicEnumsToSchema Utility:
+It takes the baseSchema, baseUiSchema, and the dynamicEnumStates (which holds the loaded options, loading status, and errors for each field).
+It iterates through the descriptors to find the relevant state for each field.
+It then applies the enum and ui:enumNames to the cloned schema and uiSchema objects, as you originally outlined.
+Improvements: Now handles loading states, error states, and titles for those states. It also automatically sets readOnly during loading or if no options are available.
+Component Integration:
+groupDynamicEnumDescriptors: This array holds the configuration for all your dynamic enum fields. It's concise and easy to read.
+dynamicEnumStates: A new state variable to store the fetched options, loading status, and potential errors for each dynamic field. This makes it clear which fields are loading.
+useEffect for Data Fetching: This useEffect is now responsible for triggering the WorkspaceOptions based on the dependsOn configuration and updating dynamicEnumStates. It's generic and iterates through all defined descriptors.
+useMemo for Schema Generation: The useMemo now simply calls applyDynamicEnumsToSchema, keeping its logic minimal and focused on dependency tracking. It triggers only when dynamicEnumStates or the descriptors themselves change.
+onChange on Form: It's critical to pass an onChange handler to your Form component (setFormData in this case) if you want to capture real-time form data changes. This is necessary for dependsOn logic to work correctly for dynamic enums.
+disabled prop: The Form component's disabled prop can be used to disable the entire form while options are loading, which is a good user experience.
+This structure provides a clean, maintainable, and scalable way to handle dynamic enums in your RJSF forms, aligning with your suggestion of a separate descriptor and utility.
+
+
+Sources
+
+
+
+
+
+
+
+
+
+
+Deep Research
+
+Canvas
+
+Gemini can make mistakes, including about people, so double-check it. Your privacy and Gemini
+

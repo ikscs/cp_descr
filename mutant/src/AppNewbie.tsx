@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { LoginForm, SignupForm, PasswordResetForm } from '@userfront/react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper, Button } from '@mui/material';
+import { tenantId } from './globals_VITE';
 
 interface AppNewbieProps {
   appTitle: string;
 }
 
 const AppNewbie: React.FC<AppNewbieProps> = ({ appTitle }) => {
+  const [showLogin, setShowLogin] = useState(true);
+  const toggleForm = () => {
+    setShowLogin(!showLogin);
+  };
+
   return (
     <Box
       display="flex"
@@ -33,6 +39,17 @@ const AppNewbie: React.FC<AppNewbieProps> = ({ appTitle }) => {
           {appTitle}
         </Typography>
         <Routes>
+          <Route path="/" element={
+            <>
+              {showLogin ? <LoginForm /> : <SignupForm />}
+              <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
+                {/* {showLogin ? 'Реєстрация' : 'Війти'} - {useUserfront()?.tenantId} Показываем ID тенанта из Userfront */}
+                {showLogin ? 'Реєстрация' : 'Війти'} - {tenantId}
+              </Button>
+              {/* Optionally add a link to the reset form */}
+              {/* <Link to="/reset">Forgot Password?</Link> */}
+            </>
+          } />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignupForm />} />
           <Route path="/reset" element={<PasswordResetForm />} />

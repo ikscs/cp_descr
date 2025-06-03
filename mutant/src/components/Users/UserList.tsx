@@ -14,6 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
+import { useCustomer } from '../../context/CustomerContext'; 
 
 const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -22,11 +23,16 @@ const UserList: React.FC = () => {
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [/*childTenantId,*/ _setChildTenantId] = useState<string>('6nzyjqyb'); // Replace with your child tenant ID
+  const { customerData, } = useCustomer(); 
 
   const getUsers = async () => {
     setIsLoading(true);
     try {
-      const fetchedUsers = await fetchUsers(tenantId, apiKey);
+
+      // const fetchedUsers = await fetchUsers(tenantId, apiKey);
+      const fetchedUsers1: any[] = await fetchUsers(tenantId, apiKey);
+      const fetchedUsers: User[] = fetchedUsers1.filter(user => user.data.customer == customerData?.customer);
+      
       console.log('fetchedUsers', fetchedUsers);
       setUsers([...fetchedUsers]);
       setError(null);

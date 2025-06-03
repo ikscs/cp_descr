@@ -40,6 +40,7 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.56.4",
     "react-router-dom": "^7.6.1",
+    "uuid": "^11.1.0",
     "write-excel-file": "^2.3.2",
     "yup": "^1.6.1",
     "zod": "^3.25.30"

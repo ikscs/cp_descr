@@ -1,0 +1,70 @@
+2025-05-27
+
+-- app.tsx export ( {from: string; where: object; dest: string; } )
+   +- добавить customer_id в представления v_customer_export
+
++-- app.tsx try left-side-bar ( вместо MainMenu )
+
+
+2025-05-29
+
++- point editor - вставить грид с источниками
+
++- uf проверить live mode
+
++- origin editor - проверить уникальность origin.origin
+
++- origin editor - origin.origin скрыть
+
+
+2025-05-30
+
++- UserList getUsers(сustomer_id) { return data.filter(i => i.customer == сustomer_id); }
+
++- App.tsx header = `People counting - ${customer.name}`
+
++- Customer/CustomerDetailForm.tsx доработка (api)
+
++- pg: function make_pcnt_customer(email: string, name: string='new customer') returns {ok: bool, customer_id: Int4}
+   - insert public.customer returning (customer_id)
+   - insert pcnt.point
+   - insert pcnt.origin
+   - update userfront.user customerData = { "customer": customer_id}
+   
+   ?? is_enabled default true??
+
+
+-- Billing.payment accepted:
+   - userfront.userrole add("admin")
+
+-- pcnt service plan (add public.customer.plan)
+   - starter {point_lim: 1, origin_lim: 2, user_lim: 1, person_lim: 0, period: "1month"}
+   - regular {point_lim: 5, origin_lim: 20, user_lim: 50, person_lim: 100, period: "payed"}
+   - unlim {period: "payed"}
+
+-- запретить админу править свою роль "админ"
+
+?- token error 
+
+Access to fetch at 'https://vca.theweb.place/back/f5.php?func=js_select_b' from origin 'http://localhost:5173' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+
+
+
+-- CustomerDetailForm засерить кнопку сохранить если ничего не меняется
+
+-- персонал
+
+2025-05-30
+
++- розширене <- джерела
+
+--face_referer_data upload photo
+
+
+trigger func
+  - embedding for person
+  - embedding for point
+
+
+alavr@ikscs.in.ua
+@Lavr32!

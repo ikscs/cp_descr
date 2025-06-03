@@ -24,6 +24,7 @@ import { FormsList } from './components/forms/FormsList';
 import { FormHistory } from './components/forms/FormHistory';
 import { DatabaseFormWizard } from './components/forms/DatabaseFormWizard';
 import { FormEditor } from './components/forms/FormEditor';
+import PersonList from './components/Persons/PersonList';
 
 // Protected Route Component
 const ProtectedRoute = ({
@@ -89,6 +90,7 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
             <Route path="/points" element={<ProtectedRoute user={user} requiredRole="admin"><PointList /></ProtectedRoute>} />
             <Route path="/origins" element={<ProtectedRoute user={user} requiredRole="admin"><OriginView /></ProtectedRoute>} />
             <Route path="/groups" element={<ProtectedRoute user={user} requiredRole="admin"><GroupList /></ProtectedRoute>} />
+            <Route path="/persons" element={<ProtectedRoute user={user} requiredRole="admin"><PersonList /></ProtectedRoute>} />
             <Route path="/reports" element={<ReportList />} />
             <Route path="/viewerReports" element={<ViewerReportList />} />
             <Route path="/settings/general" element={<GeneralSettings />} />

@@ -12,6 +12,7 @@ import {
   // FormControlLabel,
 } from '@mui/material';
 import { DataGrid, type GridColDef, type GridRenderCellParams, type GridRowIdGetter } from '@mui/x-data-grid';
+import { v4 as uuidv4 } from 'uuid';
 import { originApi, type Origin, type CreateOriginData, type UpdateOriginData } from '../../api/data/originApi'; // Adjust import path as necessary
 // Assuming OriginsForm is in the same directory and can be imported.
 import { useCustomer } from '../../context/CustomerContext'; // Import useCustomer
@@ -98,6 +99,26 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
     }
   }, [fetchOrigins, pointIdFilter, customerData?.customer, isCustomerLoading]);
 
+  useEffect(() => {
+  // Если pointIdFilter задан и не -1, то при открытии модалки для создания (selectedOrigin === null)
+  // передаем originDefault с point_id
+  if (isModalOpen && !selectedOrigin && pointIdFilter !== undefined && pointIdFilter !== -1) {
+    setSelectedOrigin({
+      id: undefined,
+      point_id: pointIdFilter,
+      name: '',
+      origin: uuidv4(), // Генерируем уникальный идентификатор для origin 
+      origin_type_id: '',
+      credentials: '{}',
+      is_enabled: true,
+    } as any); // Приведение к Origin, если нужно
+  }
+  // Если pointIdFilter == -1, то сбрасываем selectedOrigin для создания
+  if (isModalOpen && !selectedOrigin && pointIdFilter === -1) {
+    setSelectedOrigin(null);
+  }
+}, [isModalOpen, pointIdFilter, selectedOrigin, setSelectedOrigin]);
+
   const handleOpenModal = (origin: Origin | null) => {
     setSelectedOrigin(origin);
     setIsModalOpen(true);
@@ -119,14 +140,14 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
 
     let parsedCredentials: object | null = null;
     if (formValues.credentials && formValues.credentials.trim() !== '') {
-        try {
-            parsedCredentials = JSON.parse(formValues.credentials);
-        } catch (jsonError) {
-            console.error("[OriginsList] Invalid JSON in credentials:", jsonError);
-            setError(new Error("Credentials field contains invalid JSON."));
-            setIsLoading(false);
-            return;
-        }
+      try {
+        parsedCredentials = JSON.parse(formValues.credentials);
+      } catch (jsonError) {
+        console.error("[OriginsList] Invalid JSON in credentials:", jsonError);
+        setError(new Error("Credentials field contains invalid JSON."));
+        setIsLoading(false);
+        return;
+      }
     }
 
     try {
@@ -156,9 +177,9 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
         };
         // Form validation should catch if point_id is not selected. This is an extra safeguard.
         if (isNaN(createData.point_id) || createData.point_id <= 0) {
-            setError(new Error("A valid Point must be selected from the dropdown."));
-            setIsLoading(false); // Stop loading
-            return; // Prevent API call
+          setError(new Error("A valid Point must be selected from the dropdown."));
+          setIsLoading(false); // Stop loading
+          return; // Prevent API call
         }
         await originApi.createOrigin(createData);
       }
@@ -241,7 +262,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
   // Prepare initial values for the form when editing
   // OriginsForm expects `originToEdit` with string credentials
   const originToEditForForm = selectedOrigin
-  ? {
+    ? {
       ...selectedOrigin,
       point_id: selectedOrigin.point_id.toString(), // Form might expect string
       origin_type_id: selectedOrigin.origin_type_id.toString(), // Form might expect string
@@ -249,7 +270,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
         ? JSON.stringify(selectedOrigin.credentials, null, 2)
         : '{}',
     }
-  : undefined;
+    : undefined;
 
 
   return (
@@ -286,25 +307,25 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
 
       {/* Message if no point is selected (and not in customer-wide mode) */}
       {pointIdFilter === undefined && !isLoading && !(pointIdFilter === -1 && isCustomerLoading) && !error && (
-         <Typography sx={{my: 2}}>Please select a point to manage its origins.</Typography>
+        <Typography sx={{ my: 2 }}>Please select a point to manage its origins.</Typography>
       )}
 
       {/* Message if in customer-wide mode but no customer is selected (and customer not loading) */}
       {pointIdFilter === -1 && !customerData?.customer && !isCustomerLoading && !isLoading && !error && (
-        <Typography sx={{my: 2}}>Please select a customer to view their origins.</Typography>
+        <Typography sx={{ my: 2 }}>Please select a customer to view their origins.</Typography>
       )}
 
       {/* Message if a specific point is selected, not loading, no origins, and no error */}
       {pointIdFilter !== undefined && pointIdFilter !== -1 && !isLoading && origins.length === 0 && !error && (
-         <Typography sx={{my: 2}}>No origins found for this point.</Typography>
+        <Typography sx={{ my: 2 }}>No origins found for this point.</Typography>
       )}
 
       {/* Message if customer-wide view, customer selected, not loading, no origins, and no error */}
       {pointIdFilter === -1 && customerData?.customer && !isCustomerLoading && !isLoading && origins.length === 0 && !error && (
-         <Typography sx={{my: 2}}>No origins found for this customer.</Typography>
+        <Typography sx={{ my: 2 }}>No origins found for this customer.</Typography>
       )}
 
-      {! (isLoading || (pointIdFilter === -1 && isCustomerLoading)) && origins.length > 0 && !error && (
+      {!(isLoading || (pointIdFilter === -1 && isCustomerLoading)) && origins.length > 0 && !error && (
         <Box sx={{ height: '100%', width: '100%' }}>
           <DataGrid
             rows={origins}
@@ -313,7 +334,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
             pageSizeOptions={[5, 10, 25]}
             autoHeight={false} // Set to false if container has fixed height
             loading={isLoading || (pointIdFilter === -1 && isCustomerLoading)} // DataGrid's own loading prop
-            // initialState={{ pagination: { paginationModel: { pageSize: 5 }}}}
+          // initialState={{ pagination: { paginationModel: { pageSize: 5 }}}}
           />
         </Box>
       )}
@@ -335,16 +356,11 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
           }}
         >
           <OriginsForm
-            // Use a key to force re-mount and re-initialization of OriginsForm
-            // when selectedOrigin changes, especially between create and edit modes.
             key={selectedOrigin ? `edit-${selectedOrigin.id}` : `create-${pointIdFilter || 'new'}`}
             originToEdit={originToEditForForm}
-            // Pass pointIdFilter to prefill point_id for new origins if OriginsForm supports it
-            // The current OriginsForm.jsx uses originToEdit.point_id or an empty string.
-            // We ensure point_id is part of originToEditForForm or handled in onSave.
             onSave={handleSaveOrigin}
             onCancel={handleCloseModal}
-            // title={selectedOrigin ? 'Edit Origin' : 'Add New Origin'} // OriginsForm has its own title logic
+            lockPointId={pointIdFilter !== undefined && pointIdFilter !== -1}
           />
         </Box>
       </Modal>
