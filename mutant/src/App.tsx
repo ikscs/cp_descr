@@ -94,6 +94,7 @@ function App(): JSX.Element {
         text: 'Адміністрування',
         icon: <AdminPanelSettingsIcon />,
         items: [
+          { text: 'Парметри Системи', path: '/settings/sysparam', icon: <SettingsIcon /> },
           { text: 'Користувачі', path: '/users', icon: <PeopleIcon /> },
           { text: 'Ролі', path: '/roles', icon: <AssignmentIndIcon /> },
           { text: 'Пункти обліку', path: '/points', icon: <LocationOnIcon /> },

@@ -68,3 +68,10 @@ trigger func
 
 alavr@ikscs.in.ua
 @Lavr32!
+
+
+
+
+new form -- edit parameters
+dashboard -- df
+          -- health

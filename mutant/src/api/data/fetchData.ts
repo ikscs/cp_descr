@@ -154,7 +154,7 @@ interface ApiTokenStore {
   token: string | null;
 }
 
-const apiToken: ApiTokenStore = {
+export const apiToken: ApiTokenStore = {
   token: null, // Userfront.tokens.accessToken,
 }
 
