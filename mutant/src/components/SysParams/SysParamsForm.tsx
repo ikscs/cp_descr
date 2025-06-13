@@ -102,18 +102,25 @@ export default function SysParamsForm() {
   const [form, setForm] = useState<Record<number, any>>({});
   const [initialForm, setInitialForm] = useState<Record<number, any>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // добавлено
 
   useEffect(() => {
-    getParams().then(data => {
-      setParams(data);
-      const initial: Record<number, any> = {};
-      data.forEach((p: SysParam) => {
-        initial[p.id] = p.value?.value ?? "";
+    setError(null); // сброс ошибки при новом запросе
+    getParams()
+      .then(data => {
+        setParams(data);
+        const initial: Record<number, any> = {};
+        data.forEach((p: SysParam) => {
+          initial[p.id] = p.value?.value ?? "";
+        });
+        setForm(initial);
+        setInitialForm(initial);
+        setLoading(false);
+      })
+      .catch(_err => {
+        setError("Не вдалося завантажити параметри");
+        setLoading(false);
       });
-      setForm(initial);
-      setInitialForm(initial);
-      setLoading(false);
-    });
   }, []);
 
   const handleChange = (id: number, value: any) => {
@@ -128,13 +135,18 @@ export default function SysParamsForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await Promise.all(
-      params.map(param =>
-        updateParam(param.id, { value: { value: form[param.id] } })
-      )
-    );
-    setInitialForm({ ...form }); // сбросить исходные значения после сохранения
-    alert("Параметри збережені");
+    setError(null); // сброс ошибки перед сохранением
+    try {
+      await Promise.all(
+        params.map(param =>
+          updateParam(param.id, { value: { value: form[param.id] } })
+        )
+      );
+      setInitialForm({ ...form });
+      alert("Параметри збережені");
+    } catch (err) {
+      setError("Не вдалося зберегти параметри");
+    }
   };
 
   if (loading)
@@ -148,7 +160,12 @@ export default function SysParamsForm() {
     <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 500, mx: "auto" }}>
       <Typography variant="h5" align="center" gutterBottom>
         Параметри системи
-      </Typography>      
+      </Typography>
+      {error && (
+        <Typography color="error" align="center" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
       {params
         .sort((a, b) => a.view_order - b.view_order)
         .map(param => (
