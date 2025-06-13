@@ -1,7 +1,7 @@
 import { getBackend, postData, escapeSingleQuotes, fetchData } from './fetchData';
 import { selectData } from './genericApi';
 import type { IFetchResponse, IPostResponse } from './fetchData';
-import type { ISelectParams } from './genericApiTypes';
+// import type { ISelectParams } from './genericApiTypes';
 
 export interface Person {
     customer_id: number;

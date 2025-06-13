@@ -30,3 +30,13 @@ const TABLE_NAME = 'pcnt.person';
 в папке Persons сделать PersonList аналогично GroupList, вместо формы - заглушку
 
 в папке Persons сделать форму PersonForm аналогично GroupForm.tsx и вложениям
+
+в папке Persons сделать форму PersonForm2 аналогично GroupForm.tsx с применением 
+import validator from '@rjsf/validator-ajv8';
+import Form from '@rjsf/mui'; // If using Material-UI theme
+import originalPersonSchema from './person.schema.json';
+import originalUiPersonSchema from './person.uischema.ts';
+-- 
+передай groupOptions через пропс
+-- 
+форму PersonForm никак не использовать, новая форма взамен нее

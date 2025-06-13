@@ -4,7 +4,7 @@ import api from '../../api/data/personApi'; // Adjusted API import
 import { useCustomer } from '../../context/CustomerContext';
 // import PersonFormPlaceholder from './PersonFormPlaceholder'; // Placeholder form
 import PersonForm from './PersonForm';
-import { Alert, Box, Button, Modal, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowIdGetter } from '@mui/x-data-grid';
 
 interface PersonListProps {

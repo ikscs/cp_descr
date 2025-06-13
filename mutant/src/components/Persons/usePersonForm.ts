@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { personFormSchema, PersonFormValues } from './PersonForm.validation';
@@ -19,7 +19,7 @@ export const usePersonForm = ({ id, defaultGroupId, onSuccess, onError }: UsePer
     reset,
     formState: { errors, isSubmitting, dirtyFields },
     control, // Useful for controlled components like MUI Select with Controller
-    setValue,
+    // setValue,
   } = useForm<PersonFormValues>({
     resolver: zodResolver(personFormSchema),
     defaultValues: {

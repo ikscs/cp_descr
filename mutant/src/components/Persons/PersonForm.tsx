@@ -54,7 +54,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
     reset,
     errors,
     isSubmitting,
-    control, // Available if you prefer to use Controller for Select
+    // control, // Available if you prefer to use Controller for Select
   } = usePersonForm({
     id: idForHook,
     defaultGroupId: groupIdForDefaultsInHook,

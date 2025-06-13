@@ -1,0 +1,25 @@
+{
+  "title": "Person",
+  "description": "Schema for a person object",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "person_id": {
+      "type": "integer",
+      "title": "Person ID",
+      "readOnly": true
+    },
+    "name": {
+      "type": "string",
+      "title": "Person Name",
+      "minLength": 1
+    },
+    "group_id": {
+      "type": ["integer", "null"],
+      "title": "Group ID",
+      "enum": [1,2,3]
+    }
+  }
+}

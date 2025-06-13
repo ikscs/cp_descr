@@ -2,10 +2,10 @@
 import { Person } from '../../components/Persons/person.types';
 
 let mockPersons: Person[] = [
-  { person_id: 1, name: 'Alice Wonderland', email: 'alice@example.com', customer_id: 1 },
-  { person_id: 2, name: 'Bob The Builder', email: 'bob@example.com', customer_id: 1 },
-  { person_id: 3, name: 'Charlie Brown', customer_id: 2 },
-  { person_id: 4, name: 'Diana Prince', email: 'diana@example.com', customer_id: 1 },
+  // { person_id: 1, name: 'Alice Wonderland', email: 'alice@example.com', customer_id: 1 },
+  // { person_id: 2, name: 'Bob The Builder', email: 'bob@example.com', customer_id: 1 },
+  // { person_id: 3, name: 'Charlie Brown', customer_id: 2 },
+  // { person_id: 4, name: 'Diana Prince', email: 'diana@example.com', customer_id: 1 },
 ];
 
 let nextId = 5;
