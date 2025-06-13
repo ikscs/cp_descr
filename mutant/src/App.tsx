@@ -17,6 +17,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import PersonIcon from '@mui/icons-material/Person';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 
 import { CustomerData } from './context/CustomerContext';
 import AppCustomer from './AppCustomer';
@@ -95,6 +96,7 @@ function App(): JSX.Element {
         icon: <AdminPanelSettingsIcon />,
         items: [
           { text: 'Парметри Системи', path: '/settings/sysparam', icon: <SettingsIcon /> },
+          { text: 'Стан Системи', path: '/settings/sysstate', icon: <MonitorHeartIcon /> },
           { text: 'Користувачі', path: '/users', icon: <PeopleIcon /> },
           { text: 'Ролі', path: '/roles', icon: <AssignmentIndIcon /> },
           { text: 'Пункти обліку', path: '/points', icon: <LocationOnIcon /> },

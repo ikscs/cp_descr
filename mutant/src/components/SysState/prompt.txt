@@ -1,0 +1,21 @@
+react/typescript/mui
+
+сделай форму отображения таблиц состояния системы
+(mock api)
+
+CREATE TABLE host_disk_usage (
+    id SERIAL PRIMARY KEY,
+    host_name TEXT NOT NULL,
+    disk_path TEXT NOT NULL,
+    total_size_gb NUMERIC(10, 2) NOT NULL,
+    free_space_gb NUMERIC(10, 2) NOT NULL,
+    collected_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE host_container_status (
+    id SERIAL PRIMARY KEY,
+    host_name TEXT NOT NULL,
+    container_name TEXT NOT NULL,
+    status TEXT NOT NULL, -- Например: 'running', 'stopped', 'exited'
+    collected_at TIMESTAMPTZ DEFAULT NOW()
+);
