@@ -22,6 +22,8 @@ export const CustomerDetailsForm = () => {
     const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const { customerData } = useCustomer();
 
+    console.log(' isSubmitting:', isSubmitting);
+
     // Define form fields configuration
     // The type for 'fields' will be inferred by TypeScript based on the objects.
     // It's assumed GenericForm can handle these field type definitions.
