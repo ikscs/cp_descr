@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, } from '@mui/material';
 import { HostDiskUsage } from './types';
 
 interface DiskUsageTableProps {
@@ -33,8 +33,8 @@ const DiskUsageTable: React.FC<DiskUsageTableProps> = ({ data }) => {
               <TableCell>{row.host_name}</TableCell>
               <TableCell>{row.disk_path}</TableCell>
               <TableCell align="right">{row.total_size_gb.toFixed(2)}</TableCell>
-              <TableCell align="right">{row.free_space_gb.toFixed(2)}</TableCell>
-              <TableCell align="right">{(row.free_space_gb/row.total_size_gb*100).toFixed(2)}</TableCell>
+              <TableCell align="right">{row.used_space_gb.toFixed(2)}</TableCell>
+              <TableCell align="right">{(row.used_space_gb/row.total_size_gb*100).toFixed(2)}</TableCell>
               <TableCell>{new Date(row.collected_at).toLocaleString()}</TableCell>
             </TableRow>
           ))}

@@ -29,7 +29,8 @@ export const fetchHostDiskUsage_mock = (): Promise<HostDiskUsage[]> => {
           host_name: 'server-01',
           disk_path: '/dev/sda1',
           total_size_gb: 500.00,
-          free_space_gb: 150.75,
+          // free_space_gb: 150.75,
+          used_space_gb: 150.75,
           collected_at: '2025-06-12T10:00:00Z',
         },
         {
@@ -37,7 +38,8 @@ export const fetchHostDiskUsage_mock = (): Promise<HostDiskUsage[]> => {
           host_name: 'server-01',
           disk_path: '/dev/sdb1',
           total_size_gb: 1000.00,
-          free_space_gb: 750.20,
+          // free_space_gb: 750.20,
+          used_space_gb: 750.20,
           collected_at: '2025-06-12T10:00:00Z',
         },
         {
@@ -45,7 +47,8 @@ export const fetchHostDiskUsage_mock = (): Promise<HostDiskUsage[]> => {
           host_name: 'server-02',
           disk_path: '/dev/nvme0n1p1',
           total_size_gb: 256.00,
-          free_space_gb: 80.50,
+          // free_space_gb: 80.50,
+          used_space_gb: 80.50,
           collected_at: '2025-06-12T10:05:00Z',
         },
       ]);

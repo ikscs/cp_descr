@@ -5,15 +5,13 @@ import { fetchData, IFetchResponse, apiToken } from "../../api/data/fetchData";
 const API_URL = 'https://cnt.theweb.place/api/pcnt/param'; // Замените на ваш реальный URL API
 
 // Получить параметры
-export async function getParams(): Promise<SysParam[]> {
-  const res = await axios.get<SysParam[]>(API_URL,
-    // {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     'authorization': `Bearer ${apiToken.token}`,
-    //   }
-    // }
-  );
+export async function getParams1(): Promise<SysParam[]> {
+  const res = await axios.get<SysParam[]>(API_URL, {
+      headers: {
+        "Content-Type": "application/json",
+        'authorization': `Bearer ${apiToken.token}`,
+      }
+    });
   return res.data;
 }
 
@@ -31,7 +29,7 @@ export async function updateParam(id: number, data: { value: { value: any } }): 
 }
 
 // Получить параметры - альтернативный метод с использованием fetchData
-export async function getParams1(): Promise<SysParam[]> {
+export async function getParams(): Promise<SysParam[]> {
     const params = {
         from: 'pcnt.param',
         order: 'name',

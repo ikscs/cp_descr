@@ -75,3 +75,14 @@ alavr@ikscs.in.ua
 new form -- edit parameters
 dashboard -- df
           -- health
+
+
+2025-06-13
+
+  drf + userfront token (use public key) -- пример: параметры системы get, patch
+
+
+
+Volodymyr Mykhailov
+19:07
+https://api.userfront.com/v0/tenants/pn46j8wn/keys/jwt

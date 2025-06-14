@@ -3,7 +3,8 @@ export interface HostDiskUsage {
   host_name: string;
   disk_path: string;
   total_size_gb: number;
-  free_space_gb: number;
+  used_space_gb: number;
+  // free_space_gb: number;
   collected_at: string;
 }
 
