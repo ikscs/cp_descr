@@ -24,6 +24,7 @@ interface BaseFieldConfig {
     type: FieldType;
     required?: boolean;
     defaultValue?: any;
+    disabled?: boolean;
 }
 
 interface TextFieldConfig extends BaseFieldConfig {
@@ -186,7 +187,7 @@ export const GenericFormRenderer = ({
                                 error={!!errors[field.name]}
                                 helperText={errors[field.name]?.message as string}
                                 multiline={field.multiline}
-                                disabled={disabled}
+                                disabled={disabled || field.disabled}
                                 rows={field.rows}
                                 sx={disabledTextFieldStyles}
                             />
@@ -209,7 +210,7 @@ export const GenericFormRenderer = ({
                                 onChange={(e) => onChange(Number(e.target.value))}
                                 error={!!errors[field.name]}
                                 helperText={errors[field.name]?.message as string}
-                                disabled={disabled}
+                                disabled={disabled || field.disabled}
                                 sx={disabledTextFieldStyles}
                             />
                         )}
@@ -231,7 +232,7 @@ export const GenericFormRenderer = ({
                                 onChange={onChange}
                                 error={!!errors[field.name]}
                                 helperText={errors[field.name]?.message as string}
-                                disabled={disabled}
+                                disabled={disabled || field.disabled}
                                 sx={disabledTextFieldStyles}
                             >
                                 {field.options.map((option) => (
@@ -256,7 +257,7 @@ export const GenericFormRenderer = ({
                                     <Switch
                                         checked={value}
                                         onChange={(e) => onChange(e.target.checked)}
-                                        disabled={disabled}
+                                        disabled={disabled || field.disabled}
                                     />
                                 }
                                 label={field.label}

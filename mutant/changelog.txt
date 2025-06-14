@@ -20,3 +20,24 @@
 - Fixed point options loading in group forms
 - Improved form field layout and spacing
 - Added proper type definitions for all components
+
+
+2025-06-14
+
+- GenericFormRenderer / copilot
+
+Отчет об ошибке и изменении: свойство disabled для полей формы
+Проблема:
+Свойство disabled: true в конфигурации поля (например, для customer_id) не делало поле неактивным в форме. Поле оставалось редактируемым, несмотря на настройку.
+
+Причина:
+В типах конфигурации полей (FieldConfig и его наследниках) отсутствовало свойство disabled. Поэтому TypeScript не позволял обращаться к field.disabled, и это свойство не учитывалось при рендере поля.
+
+Решение:
+Добавлено свойство disabled?: boolean в базовый тип BaseFieldConfig. Теперь все поля формы могут корректно принимать и обрабатывать этот флаг, и он пробрасывается в компонент поля (TextField, Switch и т.д.) через проп disabled={disabled || field.disabled}.
+
+Результат:
+Поля с disabled: true в конфиге становятся неактивными для редактирования, как и ожидалось.
+
+-- как проверить
+   Налаштування - Загальні - Редагувати - поле "клієнта" не редактируется, для него установлено "disabled"
