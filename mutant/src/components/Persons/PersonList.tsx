@@ -3,9 +3,11 @@ import { Person } from './person.types';
 import api from '../../api/data/personApi'; // Adjusted API import
 import { useCustomer } from '../../context/CustomerContext';
 // import PersonFormPlaceholder from './PersonFormPlaceholder'; // Placeholder form
-import PersonForm from './PersonForm';
+import PersonForm, { PersonFormProps } from './PersonForm'; // Import PersonFormProps
+import PersonFaces from './PersonFaces'; // Import the new component
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowIdGetter } from '@mui/x-data-grid';
+import PersonFacesGallery from '../PersonFaces/PersonFacesGallery';
 
 interface PersonListProps {
   // Future props can be added here
@@ -19,6 +21,7 @@ const PersonList: React.FC<PersonListProps> = () => {
   const [personForForm, setPersonForForm] = useState<Person | null>(null); // Renamed
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isFormOpen, setIsFormOpen] = useState(false); // Renamed
+  const [isFacesOpen, setIsFacesOpen] = useState(false);
 
   const fetchPersons = useCallback(async () => {
     if (!customerData?.customer) {
@@ -110,6 +113,16 @@ const PersonList: React.FC<PersonListProps> = () => {
     setIsFormOpen(true);
   };
 
+  const handleOpenFaces = (person: Person) => {
+    setPersonForForm(person);
+    setIsFacesOpen(true);
+  }
+
+  const handleCloseFaces = () => {
+    setIsFacesOpen(false);
+    setPersonForForm(null); // Clear selected person when closing faces modal
+  }
+
   const handleCloseForm = () => { // Renamed
     setIsFormOpen(false);
     setPersonForForm(null);
@@ -126,7 +139,7 @@ const PersonList: React.FC<PersonListProps> = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
+      width: 300,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Person>) => (
         <Stack direction="row" spacing={1}>
@@ -136,7 +149,15 @@ const PersonList: React.FC<PersonListProps> = () => {
             variant="outlined"
             disabled={isSubmitting}
           >
-            Edit
+            Редагувати
+          </Button>
+          <Button
+            onClick={() => handleOpenFaces(params.row)}
+            size="small"
+            variant="outlined"
+            disabled={isSubmitting}
+          >
+            Фото
           </Button>
           <Button
             onClick={() => handleDeletePerson(params.row.person_id)}
@@ -145,7 +166,7 @@ const PersonList: React.FC<PersonListProps> = () => {
             color="error"
             disabled={isSubmitting}
           >
-            Delete
+            Видалити
           </Button>
         </Stack>
       ),
@@ -199,8 +220,16 @@ const PersonList: React.FC<PersonListProps> = () => {
           // Optionally, pass a defaultGroupId if PersonList has a specific context for it
           // defaultGroupId={personForForm?.person_id === 0 ? personForForm.group_id : undefined}
         />
-      )}
+        // <PersonFacesGallery personId={personForForm.person_id} columns={3} />
+      )} {/* PersonForm is a Dialog */}
+
+      {/* Render PersonFaces (which contains the Modal) */}
+      {isFacesOpen && personForForm?.person_id !== undefined && personForForm.person_id !== 0 && (
+         <PersonFaces open={isFacesOpen} onClose={handleCloseFaces} personId={personForForm.person_id} />
+      )} {/* PersonFaces handles its own Modal */}
+
     </Box>
   );
 };
+
 export default PersonList;

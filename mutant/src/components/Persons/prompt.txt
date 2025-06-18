@@ -40,3 +40,8 @@ import originalUiPersonSchema from './person.uischema.ts';
 передай groupOptions через пропс
 -- 
 форму PersonForm никак не использовать, новая форма взамен нее
+
+
+
+------------------------------
+в папке Persons сделать PersonFaces.tsx для вызова PersonFacesGallery в модальном окне

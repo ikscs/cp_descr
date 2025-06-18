@@ -86,3 +86,19 @@ dashboard -- df
 Volodymyr Mykhailov
 19:07
 https://api.userfront.com/v0/tenants/pn46j8wn/keys/jwt
+
+
+2025-06-14
+
+-- Персони - add (see person_id: serial)
+
+
+2025-06-16
+
+-- Персони - edit - не сохраняется группа, в гриде пропадает customer_id 
+
+
+
+https://cnt.theweb.place/api/pcnt/face_referer_data/
+
+
