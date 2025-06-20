@@ -1,0 +1,35 @@
+создаем дашборд по аналогии с sysstate (react, typescript, @mui/material, axios)
+
+0. types.ts (готово)
+
+1. api.ts (готово)
+- получаем все метрики для отображения
+
+2. SystemMetricForm 
+- метрики из api.ts
+- обновление 5 сек
+- Tabs с элементами для каждой группы
+- <SystemMetricTable group_name={groupName}/>
+
+3. SystemMetricTable(group_name)
+- заглушка
+
+-----------------------------------
+
+создай SystemMetricForm по аналогии с sysstate (react, typescript, @mui/material, axios)
+
+0. types.ts (готово)
+
+1. api.ts (готово)
+- получаем все метрики для отображения
+
+2. SystemMetricForm 
+- метрики из api.ts
+- обновление 5 сек
+- Tabs с элементами для каждой группы
+- <SystemMetricTable group_name={groupName}/>
+
+3. SystemMetricTable(group_name)
+- заглушка
+
+

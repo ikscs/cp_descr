@@ -97,6 +97,7 @@ function App(): JSX.Element {
         items: [
           { text: 'Парметри Системи', path: '/settings/sysparam', icon: <SettingsIcon /> },
           { text: 'Стан Системи', path: '/settings/sysstate', icon: <MonitorHeartIcon /> },
+          { text: 'Стан Системи (Метрики)', path: '/settings/sysmetric', icon: <MonitorHeartIcon /> },
           { text: 'Користувачі', path: '/users', icon: <PeopleIcon /> },
           { text: 'Ролі', path: '/roles', icon: <AssignmentIndIcon /> },
           { text: 'Пункти обліку', path: '/points', icon: <LocationOnIcon /> },
