@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PersonFace } from './personFace.types';
 import { api, mockApi, uint8ArrayToBase64_ as uint8ArrayToBase64 } from './personFaceApi';
-
-// Material-UI компоненты
 import {
   Container,
   Grid,
@@ -24,7 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import SelectAllIcon from '@mui/icons-material/SelectAll';
 import DeselectIcon from '@mui/icons-material/Deselect';
-import ImageFromUint8Array from './ImageFromUint8Array';
+// import ImageFromUint8Array from './__ImageFromUint8Array';
 
 // Стили для модального окна
 const modalStyle = {
@@ -188,7 +186,8 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
 
     try {
       setLoading(true);
-      await mockApi.deleteFaces(Array.from(selectedFaces));
+      // await mockApi.deleteFaces(Array.from(selectedFaces));
+      await api.deleteFaces(Array.from(selectedFaces));
       setSelectedFaces(new Set()); // Сбросить выбор
       await fetchFaces(); // Обновить список лиц
     } catch (err) {
@@ -291,7 +290,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
                       <Checkbox
                         checked={isSelected}
                         onChange={(e) => handleSelectFace(face.faceUuid, e.target.checked)}
-                        sx={{ position: 'absolute', top: 5, right: 5, zIndex: 1 }}
+                        sx={{ position: 'relative', top: 5, right: 5, zIndex: 1 }}
                       />
                     }
                     label=""

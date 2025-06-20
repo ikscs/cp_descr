@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getData } from '../../api/data/dataTools';
 import { apiToken, fetchData, getBackend, IFetchResponse, IPostResponse, postData } from '../../api/data/fetchData';
 import { PersonFace } from './personFace.types';
 
@@ -108,6 +107,7 @@ const uint8ArrayToBlob = (uint8Array: Uint8Array, type: string = 'image/png'): B
 //   return bytes;
 // };
 
+const API_URL_FACES = 'https://cnt.theweb.place/api/pcnt/faces';
 
 export const api = {
 
@@ -148,8 +148,8 @@ export const api = {
   },
 
   get: async (personId: number): Promise<PersonFace[]> => {
-    // const res = await axios.get<PersonFace[]>(`${API_URL}/${personId}`, { // todo: фильтрация по personId
-    const res = await axios.get<PersonFace[]>(API_URL, {
+    const res = await axios.get<PersonFace[]>(`${API_URL}/person/${personId}`, { // API_URL_FACES
+    // const res = await axios.get<PersonFace[]>(API_URL, {
         headers: {
           "Content-Type": "application/json",
           // 'authorization': `Bearer ${apiToken.token}`,
@@ -157,7 +157,7 @@ export const api = {
       });
     // console.log('res.data:', JSON.stringify(res.data[43])); // base64 проверка
     return res.data
-      .filter((face:any) => face.person === personId) // todo: преобразоввать наименования
+      // .filter((face:any) => face.person === personId) // todo: преобразоввать наименования
       .map((face:any) => ({
         ...face,
         faceUuid: face.face_uuid, // todo: преобразоввать наименования
@@ -166,15 +166,15 @@ export const api = {
       })) as PersonFace[];
    },
 
-  addFormData: async (data: FormData): Promise<FormData> => {
-    await axios.post(`${API_URL}/`, data, {
-      headers: {
-        "Content-Type": "application/json",
-        // 'authorization': `Bearer ${apiToken.token}`,
-      },
-    });
-    return data;
-  },
+  // addFormData: async (data: FormData): Promise<FormData> => {
+  //   await axios.post(`${API_URL}/`, data, {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       // 'authorization': `Bearer ${apiToken.token}`,
+  //     },
+  //   });
+  //   return data;
+  // },
 
   add: async (data: PersonFace): Promise<PersonFace> => {
     const dataToInsert = {
@@ -226,5 +226,16 @@ export const api = {
       throw err;
     }
   },
-  deleteFaces: mockApi.deleteFaces,
+
+  // deleteFaces: mockApi.deleteFaces,
+  deleteFaces: async (faceUuids: string[]): Promise<void> => {
+    for (const uuid of faceUuids) {
+      await axios.delete(`${API_URL}/${uuid}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          // 'authorization': `Bearer ${apiToken.token}`,
+        },
+      });
+    }
+  },
 }
