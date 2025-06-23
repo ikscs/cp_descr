@@ -65,7 +65,7 @@ const SystemMetricForm: React.FC = () => {
       </Typography>
 
       <Tabs value={selectedTab} onChange={handleChange} centered aria-label="system metric tabs">
-        {groupNames.map((group, idx) => (
+        {groupNames.map((group, _idx) => (
           <Tab key={group} label={group} />
         ))}
       </Tabs>
