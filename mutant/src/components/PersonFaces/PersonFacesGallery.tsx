@@ -61,10 +61,10 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Функция, которая будет вызвана при клике на кнопку "Добавить лицо"
-  const handleAddFaceClick = () => {
-    // Программно "кликаем" по скрытому input для выбора файла
-    fileInputRef.current?.click();
-  };
+  // const handleAddFaceClick = () => {
+  //   // Программно "кликаем" по скрытому input для выбора файла
+  //   fileInputRef.current?.click();
+  // };
   
   // --- Загрузка данных ---
   const fetchFaces = useCallback(async () => {

@@ -3,11 +3,10 @@ import { Person } from './person.types';
 import api from '../../api/data/personApi'; // Adjusted API import
 import { useCustomer } from '../../context/CustomerContext';
 // import PersonFormPlaceholder from './PersonFormPlaceholder'; // Placeholder form
-import PersonForm, { PersonFormProps } from './PersonForm'; // Import PersonFormProps
+import PersonForm /*{ PersonFormProps }*/ from './PersonForm'; // Import PersonFormProps
 import PersonFaces from './PersonFaces'; // Import the new component
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowIdGetter } from '@mui/x-data-grid';
-import PersonFacesGallery from '../PersonFaces/PersonFacesGallery';
 
 interface PersonListProps {
   // Future props can be added here
