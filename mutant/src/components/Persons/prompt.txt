@@ -45,3 +45,7 @@ import originalUiPersonSchema from './person.uischema.ts';
 
 ------------------------------
 в папке Persons сделать PersonFaces.tsx для вызова PersonFacesGallery в модальном окне
+
+
+
+как испровить форму PersonForm - не показывает группу 

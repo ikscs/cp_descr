@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PersonFace } from './personFace.types';
-import { api, mockApi, uint8ArrayToBase64_ as uint8ArrayToBase64 } from './personFaceApi';
+import { api, uint8ArrayToBase64_ as uint8ArrayToBase64 } from './personFaceApi';
 import {
   Container,
   Grid,
@@ -123,7 +123,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
       const arrayBuffer = await file.arrayBuffer();
       const photoUint8Array = new Uint8Array(arrayBuffer);
 
-      const addedFace = await api.add({  // addFace
+      const addedFace = await api.add({
         faceUuid: window.crypto.randomUUID(),
         personId,
         photo: photoUint8Array,
@@ -155,23 +155,23 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
     if (newComment === null) return; // Пользователь отменил ввод
 
     // Создаем фиктивное изображение (например, 1x1 прозрачный пиксель)
-    const dummyPhoto = new Uint8Array(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64'));
+    // const dummyPhoto = new Uint8Array(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64'));
 
-    try {
-      setLoading(true);
-      const addedFace = await mockApi.addFace({
-        personId,
-        photo: dummyPhoto,
-        comment: newComment || 'Новое лицо',
-        embedding: [],
-      });
-      setFaces(prev => [...prev, addedFace]);
-      setLoading(false);
-    } catch (err) {
-      setError('Не удалось добавить лицо.');
-      console.error(err);
-      setLoading(false);
-    }
+    // try {
+    //   setLoading(true);
+    //   const addedFace = await mockApi.addFace({
+    //     personId,
+    //     photo: dummyPhoto,
+    //     comment: newComment || 'Новое лицо',
+    //     embedding: [],
+    //   });
+    //   setFaces(prev => [...prev, addedFace]);
+    //   setLoading(false);
+    // } catch (err) {
+    //   setError('Не удалось добавить лицо.');
+    //   console.error(err);
+    //   setLoading(false);
+    // }
   };
 
   // --- Обработчик удаления ---

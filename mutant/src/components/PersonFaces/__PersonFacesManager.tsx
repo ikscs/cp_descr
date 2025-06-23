@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, IconButton, Paper, Tooltip } from '@mui/material';
+import { IconButton, Paper, Tooltip } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteIcon from '@mui/icons-material/Delete';

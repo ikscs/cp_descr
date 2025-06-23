@@ -19,6 +19,7 @@ import { Person } from './person.types';
 import { Group } from '../Groups/group.types';
 import groupApi from '../../api/data/groupApi';
 import { useCustomer } from '../../context/CustomerContext';
+import { Controller } from 'react-hook-form';
 
 export interface PersonFormProps {
   open: boolean;
@@ -54,7 +55,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
     reset,
     errors,
     isSubmitting,
-    // control, // Available if you prefer to use Controller for Select
+    control, // <-- добавьте это
   } = usePersonForm({
     id: idForHook,
     defaultGroupId: groupIdForDefaultsInHook,
@@ -89,32 +90,18 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
   useEffect(() => {
     if (open) {
-      // When the dialog opens, usePersonForm is responsible for initializing the form
-      // based on idForHook and groupIdForDefaultsInHook.
-      // If personToEdit is a template for a NEW person (idForHook is undefined),
-      // and it contains initial values (like name), we ensure they are applied here,
-      // as usePersonForm might only set its known defaults (e.g., group_id).
       if (!idForHook && personToEdit && isNewPersonTemplate) {
         reset({
           name: personToEdit.name || '',
-          group_id: groupIdForDefaultsInHook, // Correct for new, but the hook should handle it.
-          // email: personToEdit.email || '',  //  No email in the template.
-
-          //  To handle cases with prepopulated template data.
-          // ...(personToEdit.email ? { email: personToEdit.email } : {}),
-          // ... (other fields from personToEdit as needed),
+          group_id: typeof groupIdForDefaultsInHook === 'number' ? groupIdForDefaultsInHook : undefined,
         });
       } else if (idForHook && personToEdit) {
         reset({
           name: personToEdit.name || '',
-          group_id: personToEdit.group_id,  //  Correctly set for editing
-          // ...(personToEdit.email ? { email: personToEdit.email } : {}),  // Ensure the email is reset too.
-          // any other fields from personToEdit that are part of the form
+          group_id: typeof personToEdit.group_id === 'number' ? personToEdit.group_id : undefined,
         });
       }
-      // else, usePersonForm handles it (either fetching for idForHook, or basic new form for !idForHook)
     } else {
-      // Reset form to a completely clean state when dialog is closed.
       reset({ name: '', group_id: undefined });
     }
   }, [open, reset, personToEdit, idForHook, isNewPersonTemplate, groupIdForDefaultsInHook]);
@@ -149,21 +136,29 @@ const PersonForm: React.FC<PersonFormProps> = ({
             <Grid item xs={12}>
               <FormControl fullWidth error={!!errors.group_id}>
                 <InputLabel id="group-select-label">Group</InputLabel>
-                <Select
-                  labelId="group-select-label"
-                  label="Group"
-                  {...register('group_id')} // Zod schema coerces value to number
-                  disabled={loadingGroups || groups.length === 0 || isSubmitting}
-                  // defaultValue removed; RHF controls the value via reset/defaultValues in usePersonForm
-                >
-                  {loadingGroups && <MenuItem value=""><em>Loading groups...</em></MenuItem>}
-                  {!loadingGroups && groups.length === 0 && <MenuItem value=""><em>No groups available</em></MenuItem>}
-                  {groups.map((group) => (
-                    <MenuItem key={group.group_id} value={group.group_id}>
-                      {group.name}
-                    </MenuItem>
-                  ))}
-                </Select>
+                <Controller
+                  name="group_id"
+                  control={control}
+                  defaultValue={typeof groupIdForDefaultsInHook === 'number' ? groupIdForDefaultsInHook : undefined}
+                  render={({ field }) => (
+                    <Select
+                      labelId="group-select-label"
+                      label="Group"
+                      {...field}
+                      value={typeof field.value === 'number' ? field.value : undefined}
+                      disabled={loadingGroups || groups.length === 0 || isSubmitting}
+                    >
+                      <MenuItem value={undefined}><em>Не выбрано</em></MenuItem>
+                      {loadingGroups && <MenuItem value={-1}><em>Loading groups...</em></MenuItem>}
+                      {!loadingGroups && groups.length === 0 && <MenuItem value={-1}><em>No groups available</em></MenuItem>}
+                      {groups.map((group) => (
+                        <MenuItem key={group.group_id} value={group.group_id}>
+                          {group.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
                 {errors.group_id && <FormHelperText>{errors.group_id.message}</FormHelperText>}
               </FormControl>
             </Grid>
