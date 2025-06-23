@@ -28,6 +28,7 @@ import PersonList from './components/Persons/PersonList';
 import SysParamsForm from './components/SysParams/SysParamsForm';
 import SystemStatusForm from './components/SysState/SystemStatusForm';
 import SystemMetricForm from './components/SysMetrics/SystemMetricForm';
+import AdvertsView from './pages/adverts/AdvertsView';
 
 // Protected Route Component
 const ProtectedRoute = ({
@@ -88,6 +89,7 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardView />} />
+            <Route path="/adverts" element={<AdvertsView />} />
             <Route path="/users" element={<Users />} />
             <Route path="/roles" element={<RoleList />} />
             <Route path="/points" element={<ProtectedRoute user={user} requiredRole="admin"><PointList /></ProtectedRoute>} />

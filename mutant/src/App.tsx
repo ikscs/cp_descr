@@ -18,6 +18,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import PersonIcon from '@mui/icons-material/Person';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 
 import { CustomerData } from './context/CustomerContext';
 import AppCustomer from './AppCustomer';
@@ -85,6 +86,7 @@ function App(): JSX.Element {
   useEffect(() => {
     const baseMenuItems: MenuItem[] = [
       { text: 'Дашборд', path: '/dashboard', icon: <DashboardIcon /> },
+      { text: 'Реклама', path: '/adverts', icon: <EmojiPeopleIcon /> },
       { text: 'Звіти', path: '/reports', icon: <AssessmentIcon /> },
       { text: 'Клієнти', path: '/customers', icon: <ShoppingCartIcon /> },
       { text: 'Форми', path: '/forms', icon: <DescriptionIcon /> },

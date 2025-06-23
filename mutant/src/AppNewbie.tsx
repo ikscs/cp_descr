@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { LoginForm, SignupForm, PasswordResetForm } from '@userfront/react';
 import { Box, Typography, Paper, Button } from '@mui/material';
 import { tenantId } from './globals_VITE';
+import AdvertsView from './pages/adverts/AdvertsView';
 
 interface AppNewbieProps {
   appTitle: string;
@@ -39,7 +40,10 @@ const AppNewbie: React.FC<AppNewbieProps> = ({ appTitle }) => {
           {appTitle}
         </Typography>
         <Routes>
-          <Route path="/" element={
+          <Route path="/login1" element={
+            <><AdvertsView /></>}
+          />
+          <Route path="/login" element={
             <>
               {showLogin ? <LoginForm /> : <SignupForm />}
               <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
@@ -50,7 +54,7 @@ const AppNewbie: React.FC<AppNewbieProps> = ({ appTitle }) => {
               {/* <Link to="/reset">Forgot Password?</Link> */}
             </>
           } />
-          <Route path="/login" element={<LoginForm />} />
+          {/* <Route path="/login" element={<LoginForm />} /> */}
           <Route path="/signup" element={<SignupForm />} />
           <Route path="/reset" element={<PasswordResetForm />} />
           {/* Если пользователь не аутентифицирован и пытается перейти по другому пути,
