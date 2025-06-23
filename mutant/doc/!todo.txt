@@ -96,9 +96,92 @@ https://api.userfront.com/v0/tenants/pn46j8wn/keys/jwt
 2025-06-16
 
 -- Персони - edit - не сохраняется группа, в гриде пропадает customer_id 
-
+   point
+   person
+   person_group
 
 
 https://cnt.theweb.place/api/pcnt/face_referer_data/
 
 
+2025-06-19
+
++- metric.template
+   добавить формат для float - полей
+
+   { "type": "float", "digits": 1 } // using <number>.toFixed(<digits>)
+
+2025-06-19
+
++- metric.template
+   добавить statusLabel: "ok" | "warning" | "critical"
+   добавить statusValue: ok | warning | critical
+
++- metric.value
+   добавить status: ok | warning | critical
+
+{"fields": [
+{"name": "total", "type": "float", "label": "Total Gb"}, 
+{"name": "used", "type": "float", "label": "Used Gb", "digits": 1}
+]}
+
+
+
+Volodymyr Mykhailov
+11:57
+{
+"fields": 
+[
+{"name": "total", "type": "float", "label": "Total Gb"}, 
+{"name": "used",  "type": "float", "label": "Used Gb", "digits": 1}
+],
+
+"status":
+[
+{"label": "Ok", "value": "Ok", "colour": "Green"},
+{"label": "Warning", "value": "Warning", "colour": "Yellow"},
+{"label": "Alarm", "value": "Alarm", "colour": "Red"},
+{"label": "Error", "value": "Error", "colour": "Red"},
+]
+
+}
+
+{"used": 52.42448425292969, "total": 78.67133331298828, "status": "Ok"}
+
+
+
+2025-06-23
+demo-customer
+
+
+alexanter.lavrikov@gmail.com
+alavr32!
+
+
+
+8b6p497b
+
+
+
+
+Yuriy Bugayov
+10:24
+https://docs.incoresoft.com/ivms/latest/swagger-documentation-94601283.html
+https://doc.developer.milestonesys.com/html/index.html
+Yuriy Bugayov
+10:57
+8b6p497b
+Yuriy Bugayov
+11:56
+alavr@ikscs.in.ua
+Yuriy Bugayov
+12:00
+https://webmail.adm.tools/?lang=uk
+alavr@ikscs.in.ua
+eXG94dvD38
+Yuriy Bugayov
+12:06
+5C2zfBe69G
+5C2zfBe69G
+lavr@ikscs.in.ua
+lavr@ikscs.in.ua
