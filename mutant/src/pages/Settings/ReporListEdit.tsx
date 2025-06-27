@@ -312,7 +312,7 @@ const ReporListEdit: React.FC = () => {
         maxWidth="lg" // Можно сделать шире, если нужно больше места для редактора
       >
         <DialogTitle>
-            {selectedReport?.id === -1 ? 'Создание отчета' : `Редактирование отчета: ${selectedReport?.name || ''}`}
+            {selectedReport?.id === -1 ? 'Создание отчета' : `Редактирование отчета: ${selectedReport?.name || ''} (${selectedReport?.id})`}
         </DialogTitle>
         {/* Убираем padding из DialogContent, так как QueryEdit имеет свой */}
         <DialogContent sx={{ p: 0, overflowY: 'hidden' }}>

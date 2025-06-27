@@ -22,6 +22,7 @@ import type { ParsedReport, ReportExecutionResult, ChartData } from './ReportLis
 // import { AggregationType, generatePivotData, prepareChartDataFromPivoted, aggregationTypeLabels } from './pivotUtils';
 import { AggregationType, generatePivotData, prepareChartDataFromPivoted, } from './pivotUtils';
 import PivotChartContent from './PivotChartContent';
+import { fillPlaceholders } from './reportTools';
 
 const backend = getBackend();
 
@@ -396,7 +397,7 @@ const MiniReport2: React.FC<MiniReport2Props> = ({ report, parameters, displayMo
                     <Box sx={{ height: '100%', position: 'relative' }}>
                         {chartType === 'circular' ? (
                             <CircularChart
-                                reportName={report.name || ''}
+                                reportName={fillPlaceholders(report.name, parameters)}
                                 labels={chartData.xAxisValues}
                                 datasets={chartData.datasets.map(ds => ({
                                     label: ds.label,
@@ -405,7 +406,7 @@ const MiniReport2: React.FC<MiniReport2Props> = ({ report, parameters, displayMo
                             />
                         ) : (
                             <LineChart
-                                reportName={report.name || ''}
+                                reportName={fillPlaceholders(report.name, parameters)}
                                 xAxisValues={chartData.xAxisValues}
                                 datasets={chartData.datasets}
                                 yAxisLabel={chartData.yAxisLabel}
