@@ -5,7 +5,8 @@ import { type MenuItem } from './components/Shared/SideBar';
 import { CustomerProvider, type CustomerData } from './context/CustomerContext'; // Предполагаемый путь
 import { Box } from '@mui/material';
 
-import DashboardView from './pages/dashboard/DashboardView';
+import DashboardView from './pages/dashboard/DashboardBtView';
+// import DashboardView from './pages/dashboard/DashboardBtView_copy';
 import Users from './components/Users/UserList';
 import RoleList from './components/Roles/RoleList';
 import PointList from './components/Points/PointList';
