@@ -41,7 +41,7 @@ import dayjs, { Dayjs } from 'dayjs';
  
 const DATE_FORMAT_PARAM = 'YYYY-MM-DD'; // Изменено на формат, совместимый с Dayjs
 
-const REPORT_ID_Pivot = 2; // Відвідувачі Pivot
+const REPORT_ID_Pivot = 34; // 2; // Відвідувачі Pivot
 const REPORT_ID_22 = 28; // Відвідувачі
 const REPORT_ID_23 = 33; // 27; // Відвідувачі - Стать
 const REPORT_ID_24 = 32; // 26; // Відвідувачі - Вік
@@ -479,6 +479,13 @@ const DashboardView: React.FC = () => {
     const displayDate = activeGranularity === 'DAY' ? d1String : `${d1String} - ${d2String}`;
     console.log('displayDate', displayDate);
 
+    // костыль
+    const reportParamsPivot = reportParams.map(param => {
+        if (param.name === 'point') {
+            return { ...param, value: -1 }; // Создаем новый объект с обновленным значением
+        }
+        return param; // Возвращаем неизмененный объект
+    });
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Box id={'22222222'} sx={{
@@ -685,7 +692,7 @@ const DashboardView: React.FC = () => {
                                         <Box sx={{ px: 1.5, pb: 1 }}>
                                             <MiniReport
                                                 report={parsedReportPivot}
-                                                parameters={reportParams}
+                                                parameters={reportParamsPivot}
                                                 displayMode="pivot"
                                                 height="450px"
                                             />
