@@ -5,7 +5,7 @@ import { fetchData, IFetchResponse, apiToken } from "../../api/data/fetchData";
 const API_URL = 'https://cnt.theweb.place/api/pcnt/param'; // Замените на ваш реальный URL API
 
 // Получить параметры
-export async function getParams1(): Promise<SysParam[]> {
+export async function getParams(): Promise<SysParam[]> {
   const res = await axios.get<SysParam[]>(API_URL, {
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +29,7 @@ export async function updateParam(id: number, data: { value: { value: any } }): 
 }
 
 // Получить параметры - альтернативный метод с использованием fetchData
-export async function getParams(): Promise<SysParam[]> {
+export async function getParams_(): Promise<SysParam[]> {
     const params = {
         from: 'pcnt.param',
         order: 'name',
@@ -40,7 +40,7 @@ export async function getParams(): Promise<SysParam[]> {
 };
 
 // Обновить параметр - альтернативный метод с использованием fetch api
-export async function updateParam1(id: number, data: { value: { value: any } }): Promise<void> {
+export async function updateParam_(id: number, data: { value: { value: any } }): Promise<void> {
     const params: any = {
         from: 'pcnt.param',
         where: `id = ${id}`,

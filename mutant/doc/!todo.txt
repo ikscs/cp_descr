@@ -189,4 +189,30 @@ lavr@ikscs.in.ua
 
 2025-06-27
 
-подготовить демо но прод
++- подготовить демо но прод
+
++- подстановка параметров в шапку отчета
+
+
+
+Yuriy Bugayov
+10:10
+https://github.com/shaka-project/shaka-player
+https://github.com/video-dev/hls.js
+https://github.com/cookpete/react-player
+https://videojs.com/
+
+
+2025-07-01
+Данные сводной таблицы для отчета: Кількість відвідувачів
+Pivot Controls
+x   y     value aggregation 
+dd  name  cnt   sum
+
+
+
+curl -X POST \
+  -H "Authorization: Bearer ВАШ_ТОКЕН_ДОСТУПА" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "New Item", "value": 123}' \
+  http://localhost:3000/api/create-item

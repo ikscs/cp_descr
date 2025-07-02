@@ -107,9 +107,9 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
             <Route path="/enterprise/departments" element={<ProtectedRoute user={user} requiredRole="owner"><DepartmentList /></ProtectedRoute>} />
             <Route path="/enterprise/positions" element={<ProtectedRoute user={user} requiredRole="owner"><PositionList /></ProtectedRoute>} />
             <Route path="/enterprise/employees" element={<ProtectedRoute user={user} requiredRole="owner"><EmployeeList /></ProtectedRoute>} />
-            <Route path="/customers" element={<CustomerPage />} />
+            <Route path="/customers" element={<ProtectedRoute user={user} requiredRole="owner"><CustomerPage /></ProtectedRoute>} />
             <Route path="/reset" element={<PasswordResetForm />} />
-            <Route path="/forms" element={<FormsList />} />
+            <Route path="/forms" element={<ProtectedRoute user={user} requiredRole="owner"><FormsList /></ProtectedRoute>} />
             <Route path="/forms/new" element={<DatabaseFormWizard />} />
             <Route path="/forms/:id/edit" element={<FormEditor />} />
             <Route path="/forms/:id/history" element={<FormHistory />} />

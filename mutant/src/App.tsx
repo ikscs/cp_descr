@@ -88,8 +88,6 @@ function App(): JSX.Element {
       { text: 'Дашборд', path: '/dashboard', icon: <DashboardIcon /> },
       { text: 'Реклама', path: '/adverts', icon: <EmojiPeopleIcon /> },
       { text: 'Звіти', path: '/reports', icon: <AssessmentIcon /> },
-      { text: 'Клієнти', path: '/customers', icon: <ShoppingCartIcon /> },
-      { text: 'Форми', path: '/forms', icon: <DescriptionIcon /> },
     ];
 
     const adminMenuItems: MenuItem[] = [
@@ -107,6 +105,9 @@ function App(): JSX.Element {
           { text: 'Групи', path: '/groups', icon: <GroupWorkIcon /> },
           { text: 'Персони', path: '/persons', icon: <PersonIcon /> },
           { text: 'Звіти', path: '/settings/report-list', icon: <AssessmentIcon /> },
+          
+          { text: 'Клієнти', path: '/customers', icon: <ShoppingCartIcon /> },
+          { text: 'Форми', path: '/forms', icon: <DescriptionIcon /> },
         ],
       },
     ];
@@ -123,7 +124,19 @@ function App(): JSX.Element {
       },
     ];
 
-    const settingsMenuItems: MenuItem[] = [
+    const settingsMenuItems: MenuItem[] = user.name === 'demo' ? [
+      {
+        text: 'Налаштування',
+        icon: <SettingsIcon />,
+        items: [
+          { text: 'Загальні', path: '/settings/general', icon: <SettingsIcon /> },
+          // { text: 'Пункти обліку', path: '/points', icon: <LocationOnIcon /> },
+          // { text: 'Групи Персон', path: '/groups', icon: <GroupWorkIcon /> },
+          // { text: 'Персони', path: '/persons', icon: <PersonIcon /> },
+          // { text: 'Користувачі', path: '/users', icon: <PeopleIcon /> },
+        ],
+      },
+    ] : [
       {
         text: 'Налаштування',
         icon: <SettingsIcon />,

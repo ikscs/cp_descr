@@ -16,10 +16,11 @@ import ButtonA from '../../components/Shared/ButtonA';
 
 const REPORT_ID_Pivot = 2; // Відвідувачі Pivot
 const REPORT_ID_22 = 28; // Відвідувачі
-const REPORT_ID_23 = 27; // Відвідувачі - Стать
-const REPORT_ID_24 = 26; // Відвідувачі - Вік
+const REPORT_ID_23 = 33; // 27; // Відвідувачі - Стать
+const REPORT_ID_24 = 32; // 26; // Відвідувачі - Вік
 
-const EXPORT_TABLE_NAME = 'pcnt.v_export';
+const EXPORT_TABLE_NAME = 'pcnt.v_export_vca';
+// const EXPORT_TABLE_NAME = 'pcnt.v_export';
 
 // Тип для гранулярности, выбираемой пользователем
 type DashboardUserGranularity = 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
@@ -212,9 +213,15 @@ const DashboardView: React.FC = () => {
 
     const handleExport = async () => {
         setIsExporting(true);
-        const filename = `export_${EXPORT_TABLE_NAME}`;
+        // const filename = `export_${EXPORT_TABLE_NAME}`; 
+        // добавил в название экспортируемого файла наименование, если point выбран
+        const point_id = reportParams.find(p => p.name === 'point')?.value || 0;
+        const _pointLabel = customerData?.points?.find(p => p.value === point_id)?.label || 'всі_пункти';
+        const filename = `export_point_${_pointLabel}`;
         try {
-            await dataToExcel(EXPORT_TABLE_NAME, filename);
+            await dataToExcel(EXPORT_TABLE_NAME, filename, 'age,date,point,gender', {point_id});
+            // await dataToExcel(EXPORT_TABLE_NAME, filename);
+
             // todo: dataToExcel - add customer filter
             // await dataToExcel(EXPORT_TABLE_NAME, filename, '*', {
             //     customer: customerData?.customer||null, 
