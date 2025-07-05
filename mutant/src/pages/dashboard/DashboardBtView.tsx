@@ -5,9 +5,9 @@ import { Box, Grid, CircularProgress, Alert, Button, Stack, FormControl, Select,
 import './DashboardView.css';
 import { type ParsedReport, ReportToParsedReport } from '../Reports/ReportList';
 import { getReports, /*Report*/ } from '../../api/data/reportTools';
-import { useCustomer } from '../../context/CustomerContext';
+import { CustomerContextType, useCustomer } from '../../context/CustomerContext';
 import MiniReport from '../Reports/MiniReport2';
-import { dataToExcel } from '../../api/tools/dataToExcel';
+import { dataToExcel, getExportData } from '../../api/tools/dataToExcel';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { 
     format as formatDateFns, 
@@ -36,6 +36,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
+import { data } from 'react-router-dom';
 // import DateRangePicker from '../../components/Shared/DateRangePicker';
 // import TooltipSelect from '../../components/Shared/TooltipSelect';
  
@@ -381,13 +382,14 @@ const DashboardView: React.FC = () => {
         const _pointLabel = customerData?.points?.find(p => p.value === point_id)?.label || 'всі_пункти';
         const filename = `export_point_${_pointLabel}`;
         try {
-            await dataToExcel(EXPORT_TABLE_NAME, filename, 'age,date,point,gender', {point_id});
-            // await dataToExcel(EXPORT_TABLE_NAME, filename);
-
-            // todo: dataToExcel - add customer filter
-            // await dataToExcel(EXPORT_TABLE_NAME, filename, '*', {
-            //     customer: customerData?.customer||null, 
-            // });
+            const data0 = await getExportData(point_id === -1 ? undefined : {point_id});
+            const data1 = data0.map((item: any) => ({
+                age: item.age,
+                date: item.date,
+                point: item.point,
+                gender: item.gender,
+            }));
+            dataToExcel(data1, filename);
             console.log('Export successful');
         } catch (error) {
             console.error('Export failed:', error);
@@ -479,13 +481,24 @@ const DashboardView: React.FC = () => {
     const displayDate = activeGranularity === 'DAY' ? d1String : `${d1String} - ${d2String}`;
     console.log('displayDate', displayDate);
 
+    const reportParamsPivot = reportParams
     // костыль
-    const reportParamsPivot = reportParams.map(param => {
-        if (param.name === 'point') {
-            return { ...param, value: -1 }; // Создаем новый объект с обновленным значением
-        }
-        return param; // Возвращаем неизмененный объект
-    });
+    // const reportParamsPivot = reportParams.map(param => {
+    //     if (param.name === 'point') {
+    //         return { ...param, value: -1 }; // Создаем новый объект с обновленным значением
+    //     }
+    //     return param; // Возвращаем неизмененный объект
+    // });
+
+    const renderMenuItems = () => {
+        const allPoints = customerData?.points?.length == 0 ? 
+            [] : [{ value: -1, label: 'All' }, ...customerData?.points?? []];
+        return allPoints.map((point) => (
+        <MenuItem key={point.value} value={point.value}>
+            {point.label}
+        </MenuItem>
+    ));
+};
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Box id={'22222222'} sx={{
@@ -546,13 +559,15 @@ const DashboardView: React.FC = () => {
                                             <MenuItem value={currentPointSelected} disabled>
                                                 <em>Завантаження пунктів...</em>
                                             </MenuItem>
-                                        ) : (customerData?.points && customerData.points.length > 0) ? (
-                                            customerData.points.map((point) => (
-                                                <MenuItem key={point.value} value={point.value}>
-                                                    {point.label}
-                                                </MenuItem>
-                                            ))
-                                        ) : (
+                                        ) : (customerData?.points && customerData.points.length > 0) ? 
+                                            renderMenuItems() : (
+                                        // (
+                                        //     customerData.points.map((point) => (
+                                        //         <MenuItem key={point.value} value={point.value}>
+                                        //             {point.label}
+                                        //         </MenuItem>
+                                        //     ))
+                                        // ) : (
                                             <MenuItem value={-1}><em>{"нема даних"}</em></MenuItem>
                                         )}
                                     </Select>
@@ -651,7 +666,19 @@ const DashboardView: React.FC = () => {
                                 </Box>
                             )} */}
                             <Grid container rowSpacing={1} sx={{ my: 2, width: '100%' }}>
-                                {parsedReport22 && (
+                                {parsedReportPivot && (
+                                    <Grid item xs={12} md={12}>
+                                        <Box sx={{ px: 1.5, pb: 1 }}>
+                                            <MiniReport
+                                                report={parsedReportPivot}
+                                                parameters={reportParamsPivot}
+                                                displayMode="pivot"
+                                                height="450px"
+                                            />
+                                        </Box>
+                                    </Grid>
+                                )}
+                                {/* {parsedReport22 && (
                                     <Grid item xs={12} md={12}>
                                         <Box sx={{ px: 1.5, pb: 1 }}>
                                             <MiniReport
@@ -662,7 +689,7 @@ const DashboardView: React.FC = () => {
                                             />
                                         </Box>
                                     </Grid>
-                                )}
+                                )} */}
                                 {parsedReport24 && (
                                     <Grid item xs={12} md={6}>
                                         <Box sx={{ px: 1.5, pb: 1 }}>
@@ -687,7 +714,7 @@ const DashboardView: React.FC = () => {
                                         </Box>
                                     </Grid>
                                 )}
-                                {parsedReportPivot && (
+                                {/* {parsedReportPivot && (
                                     <Grid item xs={12} md={12}>
                                         <Box sx={{ px: 1.5, pb: 1 }}>
                                             <MiniReport
@@ -698,7 +725,7 @@ const DashboardView: React.FC = () => {
                                             />
                                         </Box>
                                     </Grid>
-                                )}
+                                )} */}
                             </Grid>
                         </>
                     )}
