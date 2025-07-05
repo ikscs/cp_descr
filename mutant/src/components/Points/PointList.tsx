@@ -61,7 +61,7 @@ const PointList: React.FC = () => {
     }
     setIsLoading(true);
     try {
-      const apiPoints = await pointApi.getPoints(customerAsNumber);
+      const apiPoints = await pointApi.getPoints( /*customerAsNumber*/ );
 
       // Transform the API data to match the Point interface expected by the UI and DataGrid
       const mappedPoints: Point[] = apiPoints.map((apiPoint: Point) => ({

@@ -1,8 +1,9 @@
 // src/api/pointApi.ts
-import { fetchData, postData, getBackend, escapeSingleQuotes } from './fetchData';
+import { fetchData, postData, getBackend, escapeSingleQuotes, getApiToken } from './fetchData';
 import { selectData, /*insertData*/ } from './genericApi';
 // import { type ISelectParams } from './genericApiTypes'; // Not directly used in modified/added code, but may be used by other functions
 import type { IFetchResponse, IPostResponse } from './fetchData';
+import axios from 'axios';
 
 /**
  * Створення, редагування, видалення поінта
@@ -31,7 +32,7 @@ export interface Point {
 const POINT_TABLE_NAME = 'pcnt.point';
 
 // use getPoints to get points for PointList / PointForm
-const getPoints = async (customer_id: number): Promise<Point[]> => {
+const getPoints_ = async (customer_id: number): Promise<Point[]> => {
 
     try {
         const params = {
@@ -50,6 +51,17 @@ const getPoints = async (customer_id: number): Promise<Point[]> => {
         return [];
     }
 };
+
+const API_URL = 'https://cnt.theweb.place/api/pcnt/point'; 
+async function getPoints(): Promise<Point[]> {
+  const res = await axios.get<Point[]>(API_URL, {
+      headers: {
+        "Content-Type": "application/json",
+        'authorization': `Bearer ${getApiToken()}`,
+      }
+    });
+  return res.data;
+}
 
 // const fetchAllPoints = async (): Promise<Point[]> => {
 //   console.log('[pointApi] fetchAllPoints called');
@@ -242,7 +254,6 @@ const deletePoint = async (point_id: number): Promise<void> => {
 
 export const pointApi = {
   getPoints,
-  // fetchAllPoints,
   createPoint,
   updatePoint,
   deletePoint,
