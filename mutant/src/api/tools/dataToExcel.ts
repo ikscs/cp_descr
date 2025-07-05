@@ -1,9 +1,74 @@
 // src/api/tools/dataToExcel.ts (или другое подходящее место)
 
-import { fetchData, type IFetchResponse } from '../data/fetchData';
+import { fetchData, getApiToken, type IFetchResponse } from '../data/fetchData';
 import { toExcel, type IGridColumn } from './toExcel';
 import { type IWhereClause } from '../data/genericApiTypes';
+import axios from 'axios';
 
+interface IExportDataItem {
+  id: number;
+  point: string;
+  date: string;
+  gender: string;
+  age: number;
+  customer_id: number;
+  point_id: number;
+}
+/**
+ * Fetches data from a specified table.
+ *
+ * @param where Optional: Conditions for fetching data using IWhereClause.
+ * todo: @param order Optional: Sorting order for the data.
+ */
+const API_URL = 'https://cnt.theweb.place/api/pcnt/v_export_vca/'; 
+export const getExportData = async (where?: IWhereClause): Promise<IExportDataItem[]> => {
+    const url = API_URL + (where && where.point_id ? `point/${where.point_id}/` : '');
+    const res = await axios.get<IExportDataItem[]>(url, {
+      headers: {
+        "Content-Type": "application/json",
+        'authorization': `Bearer ${getApiToken()}`,
+      }
+    });
+  return res.data;
+}
+
+interface IDataRow {
+    [key: string]: string | number | boolean | null;
+  }
+
+export const dataToExcel = async (
+    data: IDataRow[],
+    excelFilename: string = 'export_data'    
+): Promise<void> => {
+    console.log(`Starting data export to Excel for ${excelFilename}`);
+    try {
+        // Проверяем, есть ли данные и хотя бы одна строка
+        if (data && data.length > 0) {
+            console.log(`Fetched ${data.length} rows. Generating columns and exporting to Excel...`);
+
+            // Получаем первую строку для определения колонок
+            const firstRow = data[0];
+            // Генерируем массив IGridColumn из ключей первого объекта
+            const generatedColumns: IGridColumn[] = Object.keys(firstRow).map(key => ({
+                key: key, // Используем ключ объекта как key для доступа к данным
+                name: key, // Используем ключ объекта как name для заголовка колонки
+                // Можно добавить width или другие свойства по умолчанию, если нужно
+                // width: 20,
+            }));
+
+            // Вызываем toExcel с сгенерированными колонками, данными и именем файла
+            await toExcel(generatedColumns, data, excelFilename);
+
+            console.log(`Successfully exported data to ${excelFilename}.xlsx`);
+        } else {
+            console.log(`No data found for export. Excel file not generated.`);
+            // Можно добавить уведомление пользователю
+        }
+    } catch (error) {
+        console.error(`Error exporting data to Excel:`, error);
+        // Обработка ошибки (например, показать уведомление)
+    }        
+}
 /**
  * Fetches data from a specified table and exports it to an Excel file.
  * Column definitions for Excel are automatically generated from the keys of the first data row.
@@ -14,7 +79,7 @@ import { type IWhereClause } from '../data/genericApiTypes';
  * @param where Optional: Conditions for fetching data using IWhereClause.
  * @param order Optional: Sorting order for the data.
  */
-export const dataToExcel = async (
+export const dataToExcel_NOT_USED = async (
     tableName: string,
     excelFilename?: string,
     fields: string = '*',
