@@ -13,7 +13,7 @@ import {
     CircularProgress,
     Alert,
 } from '@mui/material';
-import { fetchData, getBackend } from '../../api/data/fetchData';
+import { fetchData, getBackend, IFetchResponse } from '../../api/data/fetchData';
 import packageJson from '../../../package.json';
 import LineChart from '../Charts/LineChart';
 import CircularChart from '../Charts/CircularChart';
@@ -23,6 +23,8 @@ import type { ParsedReport, ReportExecutionResult, ChartData } from './ReportLis
 import { AggregationType, generatePivotData, prepareChartDataFromPivoted, } from './pivotUtils';
 import PivotChartContent from './PivotChartContent';
 import { fillPlaceholders } from './reportTools';
+// import axios from 'axios';
+import { executeReportQuery } from '../../api/data/reportToolsDrf';
 
 const backend = getBackend();
 
@@ -39,8 +41,31 @@ interface MiniReport2Props { // Изменено имя интерфейса
     height?: string | number;
 }
 
+// --- Helper: Execute Report Query with Axios ---
+/*const executeReportQuery = async (
+    id: number,
+    params: { name: string; value: string | number | boolean }[]
+): Promise<ReportExecutionResult> => {
+    const paramsToSend = {
+        app_id: packageJson.name,
+        report_id: id,
+        parameters: params,
+    };
+    console.log('[minireport] run report with params:', paramsToSend);
+    const res0 = await axios.post<IFetchResponse>('https://cnt.theweb.place/api/report/', paramsToSend);
+    const res: any = res0.data || {ok: false, data: []};
+    if (res.ok) {
+        console.log('[minireport] result:', res);
+        const columns = Object.keys(res.data[0]);
+        const rows = res.data.map((row: any) => columns.map((col) => row[col]));
+        return { columns, rows };
+    } else {
+        return { columns: ['Message'], rows: [['Incorect report result']] };
+    }
+}*/
+
 // --- Helper: Execute Report Query (Adapted from ReportList) ---
-const executeReportQuery = async (
+const executeReportQuery__ = async (
     id: number,
     params: { name: string; value: string | number | boolean }[]
 ): Promise<ReportExecutionResult> => {
@@ -425,7 +450,8 @@ const MiniReport2: React.FC<MiniReport2Props> = ({ report, parameters, displayMo
                     <Box sx={{ height: '100%', position: 'relative' }}>
                         <PivotChartContent
                             chartData={pivotChartData}
-                            reportName={report.name}
+                            reportName={fillPlaceholders(report.name, parameters)}
+                            // reportName={report.name}
                             xAxisField={pivotConfigForChart.xAxisField}
                             yAxisField={pivotConfigForChart.yAxisField}
                             valueField={pivotConfigForChart.valueField}
