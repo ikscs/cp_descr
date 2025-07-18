@@ -273,7 +273,7 @@ const ReporListEdit: React.FC = () => {
                     </TableCell>
                     <TableCell>{report.name}</TableCell>
                     <TableCell>{report.description}</TableCell>
-                    <TableCell align="right">
+                    <TableCell align="right" sx={{ width: '150px' }}>
                       <IconButton
                         aria-label={`Редактировать отчет ${report.name}`}
                         onClick={() => handleOpenQueryEditDialog(report)}

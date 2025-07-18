@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Group } from './group.types';
-// import { api } from '../../api/generic/api';
-import api from '../../api/data/groupApi';
+import api from '../../api/data/groupApiAxios';
 import { useCustomer } from '../../context/CustomerContext';
 import GroupForm from './GroupForm';
 import { Alert, Box, Button, Modal, Stack, Typography } from '@mui/material';
@@ -39,7 +38,8 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
     setError(null);
     try {
       // const groups: Group[] = await api.get('/groups', {customer_id: customerData?.customer});
-      const groups: Group[] = await api.get(customerData?.customer || 0);
+      // const groups: Group[] = await api.get(customerData?.customer || 0);
+      const groups: Group[] = await api.get();
       setGroups(groups);
     } catch (err) {
       setError(new Error('Не удалось загрузить список групп.'));

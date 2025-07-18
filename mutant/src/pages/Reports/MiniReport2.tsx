@@ -13,7 +13,7 @@ import {
     CircularProgress,
     Alert,
 } from '@mui/material';
-import { fetchData, getBackend, IFetchResponse } from '../../api/data/fetchData';
+import { fetchData, getBackend, } from '../../api/data/fetchData';
 import packageJson from '../../../package.json';
 import LineChart from '../Charts/LineChart';
 import CircularChart from '../Charts/CircularChart';
@@ -65,7 +65,7 @@ interface MiniReport2Props { // Изменено имя интерфейса
 }*/
 
 // --- Helper: Execute Report Query (Adapted from ReportList) ---
-const executeReportQuery__ = async (
+export const __executeReportQuery__ = async (
     id: number,
     params: { name: string; value: string | number | boolean }[]
 ): Promise<ReportExecutionResult> => {

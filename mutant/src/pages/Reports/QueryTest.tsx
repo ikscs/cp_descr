@@ -581,6 +581,7 @@ const QueryTest: React.FC<QueryTestProps> = ({
     return (
       <ReportResult
         report={reportData}
+        queryParams={queryParams}
         executionResult={executionResult}
         open={true} // ReportResult manages its own visibility via this prop
         onClose={handleResultDialogClose} // Closes the whole test

@@ -20,6 +20,7 @@ import ChartIcon from '@mui/icons-material/BarChart';
 import { toExcel } from '../../api/tools/toExcel';
 import type { ChartData, ParsedReport } from './ReportList';
 import PivotTableDialog, { AggregationType } from './PivotTableDialog'; // <-- Import the new component and AggregationType
+import { fillPlaceholders } from './reportTools';
 // import LineChart from '../Charts/LineChart';
 
 interface ReportExecutionResult {
@@ -61,6 +62,7 @@ interface ReportExecutionResult {
 
 interface ReportResultProps {
   report: ParsedReport;
+  queryParams: { name: string; value: string | number | boolean }[], // Parameters used in the report
   executionResult: ReportExecutionResult;
   open: boolean;
   onClose: () => void;
@@ -72,6 +74,7 @@ interface ReportResultProps {
 
 const ReportResult: React.FC<ReportResultProps> = ({
   report,
+  queryParams,
   executionResult,
   open,
   onClose,
@@ -186,7 +189,7 @@ const ReportResult: React.FC<ReportResultProps> = ({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
       <DialogTitle>
-        Результат выполнения отчета: {report.name}
+        Результат выполнения отчета: { fillPlaceholders(report.name, queryParams) /*report.name}*/}
       </DialogTitle>
       <DialogContent>
         <Box mt={2} display="flex" gap={2}>

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { fetchData, getBackend, IFetchResponse, IPostResponse, postData } from '../../api/data/fetchData';
+import { apiToken, fetchData, getBackend, IFetchResponse, IPostResponse, postData } from '../../api/data/fetchData';
 import { PersonFace } from './personFace.types';
 
 // Утилита для преобразования Base64 строки в Uint8Array для браузера
@@ -152,7 +152,7 @@ export const api = {
     // const res = await axios.get<PersonFace[]>(API_URL, {
         headers: {
           "Content-Type": "application/json",
-          // 'authorization': `Bearer ${apiToken.token}`,
+          'authorization': `Bearer ${apiToken.token}`,
         }
       });
     // console.log('res.data:', JSON.stringify(res.data[43])); // base64 проверка
@@ -170,7 +170,7 @@ export const api = {
   //   await axios.post(`${API_URL}/`, data, {
   //     headers: {
   //       "Content-Type": "application/json",
-  //       // 'authorization': `Bearer ${apiToken.token}`,
+  //       'authorization': `Bearer ${apiToken.token}`,
   //     },
   //   });
   //   return data;
@@ -186,7 +186,7 @@ export const api = {
     await axios.post(`${API_URL}/`, dataToInsert, {
       headers: {
         "Content-Type": "application/json",
-        // 'authorization': `Bearer ${apiToken.token}`,
+        'authorization': `Bearer ${apiToken.token}`,
       },
     });
     return data;
@@ -232,7 +232,7 @@ export const api = {
       await axios.delete(`${API_URL}/${uuid}/`, {
         headers: {
           "Content-Type": "application/json",
-          // 'authorization': `Bearer ${apiToken.token}`,
+          'authorization': `Bearer ${apiToken.token}`,
         },
       });
     }

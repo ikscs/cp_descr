@@ -104,7 +104,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
         }
 
         const [pointsData, originTypesData] = await Promise.all([
-          pointApi.getPoints(customerId),
+          pointApi.getPoints(/*customerId*/),
           originTypeApi.getOriginTypes(),
         ]);
 

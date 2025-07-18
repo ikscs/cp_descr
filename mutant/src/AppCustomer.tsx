@@ -1,5 +1,6 @@
 import React, { type JSX } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useUserfront } from '@userfront/react';
 import AuthenticatedLayout from './AuthenticatedLayout';
 import { type MenuItem } from './components/Shared/SideBar';
 import { CustomerProvider, type CustomerData } from './context/CustomerContext'; // Предполагаемый путь
@@ -26,7 +27,7 @@ import { FormHistory } from './components/forms/FormHistory';
 import { DatabaseFormWizard } from './components/forms/DatabaseFormWizard';
 import { FormEditor } from './components/forms/FormEditor';
 import PersonList from './components/Persons/PersonList';
-import SysParamsForm from './components/SysParams/SysParamsForm';
+import SysParamsForm from './components/SysParams/SysParamsFormJson';
 import SystemStatusForm from './components/SysState/SystemStatusForm';
 import SystemMetricForm from './components/SysMetrics/SystemMetricForm';
 import AdvertsView from './pages/adverts/AdvertsView';
@@ -61,6 +62,13 @@ interface AppCustomerProps {
   isLoadingCustomerData: boolean;
 }
 
+const LogoutHandler: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
+    React.useEffect(() => {
+        onLogout();
+    }, [onLogout]);
+    return null; // Этот компонент ничего не рендерит
+};
+
 const AppCustomer: React.FC<AppCustomerProps> = ({
   user,
   menuItems,
@@ -69,6 +77,15 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
   customerData,
   isLoadingCustomerData,
 }) => {
+
+  const Userfront = useUserfront();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+      Userfront.logout();
+      navigate('/login');
+  };
+
   return (
     <CustomerProvider customerData={customerData} isLoading={isLoadingCustomerData}>
       <Box
@@ -91,9 +108,11 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardView />} />
             <Route path="/adverts" element={<AdvertsView />} />
+            <Route path="/logout" element={<LogoutHandler onLogout={handleLogout} />} />
             <Route path="/users" element={<Users />} />
             <Route path="/roles" element={<RoleList />} />
-            <Route path="/points" element={<ProtectedRoute user={user} requiredRole="admin"><PointList /></ProtectedRoute>} />
+            {/* <Route path="/points" element={<ProtectedRoute user={user} requiredRole="admin"><PointList /></ProtectedRoute>} /> */}
+            <Route path="/points" element={<ProtectedRoute user={user} requiredRole="viewer"><PointList /></ProtectedRoute>} />
             <Route path="/origins" element={<ProtectedRoute user={user} requiredRole="admin"><OriginView /></ProtectedRoute>} />
             <Route path="/groups" element={<ProtectedRoute user={user} requiredRole="admin"><GroupList /></ProtectedRoute>} />
             <Route path="/persons" element={<ProtectedRoute user={user} requiredRole="admin"><PersonList /></ProtectedRoute>} />

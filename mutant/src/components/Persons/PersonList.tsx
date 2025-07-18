@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Person } from './person.types';
-import api from '../../api/data/personApi'; // Adjusted API import
+import api from '../../api/data/personApi';
 import { useCustomer } from '../../context/CustomerContext';
 // import PersonFormPlaceholder from './PersonFormPlaceholder'; // Placeholder form
 import PersonForm /*{ PersonFormProps }*/ from './PersonForm'; // Import PersonFormProps
@@ -52,7 +52,9 @@ const PersonList: React.FC<PersonListProps> = () => {
       console.log('Сохранение персоны:', submittedPerson);
       let savedPerson: Person;
 
-      if (submittedPerson.person_id === 0) { // Convention for new person
+      const isActuallyNewInList = !persons.some(p => p.person_id === submittedPerson.person_id);
+      if (isActuallyNewInList) {
+      // if (submittedPerson.person_id === 0) { // Convention for new person
         const { person_id, ...personDataToPost } = submittedPerson;
         savedPerson = await api.post(personDataToPost);
         setPersons(prevPersons => [...prevPersons, savedPerson]);

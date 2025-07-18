@@ -29,7 +29,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
       }}
     >
       {/* Хедер */}
-      <Box
+      {false &&<Box
         component="header"
         sx={{
           position: 'fixed',
@@ -58,22 +58,23 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
             Вийти
           </Button>
         </Box>
-      </Box>
+      </Box> }
 
       {/* Основная область */}
       <Box
         sx={{
           display: 'flex',
           flexGrow: 1,
-          mt: '64px',
+          // mt: '64px',
           mb: '50px',
-          height: 'calc(100% - 114px)', // 64px header + 50px footer
+          // height: 'calc(100% - 114px)', // 64px header + 50px footer
+          height: 'calc(100% - 50px)', // 50px footer
           position: 'relative'
         }}
       >
         <SideBar
           menuItems={menuItems}
-          drawerTitle={'Меню'}
+          drawerTitle={'People Counting' /* Меню */}
         />
         <Box
           component="main"
@@ -91,11 +92,11 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
               height: '100%',
               maxWidth: () => ({ xs: '100%', sm: '600px', md: '900px', lg: '1200px' }),
               margin: '0 auto',
-              padding: theme => ({
-                xs: theme.spacing(2),
-                sm: theme.spacing(3),
-                md: theme.spacing(4)
-              }),
+              // padding: theme => ({
+              //   xs: theme.spacing(2),
+              //   sm: theme.spacing(3),
+              //   md: theme.spacing(4)
+              // }),
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'stretch',

@@ -58,7 +58,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
           const customerId = Number(customerData.customer);
           // Assuming originApi.getCustomerOrigins exists and takes customerId
           // You'll need to ensure this method is implemented in your originApi
-          data = await originApi.getCustomerOrigins(customerId);
+          data = await originApi.getCustomerOrigins(/*customerId*/);
         } else {
           // No customer selected, or customerData is not loaded yet for customer-wide view
           setOrigins([]);
