@@ -5,6 +5,7 @@ import { getMax } from './dataTools';
 import type { Parameter } from '../../pages/Reports/QueryParam';
 // import { string } from 'yup';
 import type { IWhereClause } from './genericApiTypes';
+import axios from 'axios';
 // import { get } from 'http';
 
 export interface Report {
@@ -17,13 +18,48 @@ export interface Report {
   query: string;
 }
 
-// const REPORT_TABLE = 'perm_report'; 
-//const REPORT_TABLE = 'cp3.perm_report'; 
 const REPORT_TABLE = 'public.perm_report'; 
 
 const backend = getBackend()
 
+const stringToParams = (config: string): Parameter[] => {
+  try {
+    const parsedConfig = JSON.parse(config);
+    if (!Array.isArray(parsedConfig)) {
+      return [];
+    }         
+    return parsedConfig.map((param: any) => ({
+      name: param.name,
+      type: param.type,
+      value: param.value,
+      required: param.required || false,
+      options: param.options || [],
+      description: param.description || '',
+    }));
+  }
+  catch (error) {
+    console.error('Error parsing report config:', error);
+    return [];
+  }
+}
+
 export const getReports = async (report_id?: number): Promise<Report[]> => {
+    console.log('[getReports] Fetching reports with report_id:', report_id);
+    const path = report_id === undefined ? 
+      `perm_report/?app_id=${packageJson.name}` : 
+      `perm_report/?app_id=${packageJson.name}&report_id=${report_id}`;
+    const res = await axios.get<Report[]>(path);
+    return res.data.map((row: any) => ({
+        id: row.report_id,
+        name: row.report_name,
+        description: row.report_description,
+        config: row.report_config,
+        query: row.query,
+        params: stringToParams(row.report_config),
+    }));
+};
+
+export const _getReports = async (report_id?: number): Promise<Report[]> => {
   try {
     const where: IWhereClause = {
       app_id: packageJson.name,
@@ -106,7 +142,7 @@ export const createReport = async (report: Report): Promise<Report | null> => {
   }
 };
 
-export const _updateReport = async (report: Report): Promise<Report | null> => {
+export const OLD_updateReport = async (report: Report): Promise<Report | null> => {
   try {
     const params = {
         backend_point: backend.backend_point_update,
@@ -127,6 +163,12 @@ export const _updateReport = async (report: Report): Promise<Report | null> => {
     return null;
   }
 };
+
+export const _updateReport = async (report: Report): Promise<Report | null> => {
+  console.log('[updateReport] Updating report:', report);
+  const res = await axios.put<Report>(`perm_report/${packageJson.name}/${report.id}/`, report);
+  return res.data;
+}
 
 export const updateReport = async (report: Report): Promise<Report | null> => {
     try {

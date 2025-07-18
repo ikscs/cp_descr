@@ -1,6 +1,7 @@
 import { fetchData } from './fetchData';
 import type { IFetchResponse } from './fetchData';
 import { type JsonFormTemplate } from '../../components/common/JsonForm';
+import axios from 'axios';
 // import { stringToJsonFormTemplate } from '../../components/common/jsonFormUtils';
 
 /**
@@ -21,6 +22,11 @@ export interface OriginTypeOption {
   template?: JsonFormTemplate; // The parsed form template, optional
 }
 
+interface OriginTypeOptionRaw {
+  origin_type_id: number;
+  name: string;
+}
+
 const ORIGIN_TYPE_TABLE_NAME = 'pcnt.origin_type';
 
 // Intermediate interface for raw data from fetchData
@@ -32,6 +38,16 @@ interface RawOriginTypeData {
 }
 
 const getOriginTypes = async (): Promise<OriginTypeOption[]> => {
+  console.log('[originTypeApi] getOriginTypes called');
+  const res = await axios.get<OriginTypeOptionRaw[]>(`https://cnt.theweb.place/api/pcnt/origin_type/`);
+  return res.data.map(item => ({
+    ...item,
+    value: item.origin_type_id,
+    label: item.name,
+  }));
+}
+
+const getOriginTypes_ = async (): Promise<OriginTypeOption[]> => {
   try {
     const response: IFetchResponse = await fetchData({
       from: ORIGIN_TYPE_TABLE_NAME,
