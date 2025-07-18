@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Box, CircularProgress, Alert, Typography, Paper } from '@mui/material';
-import { getCustomer, putCustomer } from '../../api/data/customerTools';
+import { getCustomer, postCustomer, putCustomer } from '../../api/data/customerTools';
 import { useCustomer } from '../../context/CustomerContext';
 import { GenericSimpleForm } from '../generic/GenericSimpleForm'; // Import the new wrapper
 import { GenericFormRenderer } from '../generic/GenericFormRenderer';
+import { updateUserData } from '../../api/updateUserData';
+import { apiKey, tenantId } from '../../globals_VITE';
+import { useUserfront } from '@userfront/react';
 
 // Define the data structure for the customer form
 interface CustomerFormData {
@@ -13,6 +16,14 @@ interface CustomerFormData {
     country: string;
     city: string;
 }
+
+const newCustomer: CustomerFormData = {
+    customer_id: 0, // Assuming 0 is used for new customers
+    legal_name: '',
+    address: '',
+    country: '',
+    city: '',
+};
 
 export const CustomerDetailsForm = () => {
     const [initialData, setInitialData] = useState<CustomerFormData | null>(null);
@@ -79,12 +90,31 @@ export const CustomerDetailsForm = () => {
                 setIsLoading(false);
             }
         };
-        fetchData();
+        if (customerData?.customer) {
+            fetchData();
+        } else {
+            setIsLoading(false);
+        }
     }, [customerData?.customer]); // Fetch data on component mount or when customerId changes
 
     const handleSubmit = async (formData: CustomerFormData) => {
         if (!initialData?.customer_id) {
-            setSubmitMessage({ type: 'error', text: 'Помилка: ID клієнта не визначено для оновлення.' });
+            // setSubmitMessage({ type: 'error', text: 'Помилка: ID клієнта не визначено для оновлення.' });
+            // 2025-07-17
+            const success = await postCustomer(formData);
+            if (success) {
+                setSubmitMessage({ type: 'success', text: 'Дані клієнта успішно оновлено!' });
+                // todo: extract new customer_id
+                setInitialData(prevData => ({ ...prevData, ...formData }));
+            } else {
+                setSubmitMessage({ type: 'error', text: 'Не вдалося оновити дані клієнта.' });
+                return;
+            }
+
+            if (initialData) {
+                const user = useUserfront();
+                await updateUserData(tenantId, apiKey, user.user, initialData.customer_id);
+            }
             return;
         }
         setIsSubmitting(true);
@@ -125,10 +155,11 @@ export const CustomerDetailsForm = () => {
         return <Alert severity="error" sx={{ m: 2 }}>{error}</Alert>;
     }
 
-    if (!initialData) {
-        // This state should ideally be caught by the error above if API returns null
-        return <Alert severity="warning" sx={{ m: 2 }}>Дані клієнта недоступні.</Alert>;
-    }
+    if (false) // 2025-07-17 trying to register new customer
+        if (!initialData) {
+            // This state should ideally be caught by the error above if API returns null
+            return <Alert severity="warning" sx={{ m: 2 }}>Дані клієнта недоступні.</Alert>;
+        }
 
     return (
         <Paper elevation={2} sx={{ p: 3, borderRadius: '12px', m: 1 }}>
@@ -137,7 +168,7 @@ export const CustomerDetailsForm = () => {
                 title="Редагування деталей клієнта"
                 fields={fields}
                 onSubmit={handleSubmit}
-                initialValues={initialData}
+                initialValues={initialData??newCustomer} // Use initialData or a newCustomer object
                 layout={{ type: 'stack' }} // Basic stack layout
                 // Optional: pass custom text if needed
                 // savingButtonText="Збереження деталей..."
