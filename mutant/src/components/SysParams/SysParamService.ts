@@ -6,13 +6,9 @@ const API_URL = 'https://cnt.theweb.place/api/pcnt/param'; // Замените �
 
 // Получить параметры
 export async function getParams(): Promise<SysParam[]> {
-  const res = await axios.get<SysParam[]>(API_URL, {
-      headers: {
-        "Content-Type": "application/json",
-        'authorization': `Bearer ${apiToken.token}`,
-      }
-    });
-  return res.data;
+  const res = await axios.get<SysParam[]>(API_URL);
+  // return res.data
+  return res.data.filter(param => param.enabled); // Фильтруем только включенные параметры
 }
 
 // Обновить параметр

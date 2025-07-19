@@ -276,7 +276,15 @@ export default function SysParamsForm() {
 
   // Основной рендеринг формы.
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 500, mx: "auto" }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        maxWidth: 500,
+        minWidth: 400, // Минимальная ширина формы
+        mx: "auto"
+      }}
+    >
       <Typography variant="h5" align="center" gutterBottom>
         Параметри системи
       </Typography>
