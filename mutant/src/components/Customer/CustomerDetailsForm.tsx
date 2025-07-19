@@ -165,7 +165,7 @@ export const CustomerDetailsForm = () => {
         <Paper elevation={2} sx={{ p: 3, borderRadius: '12px', m: 1 }}>
             <GenericSimpleForm<CustomerFormData>
                 FormRenderer={GenericFormRenderer}
-                title="Редагування деталей клієнта"
+                title={customerData?.customer ? "Створення нового клієнта" : "Редагування деталей клієнта"}
                 fields={fields}
                 onSubmit={handleSubmit}
                 initialValues={initialData??newCustomer} // Use initialData or a newCustomer object
