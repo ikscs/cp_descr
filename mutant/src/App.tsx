@@ -287,7 +287,9 @@ function App(): JSX.Element {
         navigate("/settings/general");
       }
     } else {
-      navigate("/settings/general");
+      if (!user.data?.customer || 0) {
+        navigate("/settings/general");
+      }
     }
 
   // }, [customerData]); // 2025-07-17 так зацикливается!!!
