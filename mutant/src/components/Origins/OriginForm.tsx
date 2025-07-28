@@ -34,6 +34,7 @@ export interface OriginFormValues {
   origin_type_id: string | number; // Dropdown value, needs to be number for API
   credentials?: string; // JSON string
   is_enabled: boolean;
+  poling_period_s?: number; // Optional polling period in seconds
 }
 
 // Props for the form component
@@ -134,6 +135,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
     origin_type_id: '',
     credentials: '{}',
     is_enabled: true,
+    poling_period_s: undefined, // Optional polling period
   };
 
   const validationSchema = Yup.object({
@@ -155,6 +157,10 @@ const OriginForm: React.FC<OriginFormProps> = ({
       }
     ).optional(),
     is_enabled: Yup.boolean().required(),
+    poling_period_s: Yup.number()
+      .optional()
+      .positive('Polling period must be a positive number')
+      .integer('Polling period must be an integer'),
   });
 
   if (isLoadingDropdowns) {
@@ -266,6 +272,21 @@ const OriginForm: React.FC<OriginFormProps> = ({
                 )}
               </Field>
 
+              <Field name="poling_period_s">
+                {({ field, meta }: { field: any; meta: any }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Polling Period (seconds)"
+                    type="number"
+                    error={meta.touched && !!meta.error}
+                    helperText={
+                      (meta.touched && meta.error) || 'Optional. How often data is polled (e.g., 60 for every minute).'
+                    }
+                  />
+                )}
+              </Field>
+              
               <Field name="credentials">
                 {({ field: fieldPropsForTextField, meta }: FieldProps<string | undefined, OriginFormValues>) => (
                   <div>

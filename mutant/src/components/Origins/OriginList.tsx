@@ -29,6 +29,7 @@ export interface OriginFormSubmitValues {
   origin_type_id: string | number; // Comes from form, needs to be number for API
   credentials?: string; // JSON string from form
   is_enabled: boolean;
+  poling_period_s?: number;
 }
 
 // Props for OriginsList
@@ -111,6 +112,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
       origin_type_id: '',
       credentials: '{}',
       is_enabled: true,
+      poling_period_s: undefined,
     } as any); // Приведение к Origin, если нужно
   }
   // Если pointIdFilter == -1, то сбрасываем selectedOrigin для создания
@@ -160,6 +162,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
           origin_type_id: Number(formValues.origin_type_id),
           is_enabled: formValues.is_enabled,
           credentials: parsedCredentials,
+          poling_period_s: formValues.poling_period_s,
           // The 'origin' textual identifier field is not part of UpdateOriginData in originApi
         };
         await originApi.updateOrigin(selectedOrigin.id, updateData);
@@ -173,6 +176,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
           origin_type_id: Number(formValues.origin_type_id),
           is_enabled: formValues.is_enabled,
           credentials: parsedCredentials,
+          poling_period_s: formValues.poling_period_s,
           // The 'origin' textual identifier field is not part of CreateOriginData in originApi (backend generated)
         };
         // Form validation should catch if point_id is not selected. This is an extra safeguard.

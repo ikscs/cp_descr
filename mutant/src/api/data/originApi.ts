@@ -24,6 +24,7 @@ export interface Origin {
   origin_type_id: number; // FK to pcnt.origin_type
   credentials?: object | null;  // Camera/NVR credentials (JSONB), optional
   is_enabled: boolean;  // Is this origin active?
+  poling_period_s?: number; // Polling period in seconds, optional
 }
 
 // Interface for an Origin linked to a customer, from v_customer_origin
@@ -100,7 +101,7 @@ const getOrigins_OLD = async (point_id?: number): Promise<Origin[]> => {
  * Data required to create an origin.
  * 'id' and 'origin' (textual identifier) are auto-generated.
  */
-export type CreateOriginData = Pick<Origin, 'point_id' | 'name' | 'origin'| 'origin_type_id' | 'is_enabled'> & Partial<Pick<Origin, 'credentials'>>;
+export type CreateOriginData = Pick<Origin, 'point_id' | 'name' | 'origin'| 'origin_type_id' | 'is_enabled' | 'poling_period_s'> & Partial<Pick<Origin, 'credentials'>>;
 
 const createOrigin = async (data: CreateOriginData): Promise<Origin> => {
   console.log('[originApi] createOrigin called with data:', data);
