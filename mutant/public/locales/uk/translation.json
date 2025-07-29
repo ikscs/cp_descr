@@ -1,0 +1,33 @@
+{
+  "language": "Мова",
+  "ukrainian": "Українська",
+  "english": "English",
+  "menu": {
+    "dashboard": "Дашборд",
+    "adverts": "Реклама",
+    "reports": "Звіти",
+    "administration": "Адміністрування",
+    "themes": "Теми",  
+    "systemParameters": "Параметри Системи",
+    "systemStatus": "Стан Системи",
+    "systemMetrics": "Стан Системи (Метрики)",
+    "selectClient": "Вибір клієнта",
+    "users": "Користувачі",
+    "roles": "Ролі",
+    "accountingPoints": "Пункти обліку",
+    "sources": "Джерела",
+    "groups": "Групи",
+    "persons": "Персони",
+    "reportsAdmin": "Звіти",
+    "clients": "Клієнти",
+    "forms": "Форми",
+    "enterprise": "Підприємство",
+    "departments": "Підрозділи",
+    "positions": "Посади",
+    "employees": "Співробітники",
+    "settings": "Налаштування",
+    "general": "Загальні",
+    "personGroups": "Групи Персон",
+    "logout": "Вийти ( {{userName}} )"
+  }
+}

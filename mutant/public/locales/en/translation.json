@@ -1,0 +1,33 @@
+{
+  "language": "Language",
+  "ukrainian": "Ukrainian",
+  "english": "English",  
+  "menu": {
+    "dashboard": "Dashboard",
+    "adverts": "Adverts",
+    "reports": "Reports",
+    "administration": "Administration",
+    "themes": "Themes",    
+    "systemParameters": "System Parameters",
+    "systemStatus": "System Status",
+    "systemMetrics": "System Status (Metrics)",
+    "selectClient": "Select Client",
+    "users": "Users",
+    "roles": "Roles",
+    "accountingPoints": "Accounting Points",
+    "sources": "Sources",
+    "groups": "Groups",
+    "persons": "Persons",
+    "reportsAdmin": "Reports",
+    "clients": "Clients",
+    "forms": "Forms",
+    "enterprise": "Enterprise",
+    "departments": "Departments",
+    "positions": "Positions",
+    "employees": "Employees",
+    "settings": "Settings",
+    "general": "General",
+    "personGroups": "Person Groups",
+    "logout": "Logout ( {{userName}} )"
+  }
+}
