@@ -6,7 +6,7 @@ export interface CustomerPoint {
 }
 
 export interface CustomerData {
-  customer?: number;
+  customer: number;
   point_id?: number;
   points?: CustomerPoint[];
   country?: string;
