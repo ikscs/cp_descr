@@ -1,8 +1,10 @@
 // import React from 'react';
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, Stack } from '@mui/material';
 // import { ExampleForm } from '../../components/Customer/ExampleForm';
 import { CustomerDetailsForm } from '../../components/Customer/CustomerDetailsForm';
 import { useUserfront } from '@userfront/react';
+import LanguageSwitcher from '../../components/Shared/LanguageSwitcher';
+import { ThemeToggleButton } from '../../components/Shared/ThemeToggleButton';
 
 const GeneralSettings = () => {
     const Userfront = useUserfront();
@@ -10,7 +12,18 @@ const GeneralSettings = () => {
   return (
     <Box p={2}>
       <Typography variant="h4">Загальні налаштування</Typography>
-      <CustomerDetailsForm />
+        
+        <Stack direction="row" spacing={2} sx={{ marginBottom: 0, marginTop: 0 }}>
+            <div style={{ marginBottom: 20, marginTop: 20 }}>
+                <LanguageSwitcher sx={{ minWidth: 120 }} /> {/* Переключатель языка */}
+            </div>      
+
+            <div style={{ marginBottom: 20, marginTop: 20 }}>
+                <ThemeToggleButton />
+            </div>      
+        </Stack>
+
+        <CustomerDetailsForm />
 
             {Userfront.user && (
                 <Box mt={4} p={2} border={1} borderColor="grey.300" borderRadius={2}>
