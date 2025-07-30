@@ -19,7 +19,6 @@ import {
   TextField,
 } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { getReports, type Report } from "../../api/data/reportTools";
 // import { fetchData, getBackend } from "../../api/data/fetchData";
 import QueryParam from "./QueryParam";
 // import packageJson from "../../../package.json";
@@ -27,6 +26,7 @@ import LineChart from "../Charts/LineChart";
 import CircularChart from "../Charts/CircularChart"; // <-- 1. Импортируем CircularChart
 import ReportResult from "./ReportResult";
 import { useCustomer } from "../../context/CustomerContext";
+import { getReports, type Report } from "../../api/data/reportToolsDrf";
 import { executeReportQuery } from "../../api/data/reportToolsDrf";
 // import { get } from 'http';
 
