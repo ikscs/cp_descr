@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Person } from './person.types';
-import api from '../../api/data/personApi';
+import api from '../../api/data/personApiAxios';
 import { useCustomer } from '../../context/CustomerContext';
 // import PersonFormPlaceholder from './PersonFormPlaceholder'; // Placeholder form
 import PersonForm /*{ PersonFormProps }*/ from './PersonForm'; // Import PersonFormProps
@@ -31,7 +31,8 @@ const PersonList: React.FC<PersonListProps> = () => {
     setLoading(true);
     setError(null);
     try {
-      const fetchedPersons: Person[] = await api.get(Number(customerData.customer));
+      // const fetchedPersons: Person[] = await api.get(Number(customerData.customer));
+      const fetchedPersons: Person[] = await api.get();
       setPersons(fetchedPersons);
     } catch (err) {
       setError(new Error('Не удалось загрузить список персон.'));
@@ -132,7 +133,7 @@ const PersonList: React.FC<PersonListProps> = () => {
   const getRowId: GridRowIdGetter<Person> = (row) => row.person_id;
 
   const columns: GridColDef<Person>[] = [
-    { field: 'customer_id', width: 90 },
+    // { field: 'customer_id', width: 90 },
     { field: 'group_id', width: 90 },
     { field: 'person_id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: 'Name', width: 250, flex: 1 },
