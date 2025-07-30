@@ -33,7 +33,7 @@ export const loadCustomerData = async (userIdentifier: string | number): Promise
     const customerId = customer.customer_id; // Assuming the customer object has a 'customer' property for the ID
 
     // 2. Fetch points for this customer
-    const apiPoints = await pointApi.getPoints(customerId);
+    const apiPoints = await pointApi.getPoints(/*customerId*/);
 
     // Transform API points to CustomerPoint format for the context
     const customerPoints: CustomerPoint[] = apiPoints.map((point) => ({

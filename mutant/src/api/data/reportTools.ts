@@ -164,13 +164,13 @@ export const OLD_updateReport = async (report: Report): Promise<Report | null> =
   }
 };
 
-export const _updateReport = async (report: Report): Promise<Report | null> => {
+export const updateReport = async (report: Report): Promise<Report | null> => {
   console.log('[updateReport] Updating report:', report);
-  const res = await axios.put<Report>(`perm_report/${packageJson.name}/${report.id}/`, report);
+  const res = await axios.patch<Report>(`perm_report/${packageJson.name}/${report.id}/`, report);
   return res.data;
 }
 
-export const updateReport = async (report: Report): Promise<Report | null> => {
+export const _updateReport = async (report: Report): Promise<Report | null> => {
     try {
         const updateQuery = 
         `UPDATE ${REPORT_TABLE} SET 

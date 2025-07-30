@@ -27,6 +27,9 @@ export interface Point {
   name: string;
   country: string; // берем из customer
   city: string; // берем из customer
+  tag?: string; // (optional) тег для точки учета
+  start_time: string; // время начала действия точки учета
+  end_time: string; // время окончания действия точки учета
 }
 
 const POINT_TABLE_NAME = 'pcnt.point';
@@ -53,13 +56,9 @@ const getPoints_ = async (customer_id: number): Promise<Point[]> => {
 };
 
 const API_URL = 'https://cnt.theweb.place/api/pcnt/point'; 
+
 async function getPoints(): Promise<Point[]> {
-  const res = await axios.get<Point[]>(API_URL, {
-      headers: {
-        "Content-Type": "application/json",
-        'authorization': `Bearer ${getApiToken()}`,
-      }
-    });
+  const res = await axios.get<Point[]>('point/');
   return res.data;
 }
 
@@ -145,7 +144,13 @@ const createPoint = async (data: Partial<Omit<Point, 'point_id'>>): Promise<Poin
   }
 };
 
-const updatePoint = async (point_id: number, data: Partial<Omit<Point, 'point_id'>>): Promise<Point> => {
+const createPoint_ = async (data: Partial<Omit<Point, 'point_id'>>): Promise<Point> => {
+  console.log('[pointApi] createPoint called with data:', data);
+  const res= await axios.post<Point>('point/', data);
+  return res.data;
+}
+
+const updatePoint_ = async (point_id: number, data: Partial<Omit<Point, 'point_id'>>): Promise<Point> => {
   console.log('[pointApi] updatePoint called for point_id:', point_id, 'with data:', data);
 
   if (Object.keys(data).length === 0) {
@@ -225,7 +230,13 @@ const updatePoint = async (point_id: number, data: Partial<Omit<Point, 'point_id
   }
 };
 
-const deletePoint = async (point_id: number): Promise<void> => {
+const updatePoint = async (point_id: number, data: Partial<Omit<Point, 'point_id'>>): Promise<Point> => {
+  console.log('[pointApi] updatePoint called for point_id:', point_id, 'with data:', data);
+  const res = await axios.patch<Point>(`point/${point_id}/`, data);
+  return res.data;
+};
+
+const deletePoint_ = async (point_id: number): Promise<void> => {
   console.log('[pointApi-Mock] deletePoint called for point_id:', point_id);
   const deleteQuery = `DELETE FROM ${POINT_TABLE_NAME} WHERE point_id = ${point_id}`;
   const backend = getBackend();
@@ -251,6 +262,11 @@ const deletePoint = async (point_id: number): Promise<void> => {
     throw err;
   }
 };
+
+const deletePoint = async (point_id: number): Promise<void> => {
+  console.log('[pointApi] deletePoint called for point_id:', point_id);
+  await axios.delete(`point/${point_id}/`);
+}
 
 export const pointApi = {
   getPoints,

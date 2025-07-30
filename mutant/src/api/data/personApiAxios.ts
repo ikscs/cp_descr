@@ -23,7 +23,7 @@ const post = async (data: Partial<Omit<Person, 'person_id'>>): Promise<Person> =
 
 const put = async (person_id: number, data: Partial<Omit<Person, 'person_id'>>): Promise<Person> => {
     console.log('[personApi] put called for person_id:', person_id, 'with data:', data);
-    const res = await axios.patch<Person>(API_URL, data);
+    const res = await axios.patch<Person>(API_URL + `${person_id}/`, data);
     return res.data;
 };
 

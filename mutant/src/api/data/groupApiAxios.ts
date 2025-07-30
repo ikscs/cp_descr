@@ -22,8 +22,8 @@ const post = async (data: Partial<Omit<Group, 'group_id'>>): Promise<Group> => {
 }
 
 const put = async (group_id: number, data: Partial<Omit<Group, 'group_id'>>): Promise<Group> => {
-    console.log('[groupApi] update called for group_id:', group_id, 'with data:', data);
-    const res = await axios.patch<Group>(API_URL, data);
+    console.log('[groupApi] put called for group_id:', group_id, 'with data:', data);
+    const res = await axios.patch<Group>(API_URL + `${group_id}/`, data);
     return res.data;
 };
 
