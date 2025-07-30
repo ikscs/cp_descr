@@ -1,34 +1,19 @@
-import { useState, useEffect, type JSX } from "react";
+import { useState, useEffect, type JSX, createContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserfront } from "@userfront/react";
 import { type MenuItem } from "./components/Shared/SideBar";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import SourceIcon from "@mui/icons-material/Source";
-import GroupWorkIcon from "@mui/icons-material/GroupWork";
-import AssessmentIcon from "@mui/icons-material/Assessment";
-import BusinessIcon from "@mui/icons-material/Business";
-import WorkIcon from "@mui/icons-material/Work";
-import BadgeIcon from "@mui/icons-material/Badge";
-import SettingsIcon from "@mui/icons-material/Settings";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import DescriptionIcon from "@mui/icons-material/Description";
-import PersonIcon from "@mui/icons-material/Person";
-import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
-import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
-import LogoutIcon from "@mui/icons-material/Logout";
 
 import { CustomerData } from "./context/CustomerContext";
 import AppCustomer from "./AppCustomer";
 import AppNewbie from "./AppNewbie";
 import { getCustomer } from "./api/data/customerTools";
-import { Box } from "@mui/material";
+import { Box, createTheme, ThemeProvider } from "@mui/material";
 import { setApiToken } from "./api/data/fetchData";
 import { pointApi } from "./api/data/pointApi";
 import axios from "axios";
+import { getMenuItems } from "./menuItems_i18n";
+import { useTranslation } from "react-i18next";
+import { ThemeToggleButton, ColorModeContext } from './components/Shared/ThemeToggleButton';
 
 function App(): JSX.Element {
   const navigate = useNavigate();
@@ -41,11 +26,53 @@ function App(): JSX.Element {
   const [isLoadingCustomerData, setIsLoadingCustomerData] =
     useState<boolean>(true);
   const [isLoadingPoints, setIsLoadingPoints] = useState(false);
-  // const [customerName, setCustomerName] = useState<string>('');
-
   const appTitle = "People Counting / multiuser";
 
   const isUserfrontLoading = typeof Userfront.user === "undefined";
+
+  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  // Мемоизируем объект контекста, чтобы избежать лишних ререндеров
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+      },
+    }),
+    [],
+  );
+  
+  // Мемоизируем объект темы
+  // Тема будет пересоздаваться ТОЛЬКО когда меняется 'mode'
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode, // <--- Здесь используется актуальное состояние 'mode'
+          primary: {
+            main: '#1976d2',
+          },
+          secondary: {
+            main: '#dc004e',
+          },
+          ...(mode === 'dark' && {
+            background: {
+              default: '#121212',
+              paper: '#1e1e1e',
+            },
+            text: {
+              primary: '#ffffff',
+              secondary: '#cccccc',
+            },
+          }),
+        },
+        typography: {
+          fontFamily: 'Roboto, sans-serif',
+          // Другие настройки типографики
+        },
+        // Другие настройки компонентов, spacing и т.д.
+      }),
+    [mode], // тема пересоздается при изменении 'mode'
+  );
 
   useEffect(() => {
     document.title = appTitle;
@@ -98,7 +125,12 @@ function App(): JSX.Element {
     }
   }, [tokens, user, isUserfrontLoading]);
 
+  const { t } = useTranslation();
   useEffect(() => {
+    setMenuItems(getMenuItems(user,t));
+  }, [user, t]); // The menu items depend on the user object and translation function
+
+  /*useEffect(() => {
     const baseMenuItems: MenuItem[] =
       user.name === "demo"
         ? [
@@ -131,6 +163,7 @@ function App(): JSX.Element {
             path: "/settings/sysmetric",
             icon: <MonitorHeartIcon />,
           },
+          { text: "Вибір клієнта", path: "/selectCustomer", icon: <BusinessIcon /> },
           { text: "Користувачі", path: "/users", icon: <PeopleIcon /> },
           { text: "Ролі", path: "/roles", icon: <AssignmentIndIcon /> },
           { text: "Пункти обліку", path: "/points", icon: <LocationOnIcon /> },
@@ -233,7 +266,7 @@ function App(): JSX.Element {
     ];
 
     setMenuItems(currentMenuItems);
-  }, [user, Userfront.tokens.accessToken]);
+  }, [user, Userfront.tokens.accessToken]);*/
 
   useEffect(() => {
     const loadPoints = async () => {
@@ -319,14 +352,18 @@ function App(): JSX.Element {
         position: "relative",
       }}
     >
-      <AppCustomer
-        user={user}
-        menuItems={menuItems}
-        appTitle={appTitle}
-        onLogout={handleLogout}
-        customerData={customerData}
-        isLoadingCustomerData={isLoadingCustomerData}
-      />
+      <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <AppCustomer
+          user={user}
+          menuItems={menuItems}
+          appTitle={appTitle}
+          onLogout={handleLogout}
+          customerData={customerData}
+          isLoadingCustomerData={isLoadingCustomerData}
+        />
+      </ThemeProvider>
+      </ColorModeContext.Provider>
     </Box>
   );
 }

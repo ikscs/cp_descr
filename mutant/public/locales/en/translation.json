@@ -1,13 +1,16 @@
 {
   "language": "Language",
   "ukrainian": "Ukrainian",
-  "english": "English",  
+  "english": "English",
+  "polish": "Polski",
+  "theme": "Theme",
+
   "menu": {
     "dashboard": "Dashboard",
     "adverts": "Adverts",
     "reports": "Reports",
     "administration": "Administration",
-    "themes": "Themes",    
+    "themes": "Themes",
     "systemParameters": "System Parameters",
     "systemStatus": "System Status",
     "systemMetrics": "System Status (Metrics)",
@@ -29,5 +32,57 @@
     "general": "General",
     "personGroups": "Person Groups",
     "logout": "Logout ( {{userName}} )"
+  },
+
+  "generalSettings": {
+    "title": "General Settings",
+    "currentUserInfo": "Current User Information (Userfront.user):",
+    "userId": "User ID:",
+    "uuid": "UUID:",
+    "email": "Email:",
+    "firstName": "First Name:",
+    "lastName": "Last Name:",
+    "username": "Username:",
+    "emailVerified": "Email Verified:",
+    "yes": "Yes",
+    "no": "No",
+    "createdAt": "Created At:",
+    "updatedAt": "Updated At:",
+    "allUserProperties": "All available Userfront.user properties (for reference):",
+    "languageSwitcher": "Language Switcher"
+  },
+
+  "customerForm": {
+    "fields": {
+      "customerId": "Customer ID",
+      "legalName": "Legal Name",
+      "address": "Address",
+      "country": "Country",
+      "city": "City"
+    },
+    "errors": {
+      "customerNotFound": "Customer with ID {{customerId}} not found.",
+      "failedToLoad": "Failed to load customer data. Please try again later.",
+      "dataNotAvailable": "Customer data not available.",
+      "submissionError": "Error submitting data. Check the console."
+    },
+    "messages": {
+      "updateSuccess": "Customer data successfully updated!",
+      "updateFailed": "Failed to update customer data."
+    },
+    "loading": "Loading customer data...",
+    "titles": {
+      "createNewCustomer": "Create New Customer",
+      "editCustomerDetails": "Edit Customer Details"
+    },
+    "buttons": {
+      "saving": "Saving details...",
+      "save": "Save details"
+    }
+  },
+
+  "themeToggle": {
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
   }
 }

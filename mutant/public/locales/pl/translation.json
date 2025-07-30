@@ -1,0 +1,84 @@
+{
+  "language": "Język",
+  "ukrainian": "Ukraiński",
+  "english": "English",
+  "polish": "Polski",
+  "theme": "Motyw",
+  "menu": {
+    "dashboard": "Pulpit",
+    "adverts": "Reklamy",
+    "reports": "Raporty",
+    "administration": "Administracja",
+    "themes": "Motywy",
+    "systemParameters": "Parametry Systemu",
+    "systemStatus": "Status Systemu",
+    "systemMetrics": "Status Systemu (Metryki)",
+    "selectClient": "Wybór klienta",
+    "users": "Użytkownicy",
+    "roles": "Role",
+    "accountingPoints": "Punkty rozliczeniowe",
+    "sources": "Źródła",
+    "groups": "Grupy",
+    "persons": "Osoby",
+    "reportsAdmin": "Raporty",
+    "clients": "Klienci",
+    "forms": "Formularze",
+    "enterprise": "Przedsiębiorstwo",
+    "departments": "Działy",
+    "positions": "Stanowiska",
+    "employees": "Pracownicy",
+    "settings": "Ustawienia",
+    "general": "Ogólne",
+    "personGroups": "Grupy Osób",
+    "logout": "Wyloguj ( {{userName}} )"
+  },
+  "generalSettings": {
+    "title": "Ustawienia ogólne",
+    "currentUserInfo": "Informacje o bieżącym użytkowniku (Userfront.user):",
+    "userId": "ID użytkownika:",
+    "uuid": "UUID:",
+    "email": "Adres e-mail:",
+    "firstName": "Imię:",
+    "lastName": "Nazwisko:",
+    "username": "Nazwa użytkownika:",
+    "emailVerified": "Zweryfikowany adres e-mail:",
+    "yes": "Tak",
+    "no": "Nie",
+    "createdAt": "Utworzono:",
+    "updatedAt": "Zaktualizowano:",
+    "allUserProperties": "Wszystkie dostępne właściwości Userfront.user (dla referencji):",
+    "languageSwitcher": "Przełącznik języka"
+  },
+  "customerForm": {
+    "fields": {
+      "customerId": "ID Klienta",
+      "legalName": "Nazwa prawna",
+      "address": "Adres",
+      "country": "Kraj",
+      "city": "Miasto"
+    },
+    "errors": {
+      "customerNotFound": "Klienta o ID {{customerId}} nie znaleziono.",
+      "failedToLoad": "Nie udało się załadować danych klienta. Spróbuj ponownie później.",
+      "dataNotAvailable": "Dane klienta niedostępne.",
+      "submissionError": "Błąd podczas wysyłania danych. Sprawdź konsolę."
+    },
+    "messages": {
+      "updateSuccess": "Dane klienta pomyślnie zaktualizowano!",
+      "updateFailed": "Nie udało się zaktualizować danych klienta."
+    },
+    "loading": "Ładowanie danych klienta...",
+    "titles": {
+      "createNewCustomer": "Tworzenie nowego klienta",
+      "editCustomerDetails": "Edycja szczegółów klienta"
+    },
+    "buttons": {
+      "saving": "Zapisywanie szczegółów...",
+      "save": "Zapisz szczegóły"
+    }
+  },
+  "themeToggle": {
+    "lightMode": "Tryb jasny",
+    "darkMode": "Tryb ciemny"
+  }
+}

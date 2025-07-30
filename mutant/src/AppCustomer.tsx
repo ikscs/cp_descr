@@ -8,6 +8,7 @@ import { Box } from '@mui/material';
 
 import DashboardView from './pages/dashboard/DashboardBtView';
 // import DashboardView from './pages/dashboard/DashboardBtView_copy';
+import { SelectCustomer } from './components/Customer/SelectCustomer';
 import Users from './components/Users/UserList';
 import RoleList from './components/Roles/RoleList';
 import PointList from './components/Points/PointList';
@@ -31,6 +32,7 @@ import SysParamsForm from './components/SysParams/SysParamsFormJson';
 import SystemStatusForm from './components/SysState/SystemStatusForm';
 import SystemMetricForm from './components/SysMetrics/SystemMetricForm';
 import AdvertsView from './pages/adverts/AdvertsView';
+import ThemeList from './components/themes/ThemeList';
 
 // Protected Route Component
 const ProtectedRoute = ({
@@ -109,6 +111,7 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
             <Route path="/dashboard" element={<DashboardView />} />
             <Route path="/adverts" element={<AdvertsView />} />
             <Route path="/logout" element={<LogoutHandler onLogout={handleLogout} />} />
+            <Route path="/selectCustomer" element={<SelectCustomer />} />
             <Route path="/users" element={<Users />} />
             <Route path="/roles" element={<RoleList />} />
             {/* <Route path="/points" element={<ProtectedRoute user={user} requiredRole="admin"><PointList /></ProtectedRoute>} /> */}
@@ -118,6 +121,7 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
             <Route path="/persons" element={<ProtectedRoute user={user} requiredRole="admin"><PersonList /></ProtectedRoute>} />
             <Route path="/reports" element={<ReportList />} />
             <Route path="/viewerReports" element={<ViewerReportList />} />
+            <Route path="/settings/themes" element={<ThemeList />} />
             <Route path="/settings/sysparam" element={<SysParamsForm />} />
             <Route path="/settings/sysstate" element={<SystemStatusForm />} />
             <Route path="/settings/sysmetric" element={<SystemMetricForm />} />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import AppFooter from './components/AppFooter';
+// import SideBar, { type MenuItem } from './components/Shared/SideBar3_i18n';
 import SideBar, { type MenuItem } from './components/Shared/SideBar3';
 
 interface AuthenticatedLayoutProps {
@@ -75,6 +76,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
         <SideBar
           menuItems={menuItems}
           drawerTitle={'People Counting' /* Меню */}
+          // drawerTitleKey={'People Counting' /* Меню */}
         />
         <Box
           component="main"

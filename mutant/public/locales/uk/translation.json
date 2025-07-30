@@ -1,7 +1,10 @@
 {
   "language": "Мова",
   "ukrainian": "Українська",
-  "english": "English",
+  "english": "Англійська",
+  "polish": "Польська",
+  "theme": "Тема",
+
   "menu": {
     "dashboard": "Дашборд",
     "adverts": "Реклама",
@@ -29,5 +32,54 @@
     "general": "Загальні",
     "personGroups": "Групи Персон",
     "logout": "Вийти ( {{userName}} )"
+  },
+  "generalSettings": {
+    "title": "Загальні налаштування",
+    "currentUserInfo": "Інформація про поточного користувача (Userfront.user):",
+    "userId": "ID користувача:",
+    "uuid": "UUID:",
+    "email": "Електронна пошта:",
+    "firstName": "Ім'я:",
+    "lastName": "Прізвище:",
+    "username": "Ім'я користувача:",
+    "emailVerified": "Верифікована пошта:",
+    "yes": "Так",
+    "no": "Ні",
+    "createdAt": "Створено:",
+    "updatedAt": "Оновлено:",
+    "allUserProperties": "Всі доступні властивості Userfront.user (для довідки):",
+    "languageSwitcher": "Перемикач мови"
+  },
+  "customerForm": {
+    "fields": {
+      "customerId": "ID Клієнта",
+      "legalName": "Юридична назва",
+      "address": "Адреса",
+      "country": "Країна",
+      "city": "Місто"
+    },
+    "errors": {
+      "customerNotFound": "Клієнта з ID {{customerId}} не знайдено.",
+      "failedToLoad": "Не вдалося завантажити дані клієнта. Будь ласка, спробуйте пізніше.",
+      "dataNotAvailable": "Дані клієнта недоступні.",
+      "submissionError": "Помилка під час відправлення даних. Перевірте консоль."
+    },
+    "messages": {
+      "updateSuccess": "Дані клієнта успішно оновлено!",
+      "updateFailed": "Не вдалося оновити дані клієнта."
+    },
+    "loading": "Завантаження даних клієнта...",
+    "titles": {
+      "createNewCustomer": "Створення нового клієнта",
+      "editCustomerDetails": "Редагування деталей клієнта"
+    },
+    "buttons": {
+      "saving": "Збереження деталей...",
+      "save": "Зберегти деталі"
+    }
+  },
+  "themeToggle": {
+    "lightMode": "Світлий режим",
+    "darkMode": "Темний режим"
   }
 }
