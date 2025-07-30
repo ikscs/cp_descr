@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getParams1 as getParams, updateParam } from "./SysParamService";
+import { getParams, updateParam } from "./SysParamService";
 import { SysParam } from "./SysParamsTypes";
 
 
