@@ -44,6 +44,8 @@ interface GenericSimpleFormProps<TData extends Record<string, any>> {
     // Фактичний компонент GenericForm, який буде рендеритися
     // Це дозволяє гнучкість, якщо GenericForm імпортується з іншого місця
     FormRenderer: React.ComponentType<any>; // наприклад, typeof GenericForm
+    //
+    goEditing?: boolean; // начинать редактирование сразу
 }
 
 // Допоміжна функція для перевірки, чи FormRenderer ймовірно підтримує проп (базова перевірка)
@@ -64,8 +66,9 @@ export const GenericSimpleForm = <TData extends Record<string, any>>({
     saveButtonText = "Зберегти зміни",
     onValuesChange, // Це буде проп, переданий ДО GenericForm
     FormRenderer,
+    goEditing = false, // Додано для початку в режимі редагування
 }: GenericSimpleFormProps<TData>) => {
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(goEditing);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formKey, setFormKey] = useState(() => Date.now()); // Для скидання GenericForm
     const formId = useId(); // React 18+ для унікального ID. Потрібен фолбек для < React 18.
