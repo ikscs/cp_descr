@@ -14,6 +14,7 @@ import axios from "axios";
 import { getMenuItems } from "./menuItems_i18n";
 import { useTranslation } from "react-i18next";
 import { ThemeToggleButton, ColorModeContext } from './components/Shared/ThemeToggleButton';
+import { DbThemeProvider } from "./components/themes/DbThemeContext";
 
 function App(): JSX.Element {
   const navigate = useNavigate();
@@ -353,6 +354,7 @@ function App(): JSX.Element {
       }}
     >
       <ColorModeContext.Provider value={colorMode}>
+      <DbThemeProvider>
       <ThemeProvider theme={theme}>
         <AppCustomer
           user={user}
@@ -363,6 +365,7 @@ function App(): JSX.Element {
           isLoadingCustomerData={isLoadingCustomerData}
         />
       </ThemeProvider>
+      </DbThemeProvider>
       </ColorModeContext.Provider>
     </Box>
   );
