@@ -70,6 +70,8 @@ const PointList: React.FC = () => {
         name: apiPoint.name,
         country: apiPoint.country,
         city: apiPoint.city,
+        start_time: apiPoint.start_time,
+        end_time: apiPoint.end_time,
       }));
 
       setPoints(mappedPoints);
@@ -104,7 +106,9 @@ const PointList: React.FC = () => {
         point_id: point.point_id,
         name: point.name,
         country: point.country,
-        city: point.city
+        city: point.city,
+        start_time: point.start_time,
+        end_time: point.end_time,
       };
       setSelectedPoint(pointFormValues);
     } else {

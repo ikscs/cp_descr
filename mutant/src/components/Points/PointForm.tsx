@@ -1,6 +1,5 @@
 // src/components/Points/PointForm.tsx
 import React from 'react';
-// import { Formik, Form, Field, type FormikProps } from 'formik';
 import { Formik, Form, Field, } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -11,27 +10,15 @@ import {
   Stack,
 } from '@mui/material';
 
-// интерфейс для точки учета
-// export interface Point {
-//   id: number; // Используйте string, если ID не числовой
-//   name: string;
-//   description?: string;
-//   country: string; // берем из customer
-//   city: string; // берем из customer
-//   // Добавьте другие поля по необходимости, например, координаты
-//   // x?: number;
-//   // y?: number;
-// }
-
 // Тип для значений формы, может немного отличаться от Point, если ID генерируется на сервере
 export interface PointFormValues {
   point_id?: number;
   name: string;
-  // description?: string;
   country: string;
   city: string;
-  // x?: number;
-  // y?: number;
+  tag?: string; // (optional) тег для точки учета
+  start_time: string;
+  end_time: string;
 }
 
 export interface PointFormDefaults {
@@ -56,18 +43,49 @@ const PointForm: React.FC<PointFormProps> = ({
 }) => {
   const initialValues: PointFormValues = point || {
     name: '',
-    // description: '',
     country: defaults?.country || 'Україна',
     city: defaults?.city || 'Київ',
-    // x: 0,
-    // y: 0,
+    tag: '', // Optional field
+    start_time: '',
+    end_time: '',
   };
+
+  // Регулярное выражение для проверки формата времени HH:MM
+  // const timeRegex = /^(?:2[0-3]|[01]?[0-9]):[0-5][0-9]$/;
+
+  // Регулярное выражение для проверки формата времени HH:MM:SS
+  const timeRegex = /^(?:2[0-3]|[01]?[0-9]):[0-5][0-9]:[0-5][0-9]$/;
 
   const validationSchema = Yup.object({
     name: Yup.string().required('Обязательно'),
     description: Yup.string().optional(),
-    // x: Yup.number().optional(),
-    // y: Yup.number().optional(),
+    tag: Yup.string().optional(),
+    start_time: Yup.string()
+      .matches(timeRegex, 'Время должно быть в формате HH:MM:SS')
+      .required('Обязательно'),
+    end_time: Yup.string()
+      .matches(timeRegex, 'Время должно быть в формате HH:MM:SS')
+      .required('Обязательно')
+      .test(
+        'is-after-start',
+        'Время окончания должно быть позже времени начала',
+        function (end_time) {
+          const { start_time } = this.parent;
+          if (!start_time || !end_time) {
+            return true;
+          }
+          const [startHour, startMinute] = start_time.split(':').map(Number);
+          const [endHour, endMinute] = end_time.split(':').map(Number);
+
+          if (endHour < startHour) {
+            return false;
+          }
+          if (endHour === startHour && endMinute <= startMinute) {
+            return false;
+          }
+          return true;
+        }
+      ),
   });
 
   return (
@@ -109,7 +127,7 @@ const PointForm: React.FC<PointFormProps> = ({
                   variant="outlined"
                   margin="normal"
                   multiline
-                  rows={3}
+                  rows={1} // Changed to 1 row for country
                   error={meta.touched && !!meta.error}
                   helperText={meta.touched && meta.error}
                 />
@@ -125,22 +143,19 @@ const PointForm: React.FC<PointFormProps> = ({
                   variant="outlined"
                   margin="normal"
                   multiline
-                  rows={3}
+                  rows={1} // Changed to 1 row for city
                   error={meta.touched && !!meta.error}
                   helperText={meta.touched && meta.error}
                 />
               )}
             </Field>
-            {/* Добавьте другие поля здесь, например, для координат */}
-            {/*
-            <Field name="x">
+            <Field name="tag">
               {({ field, meta }: { field: any; meta: any }) => (
                 <TextField
                   {...field}
                   fullWidth
-                  id="x"
-                  type="number"
-                  label="Координата X"
+                  id="tag"
+                  label="Тег (необязательно)"
                   variant="outlined"
                   margin="normal"
                   error={meta.touched && !!meta.error}
@@ -148,22 +163,36 @@ const PointForm: React.FC<PointFormProps> = ({
                 />
               )}
             </Field>
-            <Field name="y">
+            <Field name="start_time">
               {({ field, meta }: { field: any; meta: any }) => (
                 <TextField
                   {...field}
                   fullWidth
-                  id="y"
-                  type="number"
-                  label="Координата Y"
+                  id="start_time"
+                  label="Время начала (HH:MM:SS)"
                   variant="outlined"
                   margin="normal"
+                  placeholder="HH:MM:SS"
                   error={meta.touched && !!meta.error}
                   helperText={meta.touched && meta.error}
                 />
               )}
             </Field>
-            */}
+            <Field name="end_time">
+              {({ field, meta }: { field: any; meta: any }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  id="end_time"
+                  label="Время окончания (HH:MM:SS)"
+                  variant="outlined"
+                  margin="normal"
+                  placeholder="HH:MM:SS"
+                  error={meta.touched && !!meta.error}
+                  helperText={meta.touched && meta.error}
+                />
+              )}
+            </Field>
           </Stack>
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
             <Button onClick={onCancel} sx={{ mr: 1 }}>
