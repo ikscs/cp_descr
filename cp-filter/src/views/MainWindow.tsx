@@ -30,6 +30,7 @@ import QueryEditView from "./QueryEditView";
 import MyLineChart from "../temp/MyLineChart";
 import MyLineChart2 from "../temp/MyLineChart2";
 import MUIExample from "../temp/MUIExample";
+import { vcp_product_org_rated } from "../api/dataConst";
 
 const emptyTree = treeToJson([], 'product_group', 'product_group')
 
@@ -277,7 +278,7 @@ const MainWindow = () => {
         if (dataSource == 'cp3.ikscs') {
             setSubr(0)
             initSubjects(0)
-        } else if (dataSource == 'cp3.vcp_product_org_rated') {
+        } else if (dataSource == vcp_product_org_rated) {
             setSubr(2)
             initSubjects(2)
         } else {

@@ -36,6 +36,7 @@ const gridColNames: IGridColumn[] = [
     { key: 'subject_role_org', name: 'subject_role_org', width: 200, filterType: 'textbox', },
     { key: 'subject_id_org', name: 'subject_id_org', width: 200, filterType: 'textbox', },
     { key: 'product_id_org', name: 'product_id_org', width: 200, filterType: 'textbox', },
+    { key: 'date1', name: 'date1', width: 150, filterType: 'textbox', },
 ]
 
 const getGridCols = () => {
@@ -125,8 +126,9 @@ SELECT
 	${dataSource == 'cp3.vcp_product_org' ? 'product_exists' : 'true AS product_exists'},
 	${subject_role_org},
 	${subject_id_org},
-	${product_id_org}
-FROM ${dataSource || 'cp3.vcp_product_org'}
+	${product_id_org},
+    s."date" as date1
+FROM ${dataSource || 'cp3.vcp_product_org'} s
 ${withoutTree ? '' : 'JOIN temp_cp_group USING (subject_role, subject_id, product_group)'}
 WHERE 
      ${dataSource == 'cp3.vcp_product_org' ? 'product_exists' : 'true'}
@@ -141,6 +143,8 @@ WHERE
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
 //     ${makeLikeList('article', articles??[], articleInvert??false)}
+
+    console.log('query', query)
 
     const fetchParam = {
         backend_point: AppContext.backend_point_query,

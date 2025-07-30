@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { vcp_product_org_rated } from '../api/dataConst';
 
 interface IPresetContext {
   preset: string; setPreset: React.Dispatch<React.SetStateAction<string>>;
@@ -68,5 +69,5 @@ export const usePresetContext = () => {
 export const dataSourceOptions = [
   {label: 'Все субъекты', value:'cp3.vcp_product_org'},
   {label: 'ikscs', value:'cp3.ikscs'},
-  {label: 'cp', value:'cp3.vcp_product_org_rated'},
+  {label: 'cp', value: vcp_product_org_rated},
 ]
