@@ -6,6 +6,7 @@ import { ThemeToggleButton } from '../../components/Shared/ThemeToggleButton';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import ThemeSwitcher from '../../components/Shared/ThemeSwitcher';
+import ThemeToggleButton2 from '../../components/themes/ThemeToggleButton2';
 
 const GeneralSettings = () => {
     const Userfront = useUserfront();
@@ -26,6 +27,9 @@ const GeneralSettings = () => {
                 </div>
                 <div style={{ marginBottom: 20, marginTop: 20 }}>
                     <ThemeSwitcher sx={{ minWidth: 120 }} />
+                </div>          
+                <div style={{ marginBottom: 20, marginTop: 20 }}>
+                    <ThemeToggleButton2 />
                 </div>          
             </Stack>
 
