@@ -9,5 +9,61 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script src="/src/userfront-customizations.js"></script>
+    <!-- <script>
+        // Ваш скрипт для изменения текста кнопки
+        document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+                const submitButton = document.querySelector('.userfront-button.userfront-button-primary[type="submit"]');
+                if (submitButton) {
+                    submitButton.textContent = "Войти";
+                    console.log("Текст кнопки успешно изменен на 'Войти'.");
+                } else {
+                    console.warn("Кнопка отправки Userfront все еще не найдена после задержки. Возможно, проблема в селекторе или еще более длительной задержке.");
+                }
+
+                const emailLinkText = document.querySelector('.userfront-icon-button-text');
+                if (emailLinkText) {
+                    emailLinkText.textContent = "Отправить ссылку на почту";
+                    console.log("Текст 'Email me a link' изменен на 'Отправить ссылку на почту'.");
+                } else {
+                    console.warn("Элемент с классом 'userfront-icon-button-text' не найден. Проверьте селектор или убедитесь, что форма уже загружена.");
+                }
+
+                const orTextElement = document.querySelector('.userfront-divider-text');
+                if (orTextElement) {
+                    orTextElement.textContent = "ИЛИ";
+                    console.log("Текст разделителя изменен на 'ИЛИ'.");
+                } else {
+                    console.warn("Элемент с классом 'userfront-divider-text' не найден. Возможно, проблема в селекторе или форма еще не загружена.");
+                }
+
+                const emailLabel = document.querySelector('label[for="emailOrUsername"]');
+                if (emailLabel) {
+                    emailLabel.textContent = "Email или имя пользователя";
+                    console.log("Текст поля 'Email address or username' изменен.");
+                } else {
+                    console.warn("Элемент <label> для 'emailOrUsername' не найден. Возможно, проблема в селекторе или форма еще не загружена.");
+                }
+
+                const passwordLabel = document.querySelector('label[for="password"]');
+                if (passwordLabel) {
+                    passwordLabel.textContent = "Пароль";
+                    console.log("Текст поля 'Password' изменен на 'Пароль'.");
+                } else {
+                    console.warn("Элемент <label> для 'password' не найден. Возможно, проблема в селекторе или форма еще не загружена.");
+                }
+
+                const loginHeading = document.querySelector('h2');
+                if (loginHeading && loginHeading.textContent.trim() === 'Log in') {
+                    loginHeading.textContent = "Вход в аккаунт";
+                    console.log("Заголовок 'Log in' изменен на 'Вход в аккаунт'.");
+                } else {
+                    console.warn("Заголовок <h2> 'Log in' не найден или не соответствует ожидаемому тексту. Возможно, проблема в селекторе или форма еще не загружена.");
+                }
+
+            }, 500);        
+        });
+    </script> -->
   </body>
 </html>
