@@ -12,9 +12,9 @@ export interface IGridColumn {
     name: string,
     width?: number | string,
     editable?: boolean,
-	filterType?: string,
-	filterOptions?: {value: any, label: string}[],
-	resizable?: boolean,
+    filterType?: string,
+    filterOptions?: { value: any, label: string }[],
+    resizable?: boolean,
     options?: IValueLabel[],
     dataSource?: string,
 }
@@ -52,32 +52,32 @@ const makeLikeList = (field: string, list: string[], invertFlag: boolean) => {
         return ''
     if (invertFlag) {
         const ll = list.map(item => `${field} not ilike '\'\%${item}%\'\'`)
-        return `AND (${ll.join(' AND ') })`
+        return `AND (${ll.join(' AND ')})`
 
     } else {
         const ll = list.map(item => `${field} ilike '\'\%${item}%\'\'`)
-        return `AND (${ll.join(' OR ') })`
+        return `AND (${ll.join(' OR ')})`
     }
 }
 
 const snot = (notFlag: boolean) => notFlag ? ' not ' : ''
 
-const makeOrList = (field: string, list: any[] ) => {
-    const lf = list.filter( item => !item.andFlag)
+const makeOrList = (field: string, list: any[]) => {
+    const lf = list.filter(item => !item.andFlag)
     if (lf.length == 0)
         return ''
 
     const ll = lf.map(item => `${field} ${snot(item.notFlag)} ilike '\'\%${item.value}%\'\'`)
-    return `AND (${ll.join(' OR ') })`
+    return `AND (${ll.join(' OR ')})`
 }
 
-const makeAndList = (field: string, list: any[] ) => {
-    const lf = list.filter( item => item.andFlag)
+const makeAndList = (field: string, list: any[]) => {
+    const lf = list.filter(item => item.andFlag)
     if (lf.length == 0)
         return ''
 
     const ll = lf.map(item => `${field} ${snot(item.notFlag)} ilike '\'\%${item.value}%\'\'`)
-    return `AND (${ll.join(' AND ') })`
+    return `AND (${ll.join(' AND ')})`
 }
 
 export interface IFlaggedValue {
@@ -87,11 +87,11 @@ export interface IFlaggedValue {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getGridRows = async (withoutTree: boolean, 
-    subrFilter: number, 
-    manufFilter: string, 
-    articleFilter: string, 
-    gridLimit?: number, 
+const getGridRows = async (withoutTree: boolean,
+    subrFilter: number,
+    manufFilter: string,
+    articleFilter: string,
+    gridLimit?: number,
     manufs?: string[],
     articles?: IFlaggedValue[],
     _articleInvert?: boolean,
@@ -105,10 +105,11 @@ const getGridRows = async (withoutTree: boolean,
     const subject_role_org = dataSource == 'cp3.ikscs' ? 'subject_role_org' : 'null AS subject_role_org'
     const subject_id_org = dataSource == 'cp3.ikscs' ? 'subject_id_org' : 'null AS subject_id_org'
     const product_id_org = dataSource == 'cp3.ikscs' ? 'product_id_org' : 'null AS product_id_org'
-    console.log('presetQuery',presetQuery)
-    const query = doubleq(presetQuery??'') ||
-    // const query = 
-`
+    const date1 = dataSource !== 'cp3.vcp_product_org_rated' ? 'date AS date1' : 'null AS date1'
+    console.log('presetQuery', presetQuery)
+    const query = doubleq(presetQuery ?? '') ||
+        // const query = 
+        `
 SELECT
 	subject_role,
 	subject_id,
@@ -127,22 +128,22 @@ SELECT
 	${subject_role_org},
 	${subject_id_org},
 	${product_id_org},
-    s."date" as date1
+    ${date1}
 FROM ${dataSource || 'cp3.vcp_product_org'} s
 ${withoutTree ? '' : 'JOIN temp_cp_group USING (subject_role, subject_id, product_group)'}
 WHERE 
      ${dataSource == 'cp3.vcp_product_org' ? 'product_exists' : 'true'}
 	AND qtty > 0
-    ${withoutTree ? 'AND subject_role ='+ subrFilter : ''}
+    ${withoutTree ? 'AND subject_role =' + subrFilter : ''}
     ${andManufFilter}
     ${andArticleFilter}
-    ${makeInList('manuf', manufs??[])}
-    ${makeOrList('article', articles??[])}
-    ${makeAndList('article', articles??[])}
-    ${makeLikeList('name', names??[], false)}
+    ${makeInList('manuf', manufs ?? [])}
+    ${makeOrList('article', articles ?? [])}
+    ${makeAndList('article', articles ?? [])}
+    ${makeLikeList('name', names ?? [], false)}
 ${gridLimit && ('LIMIT ' + gridLimit)}
 `
-//     ${makeLikeList('article', articles??[], articleInvert??false)}
+    //     ${makeLikeList('article', articles??[], articleInvert??false)}
 
     console.log('query', query)
 
@@ -164,7 +165,7 @@ const toExcel = async (cols: any, rows: any) => {
     console.log('toExcel', rows)
 
     const exportCols = cols.map((col: any) => {
-        return {value: col.name, fontWeight: 'bold'}
+        return { value: col.name, fontWeight: 'bold' }
     })
 
     const exportRows = rows.map((row: any) => {
@@ -209,17 +210,17 @@ const productFindFrom = async (from: string, manuf: string, manufacturer_code: s
     const data = await fetchData({
         from,
         fields: 'category_id,product_id',
-        where: {manuf,manufacturer_code},
+        where: { manuf, manufacturer_code },
     })
     if (data.length > 0) {
         return {
             ok: true,
             schema: from.split('.')[0],
-            category_id: data[0].category_id, 
+            category_id: data[0].category_id,
             product_id: data[0].product_id,
         }
     } else {
-        return {ok: false}
+        return { ok: false }
     }
 }
 
