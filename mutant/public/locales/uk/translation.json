@@ -53,7 +53,7 @@
   "customerForm": {
     "fields": {
       "customerId": "ID Клієнта",
-      "legalName": "Юридична назва",
+      "legalName": "Назва",
       "address": "Адреса",
       "country": "Країна",
       "city": "Місто"
