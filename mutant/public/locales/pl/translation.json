@@ -80,5 +80,30 @@
   "themeToggle": {
     "lightMode": "Tryb jasny",
     "darkMode": "Tryb ciemny"
+  },
+  "Points": {
+    "PointList": {
+      "title": "Punkty pomiarowe",
+      "add_button": "Dodaj",
+      "edit_button": "Edytuj",
+      "sources_button": "Źródła",
+      "delete_button": "Usuń",
+      "tooltip_cameras_recorders": "Kamery i rejestratory",
+      "modal_add_title": "Dodaj nowy punkt rozliczeniowy",
+      "modal_edit_title": "Edytuj punkt rozliczeniowy",
+      "confirm_delete": "Czy na pewno chcesz usunąć ten punkt?",
+      "error_fetching_customer_data": "Nie udało się pobrać danych klienta.",
+      "error_unexpected_loading_points": "Wystąpił nieoczekiwany błąd podczas ładowania punktów.",
+      "error_updating_point": "Błąd podczas aktualizacji punktu.",
+      "error_creating_point": "Błąd podczas tworzenia punktu.",
+      "error_deleting_point": "Błąd podczas usuwania punktu.",
+      "no_customer_selected": "Proszę wybrać klienta, aby wyświetlić punkty.",
+      "no_data_to_display": "Brak danych do wyświetlenia.",
+      "columns": {
+        "id": "ID",
+        "name": "Nazwa",
+        "actions": "Akcje"
+      }
+    }
   }
 }

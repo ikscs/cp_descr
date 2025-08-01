@@ -1,6 +1,7 @@
 // src/components/Points/PointList.tsx
 import React, { useState, useEffect, useCallback } from 'react';
-import PointForm, { PointFormDefaults, type PointFormValues } from './PointForm'; // Предполагаем, что PointForm в той же папке
+import { useTranslation } from 'react-i18next'; // Імпортуємо useTranslation
+import PointForm, { PointFormDefaults, type PointFormValues } from './PointForm';
 import {
   Box,
   Button,
@@ -11,14 +12,15 @@ import {
   Stack,
   Tooltip,
 } from '@mui/material';
-import { DataGrid, type GridColDef, type GridRenderCellParams, type GridRowIdGetter } from '@mui/x-data-grid'; // Import GridRowIdGetter
+import { DataGrid, type GridColDef, type GridRenderCellParams, type GridRowIdGetter } from '@mui/x-data-grid';
 import { Point, pointApi } from '../../api/data/pointApi';
-import { useCustomer } from '../../context/CustomerContext'; // Import useCustomer
+import { useCustomer } from '../../context/CustomerContext';
 import { getCustomer } from '../../api/data/customerTools';
 import PointAdvancedForm from './PointAdvancedForm';
 
 const PointList: React.FC = () => {
-  const { customerData, isLoading: isCustomerLoading } = useCustomer(); // Access customer context
+  const { t } = useTranslation(); // Ініціалізуємо хук перекладу
+  const { customerData, isLoading: isCustomerLoading } = useCustomer();
   const [points, setPoints] = useState<Point[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
@@ -38,7 +40,7 @@ const PointList: React.FC = () => {
     try {
       const customerData = await getCustomer(customerAsNumber);
       if (!customerData.length) {
-        setError(new Error('Не вдалося отримати дані клієнта.'));
+        setError(new Error(t('Points.PointList.error_fetching_customer_data')));
         console.error('[PointList] customerDefaults.length', customerData.length);
       } else {
         console.log('[PointList] customerData:', customerData);
@@ -52,7 +54,7 @@ const PointList: React.FC = () => {
       setError(new Error(err as string));
       console.error('[PointList] Error fetching customer defaults:', err);
     };
-  }, []);
+  }, [t]); // Додаємо t до залежностей useCallback
 
   const getPoints = useCallback(async () => {
     if (!customerData?.customer) {
@@ -63,13 +65,13 @@ const PointList: React.FC = () => {
     try {
       const apiPoints = await pointApi.getPoints( /*customerAsNumber*/ );
 
-      // Transform the API data to match the Point interface expected by the UI and DataGrid
       const mappedPoints: Point[] = apiPoints.map((apiPoint: Point) => ({
         customer_id: customerAsNumber,
         point_id: apiPoint.point_id,
         name: apiPoint.name,
         country: apiPoint.country,
         city: apiPoint.city,
+        tag: apiPoint.tag,
         start_time: apiPoint.start_time,
         end_time: apiPoint.end_time,
       }));
@@ -81,18 +83,18 @@ const PointList: React.FC = () => {
       if (err instanceof Error) {
         setError(err);
       } else {
-        setError(new Error('Сталася непередбачена помилка під час завантаження точок.'));
+        setError(new Error(t('Points.PointList.error_unexpected_loading_points')));
       }
     } finally {
       setIsLoading(false);
     }
-  }, [customerData]); // Add customerData to dependencies
+  }, [customerData, t]); // Додаємо t до залежностей useCallback
 
   useEffect(() => {
-    if (customerData?.customer) { // Fetch points only if a customer is selected
+    if (customerData?.customer) {
       getPoints();
     }
-  }, [getPoints, customerData?.customer]); // Re-fetch if getPoints or customer ID changes
+  }, [getPoints, customerData?.customer]);
 
   useEffect(() => {
     console.log('[PointList] customerData:', customerData);
@@ -101,25 +103,18 @@ const PointList: React.FC = () => {
 
   const handleOpenModal = async (point: Point | null) => {
     if (point) {
-      // Преобразуем Point к PointFormValues, если они отличаются
       const pointFormValues: PointFormValues = {
         point_id: point.point_id,
         name: point.name,
         country: point.country,
         city: point.city,
+        tag: point.tag,
         start_time: point.start_time,
         end_time: point.end_time,
       };
       setSelectedPoint(pointFormValues);
     } else {
       setSelectedPoint(null);
-      // // Для создания новой точки получить из таблицы customer значения полей country, city
-      // const customerDefaults = await getCustomerDefaults(customerAsNumber);
-      // setSelectedPoint({
-      //   name: '', 
-      //   country: customerDefaults?.country || '', // Use default or empty string if not found
-      //   city: customerDefaults?.city || '' // Use default or empty string if not found
-      // }); 
     }
     setIsModalOpen(true);
   };
@@ -137,18 +132,18 @@ const PointList: React.FC = () => {
       } else {
         await pointApi.createPoint({ ...values, customer_id: customerAsNumber });
       }
-      await getPoints(); // Обновить список точек
+      await getPoints();
       handleCloseModal();
     } catch (err) {
       console.error('Error saving point:', err);
-      setError(new Error(selectedPoint ? 'Помилка під час оновлення точки.' : 'Помилка під час створення точки.'));
+      setError(new Error(selectedPoint ? t('Points.PointList.error_updating_point') : t('Points.PointList.error_creating_point')));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDeletePoint = async (pointId: number) => {
-    if (!window.confirm('Ви впевнені, що хочете видалити цю точку?')) {
+    if (!window.confirm(t('Points.PointList.confirm_delete'))) {
       return;
     }
     setIsLoading(true);
@@ -159,7 +154,7 @@ const PointList: React.FC = () => {
       setError(null);
     } catch (err) {
       console.error('Error deleting point:', err);
-      setError(new Error('Помилка під час видалення точки.'));
+      setError(new Error(t('Points.PointList.error_deleting_point')));
     } finally {
       setIsLoading(false);
     }
@@ -176,55 +171,55 @@ const PointList: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: 'point_id', headerName: 'ID', width: 100 }, // Изменено с 'id' на 'point_id' для отображения
-    { field: 'name', headerName: 'Назва', width: 200, flex: 1 },
-    // { field: 'description', headerName: 'Опис', width: 300, flex: 2 },
+    { field: 'point_id', headerName: t('Points.PointList.columns.id'), width: 100 },
+    { field: 'name', headerName: t('Points.PointList.columns.name'), width: 200, flex: 1 },
     {
       field: 'actions',
-      headerName: 'Дії',
+      headerName: t('Points.PointList.columns.actions'),
       width: 300,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Point>) => (
-        <Stack direction="row" spacing={1}>
-          <Button
-            onClick={() => handleOpenModal(params.row)}
-            size="small"
-            sx={{ mr: 1 }}
-          >
-            Редагувати
-          </Button>
-          <Tooltip title="Камери та реєстратори">
-          <Button
-            onClick={() => handleOpenAdvancedModal(params.row)}
-            size="small"
-            color="info"
-          >
-            Джерела
-          </Button>
-          </Tooltip>
-          <Button
-            onClick={() => handleDeletePoint(params.row.point_id)}
-            size="small"
-            color="error"
-          >
-            Видалити
-          </Button>
-        </Stack>
+        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+          <Stack direction="row" spacing={1}>
+            <Button
+              onClick={() => handleOpenModal(params.row)}
+              size="small"
+              sx={{ mr: 1 }}
+            >
+              {t('Points.PointList.edit_button')}
+            </Button>
+            <Tooltip title={t('Points.PointList.tooltip_cameras_recorders')}>
+              <Button
+                onClick={() => handleOpenAdvancedModal(params.row)}
+                size="small"
+                color="info"
+              >
+                {t('Points.PointList.sources_button')}
+              </Button>
+            </Tooltip>
+            <Button
+              onClick={() => handleDeletePoint(params.row.point_id)}
+              size="small"
+              color="error"
+            >
+              {t('Points.PointList.delete_button')}
+            </Button>
+          </Stack>
+        </Box>
       ),
     },
   ];
 
-  // Функция для получения ID строки
   const getRowId: GridRowIdGetter<Point> = (row) => row.point_id;
 
   return (
     <Box sx={{ width: '100%', p: 2 }}>
       <Typography variant="h5" gutterBottom>
-        Пункти обліку
+        {t('Points.PointList.title')}
       </Typography>
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-begin' }}>
         <Button variant="contained" onClick={() => handleOpenModal(null)}>
-          Додати
+          {t('Points.PointList.add_button')}
         </Button>
       </Box>
 
@@ -234,36 +229,30 @@ const PointList: React.FC = () => {
         </Alert>
       )}
 
-      {(isLoading || isCustomerLoading) && !isModalOpen && ( // Show loader if points are loading OR customer data is loading
+      {(isLoading || isCustomerLoading) && !isModalOpen && (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
           <CircularProgress />
         </Box>
       )}
 
-      {!isCustomerLoading && !customerData?.customer && !error && ( // Message if no customer is selected
-        <Typography sx={{ my: 2 }}>Будь ласка, оберіть клієнта для відображення точок.</Typography>
+      {!isCustomerLoading && !customerData?.customer && !error && (
+        <Typography sx={{ my: 2 }}>{t('Points.PointList.no_customer_selected')}</Typography>
       )}
 
       {!isLoading && !isCustomerLoading && customerData?.customer && points.length === 0 && !error && (
-        <Typography sx={{ my: 2 }}>Немає даних для відображення.</Typography>
+        <Typography sx={{ my: 2 }}>{t('Points.PointList.no_data_to_display')}</Typography>
       )}
 
       {!isLoading && points.length > 0 && (
-        <Box sx={{ height: 400, width: '100%' }}> {/* Задайте высоту для DataGrid */}
+        <Box sx={{ height: 400, width: '100%' }}>
           <DataGrid
             rows={points}
             columns={columns}
-            getRowId={getRowId} // Указываем DataGrid использовать point_id как ID строки
+            getRowId={getRowId}
             pageSizeOptions={[5, 10, 25]}
-            autoHeight //={false} // Установите false, если задаете высоту контейнера
-            sx={{ maxWidth: '50%' }}
-
-            // initialState={{ // Пример пагинации
-            //   pagination: {
-            //     paginationModel: { pageSize: 5 },
-            //   },
-            // }}
-            loading={isLoading} // DataGrid имеет свой пропс loading
+            autoHeight
+            sx={{ maxWidth: '600px' }}
+            loading={isLoading}
           />
         </Box>
       )}
@@ -275,22 +264,21 @@ const PointList: React.FC = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 600, // Фиксированная ширина как в UserList
+            width: 600,
             bgcolor: 'background.paper',
             boxShadow: 24,
-            p: 4, // Фиксированные отступы как в UserList
-            borderRadius: 1, // Оставим небольшое скругление углов, если оно не мешает
+            p: 4,
+            borderRadius: 1,
           }}
         >
           <PointForm
-            // Ключ для реинициализации формы при смене selectedPoint
             key={selectedPoint ? `edit-${selectedPoint.point_id}` : 'create'}
             point={selectedPoint === null ? undefined : selectedPoint}
             defaults={pointFormDefauls}
             title={
               selectedPoint === null
-                ? 'Додати новий пункт обліку'
-                : 'Редагувати пункт обліку'
+                ? t('Points.PointList.modal_add_title')
+                : t('Points.PointList.modal_edit_title')
             }
             onSave={handleSavePoint}
             onCancel={handleCloseModal}
@@ -298,7 +286,6 @@ const PointList: React.FC = () => {
         </Box>
       </Modal>
 
-      {/* Модальное окно для расширенного редактирования */}
       <Modal open={isAdvancedModalOpen} onClose={handleCloseAdvancedModal}>
         <Box
           sx={{

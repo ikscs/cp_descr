@@ -17,7 +17,7 @@
     "selectClient": "Вибір клієнта",
     "users": "Користувачі",
     "roles": "Ролі",
-    "accountingPoints": "Пункти обліку",
+    "accountingPoints": "Пункти обрахунку",
     "sources": "Джерела",
     "groups": "Групи",
     "persons": "Персони",
@@ -81,5 +81,30 @@
   "themeToggle": {
     "lightMode": "Світлий режим",
     "darkMode": "Темний режим"
+  },
+  "Points": {
+    "PointList": {
+      "title": "Пункти обрахунку",
+      "add_button": "Додати",
+      "edit_button": "Редагувати",
+      "sources_button": "Джерела",
+      "delete_button": "Видалити",
+      "tooltip_cameras_recorders": "Камери та реєстратори",
+      "modal_add_title": "Додати новий пункт обліку",
+      "modal_edit_title": "Редагувати пункт обліку",
+      "confirm_delete": "Ви впевнені, що хочете видалити цю точку?",
+      "error_fetching_customer_data": "Не вдалося отримати дані клієнта.",
+      "error_unexpected_loading_points": "Сталася непередбачена помилка під час завантаження точок.",
+      "error_updating_point": "Помилка під час оновлення точки.",
+      "error_creating_point": "Помилка під час створення точки.",
+      "error_deleting_point": "Помилка під час видалення точки.",
+      "no_customer_selected": "Будь ласка, оберіть клієнта для відображення точок.",
+      "no_data_to_display": "Немає даних для відображення.",
+      "columns": {
+        "id": "ID",
+        "name": "Назва",
+        "actions": "Дії"
+      }
+    }
   }
 }

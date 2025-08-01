@@ -84,5 +84,30 @@
   "themeToggle": {
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode"
+  },
+  "Points": {
+    "PointList": {
+      "title": "Accounting Points",
+      "add_button": "Add",
+      "edit_button": "Edit",
+      "sources_button": "Sources",
+      "delete_button": "Delete",
+      "tooltip_cameras_recorders": "Cameras and Recorders",
+      "modal_add_title": "Add New Accounting Point",
+      "modal_edit_title": "Edit Accounting Point",
+      "confirm_delete": "Are you sure you want to delete this point?",
+      "error_fetching_customer_data": "Failed to retrieve customer data.",
+      "error_unexpected_loading_points": "An unexpected error occurred while loading points.",
+      "error_updating_point": "Error updating point.",
+      "error_creating_point": "Error creating point.",
+      "error_deleting_point": "Error deleting point.",
+      "no_customer_selected": "Please select a customer to display points.",
+      "no_data_to_display": "No data to display.",
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "actions": "Actions"
+      }
+    }
   }
 }
