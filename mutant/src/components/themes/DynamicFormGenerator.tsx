@@ -101,10 +101,10 @@ const FieldGenerator = ({
   const renderField = (fieldKey: string, fieldSchema: z.ZodType) => {
     const fullPath = parentPath ? `${parentPath}.${fieldKey}` : fieldKey;
     const schemaToCheck = getInnerSchema(fieldSchema);
-    console.log('renderField called with fieldKey', fieldKey);
-    console.log('fieldSchema', fieldSchema);
-    console.log('schemaToCheck._def?.typeName', (schemaToCheck as any)._def?.typeName);
-    console.log('fieldSchema._def?.typeName', (fieldSchema as any)._def?.typeName);
+    // console.log('renderField called with fieldKey', fieldKey);
+    // console.log('fieldSchema', fieldSchema);
+    // console.log('schemaToCheck._def?.typeName', (schemaToCheck as any)._def?.typeName);
+    // console.log('fieldSchema._def?.typeName', (fieldSchema as any)._def?.typeName);
 
     // Безопасно получаем ошибку, используя наш новый тип ErrorsType
     const error = (errors as ErrorsType)[parentPath]?.[fieldKey];

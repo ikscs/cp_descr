@@ -27,7 +27,7 @@ function App(): JSX.Element {
   const [isLoadingCustomerData, setIsLoadingCustomerData] =
     useState<boolean>(true);
   const [isLoadingPoints, setIsLoadingPoints] = useState(false);
-  const appTitle = "People Counting / multiuser";
+  const appTitle = "People Counting";
 
   const isUserfrontLoading = typeof Userfront.user === "undefined";
 

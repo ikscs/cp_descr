@@ -12,12 +12,16 @@ import {
   Box,
   Button,
   Modal,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { DbThemeData, dbThemeSchema } from './themeSchema copy';
 // import { DbThemeData, dbThemeSchema } from './themeSchema';
 import axios from 'axios';
 import DynamicForm from './DynamicFormGenerator';
 import { getFormDefaultValues } from './zodUtils';
+import packageJson from '../../../package.json';
+import { ca } from 'date-fns/locale';
 
 const ThemeList: React.FC = () => {
   const [themes, setThemes] = useState<DbThemeData[]>([]);
@@ -25,6 +29,9 @@ const ThemeList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTheme, setSelectedTheme] = useState<DbThemeData | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false); // Состояние для открытия Snackbar
+  const [snackbarMessage, setSnackbarMessage] = useState<string>(''); // Сообщение для Snackbar
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('error'); // Тип сообщения для Snackbar
 
   useEffect(() => {
     const fetchThemes = async () => {
@@ -87,28 +94,40 @@ const ThemeList: React.FC = () => {
   }
   
   const handleSaveTheme = async (data: DbThemeData) => {
-    if (!data.id) {
-      // Если ID не указан, значит это новая тема
-      const res = await axios.post('https://cnt.theweb.place/api/theme/', data);
-      if (res.status === 201) {
-        setThemes([...themes, res.data]);
+    try {  
+      if (!data.id) { // Если ID не указан, значит это новая тема
+        const {id, ...rest} = data;
+        const res = await axios.post<DbThemeData>('https://cnt.theweb.place/api/theme/', rest);
+        if (res.status === 201) {
+          setThemes([...themes, res.data]);
+          handleCloseModal();
+        } else {
+          alert('Невозможно сохранить тему');
+        }
+        return;
+      }
+
+      const res = await axios.put(`https://cnt.theweb.place/api/theme/${data.id}/`, data);
+      if (res.status === 200) {
+        setThemes(themes.map((theme) => (theme.id === data.id ? data : theme)));
         handleCloseModal();
       } else {
         alert('Невозможно сохранить тему');
       }
-      return;
-    }
-    const res = await axios.put(`https://cnt.theweb.place/api/theme/${data.id}/`, data);
-    if (res.status === 200) {
-      setThemes(themes.map((theme) => (theme.id === data.id ? data : theme)));
-      handleCloseModal();
-    } else {
-      alert('Невозможно сохранить тему');
+    } catch (err: any) {
+      setSnackbarMessage(`Ошибка при сохранении темы: ${err.message}`);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      console.error('Ошибка при сохранении темы:', err);
     }
   }
 
   const handleOpenModal = async (theme: DbThemeData | null) => {
     const initialValuesForForm = getFormDefaultValues(dbThemeSchema, theme ? theme : {});
+    if (!initialValuesForForm.id) { // Если ID не указан, значит это новая тема
+      initialValuesForForm.app_id = packageJson.name;
+    }
+
     setSelectedTheme(initialValuesForForm);
     // setSelectedTheme(theme ? { ...theme } : null);
     setIsModalOpen(true);
@@ -117,6 +136,14 @@ const ThemeList: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedTheme(null);
+    setSnackbarOpen(false); 
+  };
+
+  const handleCloseSnackbar = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   return (
@@ -213,6 +240,12 @@ const ThemeList: React.FC = () => {
           />
         </Box>
       </Modal>
+
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
 
     </TableContainer>
   );
