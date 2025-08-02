@@ -72,6 +72,37 @@ const ThemeList: React.FC = () => {
     );
   }
 
+  const onDuplicateTheme = async (id: number) => {
+    if (!window.confirm('Ви впевнені, що хочете дублювати цю тему?')) {
+      return;
+    }
+
+    const themeToDuplicate = themes.find((theme) => theme.id === id);
+    if (!themeToDuplicate) { // never happens, but to suppress TS error
+      alert('Тема не знайдена'); 
+      return;
+    }
+
+    const newTheme = { ...themeToDuplicate, id: undefined }; // Убираем ID для создания новой темы
+    newTheme.name = `Копия ${themeToDuplicate.name}`; // Изменяем имя для новой темы
+    try {
+      const res = await axios.post<DbThemeData>('https://cnt.theweb.place/api/theme/', newTheme);
+      if (res.status === 201) {
+        setThemes([...themes, res.data]);
+        setSnackbarMessage('Тема успешно дублирована');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+      } else {
+        alert('Невозможно дублировать тему');
+      }
+    } catch (err: any) {
+      setSnackbarMessage(`Ошибка при дублировании темы: ${err.message}`);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      console.error('Ошибка при дублировании темы:', err);
+    }
+  }
+
   const onDeleteTheme = async (id: number) => {
       
       if (!window.confirm('Ви впевнені, що хочете видалити цю тему?')) {
@@ -200,6 +231,16 @@ const ThemeList: React.FC = () => {
                   sx={{ mr: 1 }}
                 >
                   Редактировать
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    onDuplicateTheme(theme.id);
+                  }}
+                  sx={{ mr: 1 }}
+                >
+                  Дублировать
                 </Button>
                 <Button
                   variant="outlined"
