@@ -14,7 +14,14 @@ const get = async (): Promise<Group[]> => {
     const res = await axios.get<Group[]>(API_URL);
     return res.data;
 }
- 
+
+const getSingle = async (group_id: number): Promise<Group> => {
+    console.log('[groupApi] getSingle called with group_id '+ group_id);
+    const res = await axios.get<Group>(API_URL + `${group_id}/`);
+    return res.data;
+}
+
+
 const post = async (data: Partial<Omit<Group, 'group_id'>>): Promise<Group> => {
     console.log('[groupApi] post called with data:', data);
     const res = await axios.post<Group>(API_URL, data);
@@ -37,6 +44,7 @@ const _delete = async (group_id: number): Promise<boolean> => {
 
 const grouApi = {
   get,
+  getSingle,
   post,
   put,
   delete: _delete,
