@@ -154,7 +154,8 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
       width: 200,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Group>) => (
-        <Stack direction="row" spacing={1}>
+      <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+        <Stack direction="row" spacing={1} >
           <Button
             onClick={() => handleOpenModal(params.row)}
             size="small"
@@ -172,6 +173,7 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
             Delete
           </Button>
         </Stack>
+      </Box>
       ),
     },
   ];
