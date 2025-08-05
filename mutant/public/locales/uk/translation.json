@@ -53,7 +53,7 @@
   "customerForm": {
     "fields": {
       "customerId": "ID Клієнта",
-      "legalName": "Юридична назва",
+      "legalName": "Назва",
       "address": "Адреса",
       "country": "Країна",
       "city": "Місто"
@@ -65,8 +65,8 @@
       "submissionError": "Помилка під час відправлення даних. Перевірте консоль."
     },
     "messages": {
-      "updateSuccess": "Дані клієнта успішно оновлено!",
-      "updateFailed": "Не вдалося оновити дані клієнта."
+      "updateSuccess": "Дані клієнта успішно збережено!",
+      "updateFailed": "Не вдалося зберегти дані клієнта."
     },
     "loading": "Завантаження даних клієнта...",
     "titles": {
