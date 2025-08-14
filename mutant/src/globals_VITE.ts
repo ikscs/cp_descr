@@ -20,7 +20,12 @@ const getTenantId = () => {
     import.meta.env.VITE_USERFRONT_LIVE_TENANT_ID;
 }
 
+const getMode = () => {
+  return import.meta.env.DEV ? 'test' : 'live';
+};
+
 export const tenantId: string = getTenantId();
 export const apiKey: string = getApiKey();
 export const basename: string = getBaseName();
 export const backendType: string = getBackendType();
+export const mode: string = getMode();

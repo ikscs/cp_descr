@@ -1,6 +1,7 @@
 import { useState, useEffect, type JSX, createContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUserfront } from "@userfront/react";
+import { useUserfront  } from "@userfront/react";
+// import Userfront from '@userfront/core';
 import { type MenuItem } from "./components/Shared/SideBar";
 
 import { CustomerData } from "./context/CustomerContext";
@@ -18,18 +19,23 @@ import { DbThemeProvider } from "./components/themes/DbThemeContext";
 
 function App(): JSX.Element {
   const navigate = useNavigate();
-  const Userfront = useUserfront();
-  const tokens = Userfront.tokens;
-  const user = Userfront.user;
+  const userfront = useUserfront();
+  const tokens = userfront.tokens;
+  const user = userfront.user;
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
-  const [isLoadingCustomerData, setIsLoadingCustomerData] =
-    useState<boolean>(true);
+  const [isLoadingCustomerData, setIsLoadingCustomerData] = useState<boolean>(true);
   const [isLoadingPoints, setIsLoadingPoints] = useState(false);
   const appTitle = "People Counting";
 
-  const isUserfrontLoading = typeof Userfront.user === "undefined";
+  const isUserfrontLoading = typeof userfront.user === "undefined";
+
+  // Userfront.on("login", ({ tokens, user }) => {
+  //   // Этот код выполнится, когда пользователь успешно авторизуется
+  //   console.log("Tokens:", tokens);
+  //   console.log("User:", user);
+  // });  
 
   const [mode, setMode] = useState<'light' | 'dark'>('light');
   // Мемоизируем объект контекста, чтобы избежать лишних ререндеров
@@ -80,11 +86,15 @@ function App(): JSX.Element {
   }, [appTitle]);
 
   useEffect(() => {
-    if (Userfront.tokens.accessToken && user?.userId) {
+    // (async () => {
+    //   await Userfront.handleRedirectCallback();
+    // })();
+
+    if (userfront.tokens.accessToken && user?.userId) {
       console.log("Tokens:", tokens);
       console.log("User:", user);
-      console.log("Tenant ID:", Userfront.tenantId);
-      console.log("Userfront mode:", Userfront.mode);
+      console.log("Tenant ID:", userfront.tenantId);
+      console.log("Userfront mode:", userfront.mode);
       console.log(
         "User roles:",
         user.hasRole && typeof user.hasRole === "function"
@@ -97,10 +107,10 @@ function App(): JSX.Element {
       );
 
       // obsolete: to be replaced in future versions with axios
-      setApiToken(Userfront.tokens.accessToken); // Set the API token for fetch API
+      setApiToken(userfront.tokens.accessToken); // Set the API token for fetch API
 
       axios.defaults.headers.common["Content-Type"] = "application/json";
-      axios.defaults.headers.common["Authorization"] = `Bearer ${Userfront.tokens.accessToken}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${userfront.tokens.accessToken}`;
       axios.defaults.baseURL = "https://cnt.theweb.place/api/pcnt/";
     } else {
       console.log("No tokens");
@@ -330,15 +340,15 @@ function App(): JSX.Element {
   }, [customerData?.customer]); 
 
   const handleLogout = () => {
-    Userfront.logout();
+    userfront.logout();
     navigate("/login");
   };
 
-  if (typeof Userfront.user === "undefined") {
+  if (typeof userfront.user === "undefined") {
     return <div>Завантаження Userfront...</div>;
   }
 
-  if (!Userfront.tokens.accessToken || !user) {
+  if (!userfront.tokens.accessToken || !user) {
     return <AppNewbie appTitle={appTitle} />;
   }
 
@@ -355,7 +365,7 @@ function App(): JSX.Element {
     >
       <ColorModeContext.Provider value={colorMode}>
       <DbThemeProvider>
-      <ThemeProvider theme={theme}>
+      {/* <ThemeProvider theme={theme}> */}
         <AppCustomer
           user={user}
           menuItems={menuItems}
@@ -364,7 +374,7 @@ function App(): JSX.Element {
           customerData={customerData}
           isLoadingCustomerData={isLoadingCustomerData}
         />
-      </ThemeProvider>
+      {/* </ThemeProvider> */}
       </DbThemeProvider>
       </ColorModeContext.Provider>
     </Box>

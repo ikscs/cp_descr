@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { personFormSchema, PersonFormValues } from './PersonForm.validation';
 import { Person } from './person.types';
-import personApi from '../../api/data/personApi'; // Assuming personApi is in d:/dvl/ikscs/react/vp-descr/mutant/src/api
+import personApi from '../../api/data/personApiAxios';
 
 export interface UsePersonFormProps {
   id?: number; // person_id for editing

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, CircularProgress, Alert, Typography, Paper } from '@mui/material';
-import { getCustomer, postCustomer, putCustomer } from '../../api/data/customerTools';
+import { getCustomer, registerCustomer, putCustomer } from '../../api/data/customerTools';
 import { useCustomer } from '../../context/CustomerContext';
 import { GenericSimpleForm } from '../generic/GenericSimpleForm'; // Import the new wrapper
 import { GenericFormRenderer } from '../generic/GenericFormRenderer';
@@ -32,6 +32,8 @@ export const CustomerDetailsForm = () => {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const { customerData } = useCustomer();
+    const userfront = useUserfront();
+    const userId = userfront.user.userId;
 
     console.log(' isSubmitting:', isSubmitting);
 
@@ -48,7 +50,7 @@ export const CustomerDetailsForm = () => {
         {
             type: 'text' as const,
             name: 'legal_name',
-            label: 'Юридична назвааа',
+            label: 'Юридична назва',
             required: true,
         },
         {
@@ -101,7 +103,7 @@ export const CustomerDetailsForm = () => {
         if (!initialData?.customer_id) {
             // setSubmitMessage({ type: 'error', text: 'Помилка: ID клієнта не визначено для оновлення.' });
             // 2025-07-17
-            const success = await postCustomer(formData);
+            const success = await registerCustomer(formData, userId);
             if (success) {
                 setSubmitMessage({ type: 'success', text: 'Дані клієнта успішно оновлено!' });
                 // todo: extract new customer_id
@@ -111,10 +113,10 @@ export const CustomerDetailsForm = () => {
                 return;
             }
 
-            if (initialData) {
-                const user = useUserfront();
-                await updateUserData(tenantId, apiKey, user.user, initialData.customer_id);
-            }
+            // if (initialData) {
+            //     const user = useUserfront();
+            //     await updateUserData(tenantId, apiKey, user.user, initialData.customer_id);
+            // }
             return;
         }
         setIsSubmitting(true);
@@ -165,7 +167,8 @@ export const CustomerDetailsForm = () => {
         <Paper elevation={2} sx={{ p: 3, borderRadius: '12px', m: 1 }}>
             <GenericSimpleForm<CustomerFormData>
                 FormRenderer={GenericFormRenderer}
-                title={customerData?.customer ? "Створення нового клієнта" : "Редагування деталей клієнта"}
+                title={!(customerData?.customer) ? "Створення нового клієнта" : "Редагування деталей клієнта"}
+                goEditing={!(customerData?.customer)}
                 fields={fields}
                 onSubmit={handleSubmit}
                 initialValues={initialData??newCustomer} // Use initialData or a newCustomer object

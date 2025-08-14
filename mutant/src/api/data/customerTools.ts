@@ -1,5 +1,7 @@
 import { fetchData, getBackend, postData, type IFetchResponse, } from './fetchData';
 import { type CustomerPoint } from '../../context/CustomerContext';
+import axios from 'axios';
+import { mode, tenantId } from '../../globals_VITE';
 
 export interface Customer {
   customer_id: number; // Primary key
@@ -30,8 +32,14 @@ export const getPoints = async (customer_id: number): Promise<CustomerPoint[]> =
     }
 };
 
-// use getCustomer to get customer for point's initial values (country, city)
 export const getCustomer = async (customer_id: number): Promise<Customer[]> => {
+    console.log('[getCustomer] customer_id:', customer_id);
+    const res = await axios.get<Customer>(`customer/${customer_id}/`);
+    return [res.data];
+};
+
+// use getCustomer to get customer for point's initial values (country, city)
+export const _getCustomer = async (customer_id: number): Promise<Customer[]> => {
     try {
         const params = {
             from: 'public.customer',
@@ -49,6 +57,54 @@ export const getCustomer = async (customer_id: number): Promise<Customer[]> => {
         console.error('Error fetching customers:', err);
         return [];
     }
+}
+
+export const registerCustomer = async (data: Customer, _userId: number ): Promise<Customer | null> => {
+    console.log('[registerCustomer] ', data);
+    const res = await axios.post('https://cnt.theweb.place/api/register_customer/', {
+        legal_name: data.legal_name,
+        address: data.address, 
+        country: data.country, 
+        city: data.city, 
+        email: 'alexander.lavrikov2@gmail.com', // TODO: data.email,
+    });
+    return res.data;
+}
+
+export const _postCustomer = async (data: Customer): Promise<Customer | null> => {
+    
+    const insertQuery = 
+        `insert into public.customer(legal_name, address, country, city)
+        values (
+            ''${data.legal_name}'',
+            ''${data.address}'',
+            ''${data.country}'',
+            ''${data.city}'') returning customer_id, legal_name, address, country, city`;
+
+    const backend = getBackend();
+    console.log('[postCustomer] insertQuery:', insertQuery);
+    const result = await postData({
+        backend_point: backend.backend_point_query,
+        query: insertQuery,
+    });
+
+    if (result.ok) {
+        return result.data[0] as Customer;
+    } else {
+        console.error('Error inserting customer:', result.data);
+        return null;
+    }
+
+}
+
+// export const postCustomer = async (data: Partial<Omit<Customer, 'customer_id'>>): Promise<Customer | null> => {
+export const postCustomer_ = async (data: Customer): Promise<Customer | null> => {
+    const { customer_id, ...dataToSend } = data;
+    // const dataToSend:any = data;
+    // dataToSend.customer_id = null;
+    console.log('[postCustomer] ', dataToSend);
+    const res = await axios.post<Customer>('customer/', dataToSend);
+    return res.data;
 }
 
 export const putCustomer = async (customer: Customer): Promise<Customer | null> => {
@@ -78,4 +134,20 @@ export const putCustomer = async (customer: Customer): Promise<Customer | null> 
         console.error('Error updating customer:', err);
         return null;
     }
+}
+
+// curl -X GET https://cnt.theweb.place/api/pcnt/user_cache/?user_id=3^&tenant_id=qbj5q6rn^&mode=live
+export const updateUserCache = async (
+    customer_id: number,
+    user_id: number,
+    tenant_id: string,
+    mode: string,
+): Promise<boolean> => {
+    const res1 = await axios.get(`user_cache/?user_id=${user_id}&tenant_id=${tenant_id}&mode=${mode}`);
+    if (res1.status !== 200 || res1.data.length === 0) {
+        return false;
+    }
+    const id = res1.data[0].id;
+    const res2 = await axios.patch(`user_cache/${id}/`, { customer_id }); 
+    return res2.status === 200;
 }

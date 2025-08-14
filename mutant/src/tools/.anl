@@ -1,0 +1,13 @@
+...src
+import GeneralSettings from './pages/Settings/GeneralSettings_i18n';
+import PointList from './components/Points/PointList';
+import GroupList from './components/Groups/GroupList';
+import PersonList from './components/Persons/PersonList'; 
+...locales
+../../public/locales
+
+/*
+ * typescript
+ * задача 1: проверить полноту перевода в файлах translation.json
+ * задача 2: проверить избыточность перевода в файлах translation.json
+ */

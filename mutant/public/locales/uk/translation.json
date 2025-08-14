@@ -4,13 +4,12 @@
   "english": "Англійська",
   "polish": "Польська",
   "theme": "Тема",
-
   "menu": {
     "dashboard": "Дашборд",
     "adverts": "Реклама",
     "reports": "Звіти",
     "administration": "Адміністрування",
-    "themes": "Теми",  
+    "themes": "Теми",
     "systemParameters": "Параметри Системи",
     "systemStatus": "Стан Системи",
     "systemMetrics": "Стан Системи (Метрики)",
@@ -31,7 +30,8 @@
     "settings": "Налаштування",
     "general": "Загальні",
     "personGroups": "Групи Персон",
-    "logout": "Вийти ( {{userName}} )"
+    "logout": "Вийти ( {{userName}} )",
+    "billing": "Біллінг"
   },
   "generalSettings": {
     "title": "Загальні налаштування",
@@ -90,8 +90,8 @@
       "sources_button": "Джерела",
       "delete_button": "Видалити",
       "tooltip_cameras_recorders": "Камери та реєстратори",
-      "modal_add_title": "Додати новий пункт обліку",
-      "modal_edit_title": "Редагувати пункт обліку",
+      "modal_add_title": "Додати новий пункт обрахунку",
+      "modal_edit_title": "Редагувати пункт обрахунку",
       "confirm_delete": "Ви впевнені, що хочете видалити цю точку?",
       "error_fetching_customer_data": "Не вдалося отримати дані клієнта.",
       "error_unexpected_loading_points": "Сталася непередбачена помилка під час завантаження точок.",

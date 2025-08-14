@@ -171,7 +171,7 @@ export const GenericSimpleForm = <TData extends Record<string, any>>({
             />
             {isEditing && !formRendererSupportsProp(FormRenderer, 'onValuesChange') && (
                  <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
-                    * Для коректної роботи блокування кнопки "{saveButtonText}" (коли немає змін), компонент `GenericForm` має підтримувати проп `onValuesChange`.
+                    {/* * Для коректної роботи блокування кнопки "{saveButtonText}" (коли немає змін), компонент `GenericForm` має підтримувати проп `onValuesChange`. */}
                  </Typography>
             )}
         </GenericBaseForm>

@@ -3,6 +3,7 @@
 export interface User {
     userId: number; // string Or number, depending on your Userfront setup
     username: string;
+    name: string;
     email: string;
     authorization: any;
     roles?: string

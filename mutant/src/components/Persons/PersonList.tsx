@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Person } from './person.types';
-import api from '../../api/data/personApiAxios';
+import personApi from '../../api/data/personApiAxios';
+// import api from '../../api/data/personApi';
 import { useCustomer } from '../../context/CustomerContext';
 // import PersonFormPlaceholder from './PersonFormPlaceholder'; // Placeholder form
 import PersonForm /*{ PersonFormProps }*/ from './PersonForm'; // Import PersonFormProps
 import PersonFaces from './PersonFaces'; // Import the new component
-import { Alert, Box, Button, Stack, Typography } from '@mui/material';
+import { Alert, Avatar, Box, Button, Stack, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowIdGetter } from '@mui/x-data-grid';
+import groupApi from '../../api/data/groupApiAxios';
 
 interface PersonListProps {
   // Future props can be added here
@@ -32,7 +34,7 @@ const PersonList: React.FC<PersonListProps> = () => {
     setError(null);
     try {
       // const fetchedPersons: Person[] = await api.get(Number(customerData.customer));
-      const fetchedPersons: Person[] = await api.get();
+      const fetchedPersons: Person[] = await personApi.get();
       setPersons(fetchedPersons);
     } catch (err) {
       setError(new Error('Не удалось загрузить список персон.'));
@@ -46,6 +48,11 @@ const PersonList: React.FC<PersonListProps> = () => {
     fetchPersons();
   }, [fetchPersons]);
 
+  const getGroupName = async (groupId: number): Promise<string> => {
+    const group = await groupApi.getSingle(groupId);
+    return group ? group.name : 'Неизвестная группа';
+  };
+
   const handleSavePerson = async (submittedPerson: Person) => {
     setIsSubmitting(true);
     setError(null);
@@ -57,15 +64,19 @@ const PersonList: React.FC<PersonListProps> = () => {
       if (isActuallyNewInList) {
       // if (submittedPerson.person_id === 0) { // Convention for new person
         const { person_id, ...personDataToPost } = submittedPerson;
-        savedPerson = await api.post(personDataToPost);
-        setPersons(prevPersons => [...prevPersons, savedPerson]);
+        // savedPerson = await personApi.post(personDataToPost);
+        // setPersons(prevPersons => [...prevPersons, savedPerson]);
+        submittedPerson.group_name = await getGroupName(submittedPerson.group_id);
+        setPersons(prevPersons => [...prevPersons, submittedPerson]);
       } else {
         if (!submittedPerson.person_id) {
           setError(new Error('ID персоны не может быть пустым для обновления.'));
           setIsSubmitting(false);
           return;
         }
-        savedPerson = await api.put(submittedPerson.person_id, submittedPerson);
+        // savedPerson = await personApi.put(submittedPerson.person_id, submittedPerson);
+        savedPerson = submittedPerson;
+        savedPerson.group_name = await getGroupName(savedPerson.group_id);
         setPersons(prevPersons =>
           prevPersons.map(p => (p.person_id === savedPerson.person_id ? savedPerson : p))
         );
@@ -88,7 +99,7 @@ const PersonList: React.FC<PersonListProps> = () => {
     setError(null);
     try {
       console.log(`Удаление персоны с ID: ${personId}`);
-      await api.delete(personId);
+      await personApi.delete(personId);
       setPersons(prevPersons => prevPersons.filter(person => person.person_id !== personId));
     } catch (err) {
       setError(new Error('Не удалось удалить персону.'));
@@ -96,6 +107,10 @@ const PersonList: React.FC<PersonListProps> = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleRefresh = () => {
+    fetchPersons();
   };
 
   const handleOpenForm = (person: Person | null) => { // Renamed
@@ -106,6 +121,7 @@ const PersonList: React.FC<PersonListProps> = () => {
       const newPersonObject: Person = {
         customer_id: customerData?.customer || -1,
         group_id: -1,
+        group_name: '',
         person_id: 0, // Temporary ID for new, handled in handleSavePerson
         name: '',
         // email: '',
@@ -134,16 +150,35 @@ const PersonList: React.FC<PersonListProps> = () => {
 
   const columns: GridColDef<Person>[] = [
     // { field: 'customer_id', width: 90 },
-    { field: 'group_id', width: 90 },
-    { field: 'person_id', headerName: 'ID', width: 90 },
+    { field: 'person_id', headerName: 'ID', width: 100 },
+    { field: 'group_name', width: 250 },
     { field: 'name', headerName: 'Name', width: 250, flex: 1 },
-    { field: 'email', headerName: 'Email', width: 250, flex: 1 },
     {
+      field: 'photo',
+      headerName: 'Фото',
+      width: 100,
+      sortable: false,
+      renderCell: (params: GridRenderCellParams<Person>) => {
+        if (params.row.photo) {
+          const base64PhotoData = params.row.photo; // Предполагаем, что это уже строка Base64
+          return (
+            <Avatar
+              src={`data:image/jpeg;base64,${base64PhotoData}`}
+              alt="Person Photo"
+              variant="rounded" // or "circular"
+              sx={{ width: 50, height: 50 }}
+            />
+          );
+        }
+        return <Typography variant="caption">Нет фото</Typography>;
+      },
+    },    {
       field: 'actions',
       headerName: 'Actions',
       width: 300,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Person>) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
         <Stack direction="row" spacing={1}>
           <Button
             onClick={() => handleOpenForm(params.row)}
@@ -171,6 +206,7 @@ const PersonList: React.FC<PersonListProps> = () => {
             Видалити
           </Button>
         </Stack>
+        </Box>
       ),
     },
   ];
@@ -183,6 +219,7 @@ const PersonList: React.FC<PersonListProps> = () => {
         <Typography variant="h5">
           Персони
         </Typography>
+        <Stack direction="column" spacing={1}>
         <Button
           variant="contained"
           onClick={() => handleOpenForm(null)}
@@ -190,6 +227,14 @@ const PersonList: React.FC<PersonListProps> = () => {
         >
           Додати Персону
         </Button>
+        <Button
+          variant="outlined"
+          onClick={() => handleRefresh()}
+          disabled={isSubmitting || !customerData?.customer}
+        >
+          Оновити
+        </Button>
+        </Stack>
       </Stack>
 
       {error && (

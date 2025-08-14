@@ -1,11 +1,12 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import AppFooter from './components/AppFooter';
-// import SideBar, { type MenuItem } from './components/Shared/SideBar3_i18n';
-import SideBar, { type MenuItem } from './components/Shared/SideBar3';
+// import SideBar, { type MenuItem } from './components/Shared/SideBar3';
+import SideBar, { type MenuItem } from './components/Shared/SideBar5';
+import SideBarWrapper from './components/Shared/SideBarWrapper';
 
 interface AuthenticatedLayoutProps {
-  user: any; // Замените 'any' на более конкретный тип пользователя, если он есть
+  userName: string;
   menuItems: MenuItem[];
   appTitle: string;
   onLogout: () => void;
@@ -13,7 +14,7 @@ interface AuthenticatedLayoutProps {
 }
 
 const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
-  user,
+  userName,
   menuItems,
   appTitle,
   onLogout,
@@ -53,7 +54,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
 
         <Box display="flex" alignItems="center">
           <Typography variant="body1" sx={{ mr: 2 }}>
-            {user?.username}
+            {userName}
           </Typography>
           <Button onClick={onLogout} variant="contained">
             Вийти
@@ -73,6 +74,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
           position: 'relative'
         }}
       >
+        {/* <SideBarWrapper */}
         <SideBar
           menuItems={menuItems}
           drawerTitle={'People Counting' /* Меню */}

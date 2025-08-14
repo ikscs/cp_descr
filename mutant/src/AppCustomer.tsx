@@ -34,6 +34,7 @@ import SystemStatusForm from './components/SysState/SystemStatusForm';
 import SystemMetricForm from './components/SysMetrics/SystemMetricForm';
 import AdvertsView from './pages/adverts/AdvertsView';
 import ThemeList from './components/themes/ThemeList';
+import BalanceForm from './components/Billing/BillingForm';
 
 // Protected Route Component
 const ProtectedRoute = ({
@@ -102,7 +103,7 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
         }}
       >
         <AuthenticatedLayout
-          user={user}
+          userName={user.username}
           menuItems={menuItems}
           appTitle={appTitle}
           onLogout={onLogout}
@@ -128,6 +129,7 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
             <Route path="/settings/sysmetric" element={<SystemMetricForm />} />
             <Route path="/settings/general" element={<GeneralSettings />} />
             <Route path="/settings/report-list" element={<ProtectedRoute user={user} requiredRole="editor"><ReportListSettings /></ProtectedRoute>} />
+            <Route path="/billing" element={<BalanceForm />} />
             <Route path="/enterprise/departments" element={<ProtectedRoute user={user} requiredRole="owner"><DepartmentList /></ProtectedRoute>} />
             <Route path="/enterprise/positions" element={<ProtectedRoute user={user} requiredRole="owner"><PositionList /></ProtectedRoute>} />
             <Route path="/enterprise/employees" element={<ProtectedRoute user={user} requiredRole="owner"><EmployeeList /></ProtectedRoute>} />

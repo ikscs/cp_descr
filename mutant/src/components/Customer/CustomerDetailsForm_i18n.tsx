@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Box, CircularProgress, Alert, Typography, Paper } from '@mui/material';
-import { getCustomer, postCustomer, putCustomer } from '../../api/data/customerTools';
+import { getCustomer, registerCustomer, putCustomer } from '../../api/data/customerTools';
 import { useCustomer } from '../../context/CustomerContext';
 import { GenericSimpleForm } from '../generic/GenericSimpleForm'; // Import the new wrapper
 import { GenericFormRenderer } from '../generic/GenericFormRenderer';
 import { updateUserData } from '../../api/updateUserData';
 import { apiKey, tenantId } from '../../globals_VITE';
 import { useUserfront } from '@userfront/react';
+import Userfront from "@userfront/core";
 import { useTranslation } from 'react-i18next';
+import { fetchRoles } from '../../api/fetchRoles';
+import { useNavigate } from 'react-router-dom';
 
 // Define the data structure for the customer form
 interface CustomerFormData {
@@ -34,6 +37,8 @@ export const CustomerDetailsForm = () => {
     const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const { customerData } = useCustomer();
     const { t } = useTranslation();
+    const userfront = useUserfront();
+    const userId = userfront.user.userId;
 
     // console.log(' isSubmitting:', _isSubmitting);
 
@@ -99,18 +104,35 @@ export const CustomerDetailsForm = () => {
         }
     }, [customerData?.customer, t]); // Fetch data on component mount or when customerId changes
 
+    // const userfront = useUserfront();
+    const navigate = useNavigate();
+
     const handleSubmit = async (formData: CustomerFormData) => {
         if (!initialData?.customer_id) {
             // setSubmitMessage({ type: 'error', text: 'Помилка: ID клієнта не визначено для оновлення.' });
             // 2025-07-17
-            const success = await postCustomer(formData);
-            if (success) {
-                setSubmitMessage({ type: 'success', text: t('customerForm.messages.updateSuccess') });
-                // todo: extract new customer_id
-                setInitialData(prevData => ({ ...prevData, ...formData }));
-            } else {
-                setSubmitMessage({ type: 'error', text: t('customerForm.messages.updateFailed') });
-                return;
+            try {
+                const success = await registerCustomer(formData, userId);
+                if (success) {
+                    setSubmitMessage({ type: 'success', text: t('customerForm.messages.updateSuccess') });
+                    // todo: extract new customer_id
+                    setInitialData(prevData => ({ ...prevData, ...formData }));
+                    
+                    // window.location.reload(); // для оновлення ролей користувача???
+                    // return;
+
+                    // Userfront.tokens.refresh(); // ролі не оновлюються, якщо не перезайти 
+
+                    userfront.logout();
+                    navigate("/login"); // Redirect to refresh roles
+                } else {
+                    setSubmitMessage({ type: 'error', text: t('customerForm.messages.updateFailed') });
+                    return;
+                }
+            } catch (err: any) {
+                console.log('Failed to register new customer:', err);
+                // setPostError(err.response.data);
+                setSubmitMessage({ type: 'error', text: err.response.data });
             }
 
             // Note: The `useUserfront()` hook should be called at the top level of the component
@@ -167,13 +189,15 @@ export const CustomerDetailsForm = () => {
             return <Alert severity="warning" sx={{ m: 2 }}>{t('customerForm.errors.dataNotAvailable')}</Alert>;
         }
 
+    const updatedFields = fields.filter(field => field.name !== 'customer_id' || !!customerData?.customer);
+
     return (
         <Paper elevation={2} sx={{ p: 3, borderRadius: '12px', m: 1 }}>
             <GenericSimpleForm<CustomerFormData>
                 FormRenderer={GenericFormRenderer}
                 title={!(customerData?.customer) ? t('customerForm.titles.createNewCustomer') : t('customerForm.titles.editCustomerDetails')}
                 goEditing={!(customerData?.customer)}
-                fields={fields}
+                fields={updatedFields}
                 onSubmit={handleSubmit}
                 initialValues={initialData ?? newCustomer} // Use initialData or a newCustomer object
                 layout={{ type: 'stack' }} // Basic stack layout

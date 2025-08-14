@@ -5,6 +5,7 @@ export interface PersonFace {
   photo: Uint8Array; // postgres bytea type
   comment: string;
   embedding: number[]; // postgres real[] type
+  sortord?: number; // optional, used for sorting faces
 }
 
 // создать компоненту для отображения лиц человека

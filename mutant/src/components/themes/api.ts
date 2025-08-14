@@ -1,7 +1,7 @@
 // api.ts
 import axios from 'axios';
 import { createTheme, Theme } from '@mui/material';
-import { dbThemeSchema, DbThemeData } from '../themes/themeSchema copy';
+import { dbThemeSchema, DbThemeData } from '../themes/themeSchema copy2';
 
 const API_BASE_URL = 'https://cnt.theweb.place/api'; // Базовый URL вашего API
 

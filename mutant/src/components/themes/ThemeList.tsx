@@ -15,7 +15,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import { DbThemeData, dbThemeSchema } from './themeSchema copy';
+import { DbThemeData, dbThemeSchema } from './themeSchema copy2';
 // import { DbThemeData, dbThemeSchema } from './themeSchema';
 import axios from 'axios';
 import DynamicForm from './DynamicFormGenerator';

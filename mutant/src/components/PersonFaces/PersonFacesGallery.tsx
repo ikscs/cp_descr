@@ -22,6 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import SelectAllIcon from '@mui/icons-material/SelectAll';
 import DeselectIcon from '@mui/icons-material/Deselect';
+import { GridCheckCircleIcon } from '@mui/x-data-grid';
 // import ImageFromUint8Array from './__ImageFromUint8Array';
 
 // Стили для модального окна
@@ -106,6 +107,40 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
     }
   };
 
+  const handleMarkAsMain = async () => {
+    if (selectedFaces.size !== 1) {
+      alert('Пожалуйста, выберите одно лицо для установки в качестве главного.');
+      return;
+    }
+
+    let sortord = 2
+    const faceUuid = Array.from(selectedFaces)[0];
+    const updatedFaces = faces.map(face => (
+      face.faceUuid === faceUuid 
+      ? { ...face, sortord: 1 } 
+      : { ...face, sortord: sortord++ }
+    ));
+
+    const patch = async (face: PersonFace) => {
+        await api.patchSortord(face.faceUuid, face.sortord?? 0);
+    }
+
+    try {
+      setLoading(true);
+      updatedFaces.map(face => {
+        patch(face);
+      });
+      // Обновляем список лиц после установки главного
+      await fetchFaces();
+      setSelectedFaces(new Set()); // Сбрасываем выбор
+    } catch (err) {
+      setError('Не удалось установить главное лицо.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Обработчик изменения файла (вызывается после выбора файла)
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -127,7 +162,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
         faceUuid: window.crypto.randomUUID(),
         personId,
         photo: photoUint8Array,
-        comment: 'Загруженное фото', // Автоматический комментарий по умолчанию
+        comment: 'Загруженное фото',
         embedding: [],
       });
 
@@ -248,6 +283,15 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
         >
           {selectedFaces.size === faces.length && faces.length > 0 ? 'Отменить все' : 'Выбрать все'}
         </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<GridCheckCircleIcon />}
+          onClick={handleMarkAsMain}
+          disabled={selectedFaces.size !== 1 || loading}
+        >
+          Главное фото
+        </Button>
       </Box>
 
       {loading && (
@@ -319,7 +363,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
                   </Box>
                   <CardContent sx={{ flexShrink: 0 }}>
                     <Typography variant="body2" color="text.secondary" align="center">
-                      {face.comment || 'Без комментария'}
+                      {face.comment + ' ' + face.sortord || 'Без комментария'}
                     </Typography>
                   </CardContent>
                 </Card>

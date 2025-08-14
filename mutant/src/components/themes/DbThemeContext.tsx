@@ -3,6 +3,22 @@ import React, { createContext, useContext, useState, useMemo, ReactNode, useCall
 import { createTheme, ThemeProvider as MuiThemeProvider, Theme, CssBaseline } from '@mui/material';
 import { fetchAndParseThemes } from './api'; // Импортируем нашу утилиту
 
+const defaultSidebarPalette = {
+    background: '#ffffff', // или любой другой безопасный дефолт
+    text: '#000000',
+    item: {
+        background: 'transparent',
+        text: '#000000',
+    },
+    selected: {
+        background: '#e0e0e0',
+        text: '#000000',
+    },
+    hover: {
+        background: '#f5f5f5',
+    },
+};
+
 // Определите типы для контекста темы
 interface DbThemeContextType {
   currentThemeName: string;
@@ -48,7 +64,7 @@ export const DbThemeProvider: React.FC<DbThemeProviderProps> = ({ children, appI
         } else {
           // Крайний случай: нет тем, даже по умолчанию
           setCurrentThemeName('light'); // Fallback на совсем дефолтную
-          setThemesMap({ 'light': createTheme({ palette: { mode: 'light' } }) });
+          setThemesMap({ 'light': createTheme({ palette: { mode: 'light', sidebar: defaultSidebarPalette } }) });
         }
       }
       setIsLoadingThemes(false);
@@ -68,7 +84,40 @@ export const DbThemeProvider: React.FC<DbThemeProviderProps> = ({ children, appI
 
   const currentMuiTheme = useMemo(() => {
     // Если темы еще не загружены или текущая тема не найдена, используем временную заглушку
-    return themesMap[currentThemeName] || createTheme({ palette: { mode: 'light' } });
+    // return themesMap[currentThemeName] || createTheme({ palette: { mode: 'light' } });
+    // Эта заглушка будет использоваться, пока темы не загрузятся
+    const baseTheme = createTheme({
+      palette: {
+        mode: 'light',
+        primary: {
+          main: '#1976d2',
+        },
+        secondary: {
+          main: '#9c27b0',
+        },
+      },
+    });
+    const defaultThemeWithCustoms = createTheme(baseTheme, {
+        palette: {
+            sidebar: defaultSidebarPalette
+        }
+    });
+    // const defaultThemeWithCustoms = createTheme({
+    //     palette: {
+    //         mode: 'light',
+    //         sidebar: defaultSidebarPalette
+    //     }
+    // });
+
+    const themeToReturn = themesMap[currentThemeName] || defaultThemeWithCustoms;
+    
+    // Добавьте это, чтобы увидеть, что именно получает провайдер
+    console.log('Тема, передаваемая в MuiThemeProvider:', themeToReturn);
+    console.log('Существует ли themeToReturn.palette.sidebar?', !!themeToReturn.palette.sidebar);
+
+    return themeToReturn;
+
+    // return themesMap[currentThemeName] || defaultThemeWithCustoms;
   }, [currentThemeName, themesMap]);
 
   const availableThemes = useMemo(() => Object.keys(themesMap), [themesMap]);

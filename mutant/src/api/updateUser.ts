@@ -1,8 +1,10 @@
+import { useUserfront } from '@userfront/react';
 import { type User } from './fetchUsers'; // Import the User interface
 
 interface UpdateUserResponse {
   userId: string;
   username: string;
+  name: string;
   email: string;
   authorization: any;
   // Add other properties that might be returned after update
@@ -17,6 +19,7 @@ export async function updateUser(
   try {
     const updatedUserData1 = {
       username: updatedUserData.username,
+      name: updatedUserData.name,
       email: updatedUserData.email,
       // no change data unless superadmin modify
       // data: {
@@ -48,3 +51,17 @@ export async function updateUser(
     throw err;
   }
 }
+
+// export async function sendResetPasswdEmail(tenantId: string, email: string): Promise<void> {
+
+//   const response = await fetch(`https://api.userfront.com/v0/tenants/${tenantId}/auth/reset/link`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       "Origin": "https://vca.theweb.place"
+//     },
+//     body: JSON.stringify({email, options: {}})
+//   });
+
+//   console.log(await response.json());
+// }

@@ -237,4 +237,8 @@ export const api = {
       });
     }
   },
+
+  patchSortord: async (faceUuid: string, sortord: number): Promise<void> => {
+    await axios.patch(`${API_URL}/${faceUuid}/`, {sortord});
+  },
 }

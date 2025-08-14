@@ -21,7 +21,7 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
     return (
         <>
             <Typography variant="h6" gutterBottom>
-                Розширене редагування точки: {point.name}
+                Розширене редагування пункта обрахунку: {point.name}
             </Typography>
 
             <Grid container spacing={3}>
@@ -29,7 +29,7 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
                 <Grid item xs={12}>
                     <Paper sx={{ p: 2, mb: 2 }}>
                         <Typography variant="h6" gutterBottom>
-                            Атрибути точки
+                            Атрибути пункта обрахунку
                         </Typography>
                         <Grid container spacing={2}>
                             <Grid item xs={6}>

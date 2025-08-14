@@ -20,6 +20,7 @@ import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
 import { TFunction } from "i18next";
+import { Payment } from "@mui/icons-material";
 
 /**
  * Generates the menu items based on the user's roles and name.
@@ -56,11 +57,7 @@ export const getMenuItems = (user: any | null, t: TFunction): MenuItem[] => {
         { text: t("menu.sources"), path: "/origins", icon: <SourceIcon /> },
         { text: t("menu.groups"), path: "/groups", icon: <GroupWorkIcon /> },
         { text: t("menu.persons"), path: "/persons", icon: <PersonIcon /> },
-        {
-          text: t("menu.reportsAdmin"),
-          path: "/settings/report-list",
-          icon: <AssessmentIcon />,
-        },
+        { text: t("menu.reportsAdmin"), path: "/settings/report-list", icon: <AssessmentIcon /> },
         { text: t("menu.clients"), path: "/customers", icon: <ShoppingCartIcon /> },
         { text: t("menu.forms"), path: "/forms", icon: <DescriptionIcon /> },
       ],
@@ -94,16 +91,8 @@ export const getMenuItems = (user: any | null, t: TFunction): MenuItem[] => {
             text: t("menu.settings"),
             icon: <SettingsIcon />,
             items: [
-              {
-                text: t("menu.general"),
-                path: "/settings/general",
-                icon: <SettingsIcon />,
-              },
-              {
-                text: t("menu.accountingPoints"),
-                path: "/points",
-                icon: <LocationOnIcon />,
-              },
+              {text: t("menu.general"), path: "/settings/general", icon: <SettingsIcon />},
+              {text: t("menu.accountingPoints"), path: "/points", icon: <LocationOnIcon />},
             ],
           },
         ]
@@ -112,26 +101,19 @@ export const getMenuItems = (user: any | null, t: TFunction): MenuItem[] => {
             text: t("menu.settings"),
             icon: <SettingsIcon />,
             items: [
-              {
-                text: t("menu.general"),
-                path: "/settings/general",
-                icon: <SettingsIcon />,
-              },
-              {
-                text: t("menu.accountingPoints"),
-                path: "/points",
-                icon: <LocationOnIcon />,
-              },
-              {
-                text: t("menu.personGroups"),
-                path: "/groups",
-                icon: <GroupWorkIcon />,
-              },
+              {text: t("menu.general"), path: "/settings/general", icon: <SettingsIcon />},
+              {text: t("menu.accountingPoints"), path: "/points", icon: <LocationOnIcon />},
+              {text: t("menu.personGroups"), path: "/groups", icon: <GroupWorkIcon />},
               { text: t("menu.persons"), path: "/persons", icon: <PersonIcon /> },
-              { text: t("menu.users"), path: "/users", icon: <PeopleIcon /> },
+              // { text: t("menu.users"), path: "/users", icon: <PeopleIcon /> },
             ],
           },
         ];
+
+  const billingMenuItems: MenuItem[] = [
+    { text: t("menu.billing"), path: "/billing", icon: <Payment />, },
+  ];
+
 
   let currentMenuItems = [...baseMenuItems];
 
@@ -144,6 +126,7 @@ export const getMenuItems = (user: any | null, t: TFunction): MenuItem[] => {
   currentMenuItems = [
     ...currentMenuItems,
     ...settingsMenuItems,
+    ...billingMenuItems,
     { text: t("menu.logout", { userName: user?.name }), path: "/logout", icon: <LogoutIcon /> },
   ];
 

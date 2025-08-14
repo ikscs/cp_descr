@@ -3,6 +3,7 @@ import { type User } from './fetchUsers'; // Import the User interface
 interface UpdateUserResponse {
   userId: string;
   username: string;
+  name: string;
   email: string;
   authorization: any;
   // Add other properties that might be returned after update

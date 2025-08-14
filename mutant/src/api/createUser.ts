@@ -3,6 +3,7 @@ import { type User } from './fetchUsers'; // Import the User interface
 interface CreateUserResponse {
     userId: number;
     username: string;
+    name: string;
     email: string;
     authorization: any;
     // Add other properties that might be returned after creation
@@ -31,7 +32,8 @@ export async function createUser(
         if (!response.ok) {
             const errorData = await response.json();
             console.error("Userfront error:", errorData);
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}
+                message: ${errorData.message || 'Unknown error'}`);
         }
 
         const data: CreateUserResponse = await response.json();

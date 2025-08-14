@@ -1,11 +1,11 @@
 import axios from 'axios';
-
-export interface Person {
-    customer_id: number;
-    group_id: number;
-    person_id: number;
-    name: string;
-}
+import { Person } from '../../components/Persons/person.types';
+// export interface Person {
+//     customer_id: number;
+//     group_id: number;
+//     person_id: number;
+//     name: string;
+// }
 
 const API_URL = 'person/';
 
