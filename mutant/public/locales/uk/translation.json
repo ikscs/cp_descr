@@ -106,5 +106,15 @@
         "actions": "Дії"
       }
     }
+  },
+  "footer": {
+    "copyright": ". Всі права захищені.",
+    "version": "Версія: {{version}}"
+  },
+  "GenericSimpleForm": {
+    "editButtonText": "Редагувати",
+    "cancelButtonText": "Скасувати",
+    "savingButtonText": "Збереження...",
+    "saveButtonText": "Зберегти зміни"
   }
 }

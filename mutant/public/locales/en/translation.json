@@ -109,5 +109,15 @@
         "actions": "Actions"
       }
     }
+  },
+  "footer": {
+    "copyright": ". All rights reserved.",
+    "version": "Version: {{version}}"
+  },
+  "GenericSimpleForm": {
+    "editButtonText": "Edit",
+    "cancelButtonText": "Cancel",
+    "savingButtonText": "Saving...",
+    "saveButtonText": "Save changes"
   }
 }

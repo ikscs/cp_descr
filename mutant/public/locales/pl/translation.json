@@ -105,5 +105,15 @@
         "actions": "Akcje"
       }
     }
+  },
+  "footer": {
+    "copyright": ". Wszelkie prawa zastrzeżone.",
+    "version": "Wersja: {{version}}"
+  },
+  "GenericSimpleForm": {
+    "editButtonText": "Edytuj",
+    "cancelButtonText": "Anuluj",
+    "savingButtonText": "Zapisywanie...",
+    "saveButtonText": "Zapisz zmiany"
   }
 }
