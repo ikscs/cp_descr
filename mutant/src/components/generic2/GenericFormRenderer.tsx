@@ -79,17 +79,13 @@ interface LayoutConfig {
 interface GenericFormProps {
     title?: string;
     fields: FieldConfig[];
-    // onSubmit: (data: any) => void;
-    defaultValues?: Record<string, any>;
     layout?: LayoutConfig;
-    // submitButtonText?: string;
     disabled?: boolean;
 }
 
 export const GenericFormRenderer = ({
     title,
     fields,
-    defaultValues = {},
     layout = { type: 'stack' },
     disabled = false,
     control,
