@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Box, CircularProgress, Alert, Typography, Paper } from '@mui/material';
 import { getCustomer, registerCustomer, putCustomer } from '../../api/data/customerTools';
 import { useCustomer } from '../../context/CustomerContext';
-import { GenericSimpleForm } from '../generic/GenericSimpleForm'; // Import the new wrapper
-import { GenericFormRenderer } from '../generic/GenericFormRenderer';
+// import { GenericSimpleForm } from '../generic/GenericSimpleForm';
+import { GenericForm } from '../generic2/GenericForm';
+import { GenericFormRenderer } from '../generic2/GenericFormRenderer';
 import { updateUserData } from '../../api/updateUserData';
 import { apiKey, tenantId } from '../../globals_VITE';
 import { useUserfront } from '@userfront/react';
@@ -193,7 +194,8 @@ export const CustomerDetailsForm = () => {
 
     return (
         <Paper elevation={2} sx={{ p: 3, borderRadius: '12px', m: 1 }}>
-            <GenericSimpleForm<CustomerFormData>
+            {/* <GenericSimpleForm<CustomerFormData> */}
+            <GenericForm<CustomerFormData>
                 FormRenderer={GenericFormRenderer}
                 title={!(customerData?.customer) ? t('customerForm.titles.createNewCustomer') : t('customerForm.titles.editCustomerDetails')}
                 goEditing={!(customerData?.customer)}

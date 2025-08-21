@@ -1,5 +1,4 @@
 import { Typography, Box, Stack } from '@mui/material';
-import { CustomerDetailsForm } from '../../components/Customer/CustomerDetailsForm_i18n';
 import { useUserfront } from '@userfront/react';
 import LanguageSwitcher from '../../components/Shared/LanguageSwitcher';
 import { ThemeToggleButton } from '../../components/Shared/ThemeToggleButton';
@@ -8,6 +7,7 @@ import i18n from '../../i18n';
 import ThemeSwitcher from '../../components/Shared/ThemeSwitcher';
 import ThemeToggleButton2 from '../../components/themes/ThemeToggleButton2';
 import UserfrontRoles from '../../components/Users/UserfrontRoles';
+import { CustomerDetailsForm } from '../../components/Customer/CustomerDetailsForm_i18n';
 
 const GeneralSettings = () => {
     const Userfront = useUserfront();
