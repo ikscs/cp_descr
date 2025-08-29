@@ -18,8 +18,9 @@ import {
 //import { Report } from '../../api/data/reportTools';
 import { fetchData, getBackend } from '../../api/data/fetchData'; // For db_select
 import { type ParsedReport } from './ReportList';
+import { t } from 'i18next';
 
-interface QueryParamProps {
+export interface QueryParamProps {
   report: ParsedReport;
   onExecute: (params: { name: string; value: string | number | boolean }[], showAsChart: boolean) => void;
   onClose: () => void;
@@ -180,36 +181,37 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
     const errors: { [key: string]: string } = {};
 
     parameters.forEach((param) => {
+      const RequiredField = t('Common.RequiredField');
       if (param.required) {
         if (
           param.type === 'string' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
-          errors[param.name] = 'Обов\'язкове поле';
+          errors[param.name] = RequiredField;
           isValid = false;
         } else if (
           param.type === 'number' &&
           (param.value === null || param.value === undefined || param.value.toString() === '')
         ) {
-          errors[param.name] = 'Обов\'язкове поле';
+          errors[param.name] = RequiredField;
           isValid = false;
         } else if (
           param.type === 'select' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
-          errors[param.name] = 'Обов\'язкове поле';
+          errors[param.name] = RequiredField;
           isValid = false;
         } else if (
           param.type === 'date' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
-          errors[param.name] = 'Обов\'язкове поле';
+          errors[param.name] = RequiredField;
           isValid = false;
         } else if (
           param.type === 'db_select' &&
           (param.value === null || param.value === undefined || param.value === '')
         ) {
-          errors[param.name] = 'Обов\'язкове поле';
+          errors[param.name] = RequiredField;
           isValid = false;
         }
       }
@@ -241,7 +243,8 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
   return (
     <Box mt={2}>
       {parameters.length === 0 ? (
-        <Typography>Звіт не має параметрів</Typography>
+        // <Typography>Звіт не має параметрів</Typography>
+        <Typography>{t('QueryParam.noParams')}</Typography>
       ) : (
         <Grid container spacing={2}>
           {parameters.map((param, index) => (
@@ -370,16 +373,21 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShowAsChart(e.target.checked)}
             />
           }
-          label="графік"
+          // label="графік"
+          label={t('QueryParam.showAsChart')}
           sx={{ marginRight: 'auto' }} // Pushes buttons to the right
         />
-        <Button onClick={onClose}>Скасувати</Button>
+        <Button onClick={onClose}>
+          {/* Скасувати */}
+          {t('QueryParam.cancel')}
+        </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={handleExecute}
         >
-          Виконати з параметрами
+          {/* Виконати з параметрами */}
+          {t('QueryParam.execute')}
         </Button>
       </Box>
     </Box>

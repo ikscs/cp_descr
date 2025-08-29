@@ -5,7 +5,8 @@ const uiSchema: UiSchema = {
     // 'ui:order': ['group_id', 'name', 'point_id', '*'],
     point_id: {
       // 'ui:widget': 'select', // RJSF infers 'select' from 'anyOf' with 'enum' or 'type: "null"' with title
-      "ui:enumNames": ["Point 1", "Point 2", "Point 3"],
+      // "ui:enumNames": ["Point 1", "Point 2", "Point 3"],
+      "ui:enumNames": [],
       'ui:props': {
         variant: 'filled',
         margin: 'normal',

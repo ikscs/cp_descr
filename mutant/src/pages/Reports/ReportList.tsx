@@ -26,8 +26,9 @@ import LineChart from "../Charts/LineChart";
 import CircularChart from "../Charts/CircularChart"; // <-- 1. Импортируем CircularChart
 import ReportResult from "./ReportResult";
 import { useCustomer } from "../../context/CustomerContext";
-import { getReports, type Report } from "../../api/data/reportToolsDrf";
+import { getReports, getReportsLang, type Report } from "../../api/data/reportToolsDrf";
 import { executeReportQuery } from "../../api/data/reportToolsDrf";
+import { useTranslation } from "react-i18next";
 // import { get } from 'http';
 
 // const backend = getBackend();
@@ -145,6 +146,8 @@ interface ReportListProps {
 }
 
 const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedReport, setSelectedReport] = useState<ParsedReport | null>(
     null
@@ -194,7 +197,7 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
     const loadReports = async () => {
       setIsLoading(true);
       try {
-        const fetchedReports = await getReports();
+        const fetchedReports = await getReportsLang(currentLanguage);
         let reportsToSet = fetchedReports || [];
         if (reportFilterPredicate) {
           // Apply the predicate here
@@ -276,15 +279,17 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
     setError(null);
     // chart data and type are reset when a new report is selected or params are set
 
+    const colError = t('Common.error');
+    const colMessage = t('Common.message');
     try {
       const result = await executeReportQuery(report.id, params);
       setExecutionResult(result);
       // Проверяем, есть ли ошибка в результате перед открытием диалога
       const isErrorResult =
         result.columns.length === 1 &&
-        (result.columns[0] === "Помилка" ||
-          result.columns[0] === "Повідомлення");
-      if (isErrorResult && result.columns[0] === "Помилка") {
+        (result.columns[0] === colError ||
+          result.columns[0] === colMessage);
+      if (isErrorResult && result.columns[0] === colError) {
         setError(result.rows[0]?.[0] || "Невідома помилка виконання");
         setIsResultDialogOpen(true);
       } else if (showAsChart && report.config?.chart && !isErrorResult) {
@@ -297,8 +302,9 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
       const errorMessage = err.message || "Невідома помилка";
       setError(`Помилка під час виконання звіту: ${errorMessage}`);
       setExecutionResult({
-        columns: ["Помилка"],
-        rows: [[`Не вдалося виконати звіт: ${errorMessage}`]],
+        columns: [colError],
+        // rows: [[`Не вдалося виконати звіт: ${errorMessage}`]],
+        rows: [[`${t('ReportList.CannotExecuteReport')}: ${errorMessage}`]],
       });
       setIsResultDialogOpen(true);
     } finally {
@@ -386,6 +392,8 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
   const handleOpenChartDialog = (
     currentExecutionResult: ReportExecutionResult
   ) => {
+    const colError = t('Common.error');
+    const colMessage = t('Common.message');
     setError(null); // Clear previous UI errors
     // Ensure chart dialog is closed initially if we fall back to results
     setIsChartDialogOpen(false);
@@ -394,8 +402,8 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
       // Check if the execution result itself indicates an error or just a message
       if (
         currentExecutionResult.columns.length === 1 &&
-        (currentExecutionResult.columns[0] === "Помилка" ||
-          currentExecutionResult.columns[0] === "Повідомлення")
+        (currentExecutionResult.columns[0] === colError ||
+          currentExecutionResult.columns[0] === colMessage)
       ) {
         setError(
           "Неможливо побудувати графік за повідомленням про помилку або відсутність даних."
@@ -599,10 +607,12 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
         mb={2}
       >
         <Typography variant="h6" gutterBottom sx={{ mb: 0 }}>
-          Перелік звітів для виконання
+          {/* Перелік звітів для виконання */}
+          {t('ReportList.title')}
         </Typography>
         <TextField
-          label="Фільтр звітів"
+          // label="Фільтр звітів"
+          label={t('ReportList.filter')}
           variant="outlined"
           size="small"
           value={filterText}
@@ -625,9 +635,9 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Назва</TableCell>
-                <TableCell>Опис</TableCell>
-                <TableCell align="right">Дія</TableCell>
+                <TableCell>{t('ReportList.name')}</TableCell>
+                <TableCell>{t('ReportList.description')}</TableCell>
+                <TableCell align="right">{t('ReportList.action')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -681,7 +691,8 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
         maxWidth="sm"
       >
         <DialogTitle>
-          Параметри для звіту: {selectedReport?.name || "Завантаження..."}
+          {/* Параметри для звіту: {selectedReport?.name || "Завантаження..."} */}
+          {t('ReportList.parameters')}: {selectedReport?.name || "Завантаження..."}
         </DialogTitle>
         <DialogContent>
           {selectedReport?.config?.params ? (

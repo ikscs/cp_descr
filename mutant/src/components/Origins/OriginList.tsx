@@ -13,11 +13,12 @@ import {
 } from '@mui/material';
 import { DataGrid, type GridColDef, type GridRenderCellParams, type GridRowIdGetter } from '@mui/x-data-grid';
 import { v4 as uuidv4 } from 'uuid';
+import { useTranslation } from 'react-i18next';
 import { originApi, type Origin, type CreateOriginData, type UpdateOriginData } from '../../api/data/originApi'; // Adjust import path as necessary
 // Assuming OriginsForm is in the same directory and can be imported.
 import { useCustomer } from '../../context/CustomerContext'; // Import useCustomer
 // If OriginsForm is still .jsx, you might need to adjust imports or use // @ts-ignore
-import OriginsForm from './OriginForm'; // Ensure path is correct
+import OriginForm from './OriginForm'; // Ensure path is correct
 
 // Values for the form, might differ slightly from the API's Origin type
 // e.g., IDs from dropdowns might be strings initially, credentials as JSON string
@@ -39,6 +40,7 @@ interface OriginsListProps {
 }
 
 const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
+  const { t } = useTranslation();
   const { customerData, isLoading: isCustomerLoading } = useCustomer(); // Access customer context
   const [origins, setOrigins] = useState<Origin[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -199,7 +201,8 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
   };
 
   const handleDeleteOrigin = async (originId: number) => {
-    if (!window.confirm('Are you sure you want to delete this origin?')) {
+    // if (!window.confirm('Are you sure you want to delete this origin?')) {
+    if (!window.confirm(t('OriginList.Are_you_sure'))) {
       return;
     }
     setIsLoading(true);
@@ -218,17 +221,17 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
 
   const columns: GridColDef<Origin>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'name', headerName: 'Name', width: 200, flex: 1 },
-    { field: 'origin', headerName: 'Origin Identifier', width: 250, flex: 1.5 },
+    { field: 'name', headerName: t('OriginList.Name'), width: 200, flex: 1 },
+    { field: 'origin', headerName: t('OriginList.OriginIdentifier'), width: 250, flex: 1.5 },
     {
       field: 'origin_type_id',
-      headerName: 'Type ID',
+      headerName: t('OriginList.Type'),
       width: 100,
       // To show type name, you'd need to fetch origin_types and map here
     },
     {
       field: 'is_enabled',
-      headerName: 'Enabled',
+      headerName: t('OriginList.Enabled'),
       width: 120,
       renderCell: (params: GridRenderCellParams<Origin>) => (
         <Checkbox checked={params.value} disabled />
@@ -236,7 +239,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
     },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: t('OriginList.Actions'),
       width: 200,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Origin>) => (
@@ -246,7 +249,8 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
             size="small"
             variant="outlined"
           >
-            Edit
+            {/* Edit */}
+            {t('OriginList.Edit')}
           </Button>
           <Button
             onClick={() => handleDeleteOrigin(params.row.id)}
@@ -254,7 +258,8 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
             variant="outlined"
             color="error"
           >
-            Delete
+            {/* Delete */}
+            {t('OriginList.Delete')}
           </Button>
         </Stack>
       ),
@@ -280,6 +285,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
   return (
     <Box sx={{ width: '100%', p: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+        {pointIdFilter === -1 && (
         <Typography variant="h5">
           Origins
           {pointIdFilter !== undefined && pointIdFilter !== -1 && ` for Point ${pointIdFilter}`}
@@ -287,13 +293,15 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
           {pointIdFilter === -1 && !customerData?.customer && !isCustomerLoading && ` (All Origins - Please Select Customer)`}
           {pointIdFilter === -1 && isCustomerLoading && ` (Loading Customer Origins...)`}
         </Typography>
+        )}
         <Button
           variant="contained"
           onClick={() => handleOpenModal(null)}
           // Disable if no point context OR if in customer mode and no customer selected/loading
           disabled={pointIdFilter === undefined || (pointIdFilter === -1 && (!customerData?.customer || isCustomerLoading))}
         >
-          Add Origin
+          {/* Add Origin */}
+          {t('OriginList.AddOrigin')}
         </Button>
       </Stack>
 
@@ -359,7 +367,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
             overflowY: 'auto',  // Allow scrolling within modal if content overflows
           }}
         >
-          <OriginsForm
+          <OriginForm
             key={selectedOrigin ? `edit-${selectedOrigin.id}` : `create-${pointIdFilter || 'new'}`}
             originToEdit={originToEditForForm}
             onSave={handleSaveOrigin}

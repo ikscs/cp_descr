@@ -1,6 +1,5 @@
 {
-  "title": "Group",
-  "description": "Schema for a group object",
+  "title": "group.title",
   "type": "object",
   "required": [
     "name"
@@ -8,17 +7,17 @@
   "properties": {
     "group_id": {
       "type": "integer",
-      "title": "Group ID",
+      "title": "group.id",
       "readOnly": true
     },
     "name": {
       "type": "string",
-      "title": "Group Name",
+      "title": "group.name",
       "minLength": 1
     },
     "point_id": {
       "type": ["integer", "null"],
-      "title": "Point ID",
+      "title": "group.pointID",
       "enum": [1,2,3]
     }
   }

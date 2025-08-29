@@ -22,6 +22,8 @@ import type { ChartData, ParsedReport } from './ReportList';
 import PivotTableDialog, { AggregationType } from './PivotTableDialog'; // <-- Import the new component and AggregationType
 import { fillPlaceholders } from './reportTools';
 // import LineChart from '../Charts/LineChart';
+// ReportResult.tsx
+import { t } from 'i18next';
 
 interface ReportExecutionResult {
   columns: string[];
@@ -189,7 +191,8 @@ const ReportResult: React.FC<ReportResultProps> = ({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
       <DialogTitle>
-        Результат выполнения отчета: { fillPlaceholders(report.name, queryParams) /*report.name}*/}
+        {/* Результат выполнения отчета: { fillPlaceholders(report.name, queryParams) } */}
+        {t('ReportResult.title')}: { fillPlaceholders(report.name, queryParams) /*report.name}*/}
       </DialogTitle>
       <DialogContent>
         <Box mt={2} display="flex" gap={2}>
@@ -200,26 +203,30 @@ const ReportResult: React.FC<ReportResultProps> = ({
                 startIcon={<ExcelIcon />}
                 onClick={() => handleExportToExcel()}
               >
-                Експорт в Excel
+                {/* Експорт в Excel */}
+                {t('ReportResult.exportToExcel')}
               </Button>
               <Button
                 variant="contained"
                 startIcon={<ChartIcon />}
                 onClick={handleOpenChartDialog}
               >
-                График
+                {/* График */}
+                {t('ReportResult.chart')}
               </Button>
               <Button
                 variant="contained"
                 onClick={onReopenParamDialog}
               >
-                Изменить параметры
+                {/* Изменить параметры */}
+                {t('ReportResult.changeParams')}
               </Button>
               <Button
                 variant="contained"
                 onClick={onPivot}
               >
-                Сводная таблица
+                {/* Сводная таблица */}
+                {t('ReportResult.pivotTable')}
               </Button>
             </>
           )}
