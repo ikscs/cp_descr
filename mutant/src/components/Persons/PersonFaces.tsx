@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonFacesGallery from '../PersonFaces/PersonFacesGallery';
+import { useTranslation } from 'react-i18next'; // Імпортуємо useTranslation
 
 interface PersonFacesProps {
   open: boolean;
@@ -23,14 +24,14 @@ const modalStyle = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 'auto',
-  maxWidth: '95vw', // Увеличим максимальную ширину
-  maxHeight: '95vh', // Увеличим максимальную высоту
+  maxWidth: '95vw',
+  maxHeight: '95vh',
   bgcolor: 'background.paper',
   boxShadow: 24,
   p: 2,
   outline: 'none',
   display: 'flex',
-  flexDirection: 'column', // Для размещения заголовка и галереи
+  flexDirection: 'column',
   alignItems: 'center',
   borderRadius: 1,
 };
@@ -40,6 +41,8 @@ const PersonFaces: React.FC<PersonFacesProps> = ({
   onClose,
   personId,
 }) => {
+  const { t } = useTranslation(); // Викликаємо хук перекладу
+
   return (
     <Modal
       open={open}
@@ -58,22 +61,22 @@ const PersonFaces: React.FC<PersonFacesProps> = ({
               position: 'absolute',
               top: 8,
               right: 8,
-              zIndex: 1, // Убедимся, что кнопка поверх контента
+              zIndex: 1,
             }}
           >
             <CloseIcon />
           </IconButton>
           <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-            Фото персоны (ID: {personId})
+            {t('PersonFaces.Title', { personId })} {/* Використовуємо ключ перекладу з динамічним значенням */}
           </Typography>
-          {/* PersonFacesGallery будет занимать оставшееся пространство */}
           <Box sx={{ flexGrow: 1, width: '100%', overflowY: 'auto' }}>
-             <PersonFacesGallery personId={personId} columns={3} /> {/* Можно настроить количество колонок */}
+            <PersonFacesGallery personId={personId} columns={3} />
           </Box>
         </Box>
       </Fade>
     </Modal>
   );
 };
+
 
 export default PersonFaces;

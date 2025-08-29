@@ -275,7 +275,7 @@ const PointList: React.FC = () => {
             key={selectedPoint ? `edit-${selectedPoint.point_id}` : 'create'}
             point={selectedPoint === null ? undefined : selectedPoint}
             defaults={pointFormDefauls}
-            title={
+            _title={
               selectedPoint === null
                 ? t('Points.PointList.modal_add_title')
                 : t('Points.PointList.modal_edit_title')

@@ -21,9 +21,9 @@ const PersonFormPlaceholder: React.FC<PersonFormPlaceholderProps> = ({ person, o
 
   return (
     <Box sx={{ p: 2, border: '1px dashed grey', borderRadius: 1 }}>
-      <Typography variant="h6" gutterBottom>
+      {/* <Typography variant="h6" gutterBottom>
         {person && person.person_id !== 0 ? `Edit Person: ${person.name}` : 'Add New Person'}
-      </Typography>
+      </Typography> */}
       <Typography sx={{ mb: 2 }}>
         This is a placeholder for the person editing form. Current data:
       </Typography>

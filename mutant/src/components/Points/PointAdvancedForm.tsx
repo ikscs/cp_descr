@@ -6,6 +6,7 @@ import {
     Grid,
     Paper,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { Point } from '../../api/data/pointApi';
 import OriginList from '../Origins/OriginList';
 
@@ -18,6 +19,7 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
     point,
     onClose,
 }) => {
+    const { t } = useTranslation();
     return (
         <>
             <Typography variant="h6" gutterBottom>
@@ -37,15 +39,15 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
                                 <Typography>{point.point_id}</Typography>
                             </Grid>
                             <Grid item xs={6}>
-                                <Typography variant="subtitle2">Назва:</Typography>
+                                <Typography variant="subtitle2">{t('PointForm.name')}</Typography>
                                 <Typography>{point.name}</Typography>
                             </Grid>
                             <Grid item xs={6}>
-                                <Typography variant="subtitle2">Країна:</Typography>
+                                <Typography variant="subtitle2">{t('PointForm.country')}</Typography>
                                 <Typography>{point.country}</Typography>
                             </Grid>
                             <Grid item xs={6}>
-                                <Typography variant="subtitle2">Місто:</Typography>
+                                <Typography variant="subtitle2">{t('PointForm.city')}</Typography>
                                 <Typography>{point.city}</Typography>
                             </Grid>
                         </Grid>
@@ -56,7 +58,8 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
                 <Grid item xs={12}>
                     <Paper sx={{ p: 2 }}>
                         <Typography variant="h6" gutterBottom>
-                            Камери та реєстратори
+                            {/* Камери та реєстратори */}
+                            {t('PointAdvancedForm.CamerasAndRegistrators')}
                         </Typography>
                         <OriginList pointIdFilter={point.point_id} />
                     </Paper>
@@ -65,7 +68,8 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
 
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button onClick={onClose} sx={{ mr: 1 }}>
-                    Закрити
+                    {/* Закрити */}
+                    {t('PointAdvancedForm.Close')}
                 </Button>
             </Box>
         </>

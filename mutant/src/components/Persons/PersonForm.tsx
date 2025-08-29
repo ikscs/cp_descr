@@ -13,7 +13,8 @@ import {
   FormControl,
   InputLabel,
   FormHelperText,
-} from '@mui/material'; // Assuming Material-UI, adjust as needed
+} from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { usePersonForm } from './usePersonForm';
 import { Person } from './person.types';
 import { Group } from '../Groups/group.types';
@@ -25,8 +26,8 @@ export interface PersonFormProps {
   open: boolean;
   onClose: () => void;
   onSaved: (person: Person) => void;
-  personToEdit?: Person | null; // Person object for editing, or null/template for new
-  defaultGroupId?: number; // Fallback default group ID for new persons if not in personToEdit template
+  personToEdit?: Person | null;
+  defaultGroupId?: number;
 }
 
 const PersonForm: React.FC<PersonFormProps> = ({
@@ -36,9 +37,10 @@ const PersonForm: React.FC<PersonFormProps> = ({
   personToEdit,
   defaultGroupId,
 }) => {
+  const { t } = useTranslation();
   const [groups, setGroups] = useState<Group[]>([]);
   const [loadingGroups, setLoadingGroups] = useState<boolean>(true);
-  const { customerData, } = useCustomer(); 
+  const { customerData } = useCustomer();
   const customer_id = customerData?.customer || -1;
 
   const isNewPersonTemplate = personToEdit && (personToEdit.person_id === 0 || personToEdit.person_id === undefined);
@@ -55,17 +57,16 @@ const PersonForm: React.FC<PersonFormProps> = ({
     reset,
     errors,
     isSubmitting,
-    control, // <-- добавьте это
+    control,
   } = usePersonForm({
     id: idForHook,
     defaultGroupId: groupIdForDefaultsInHook,
     onSuccess: (person) => {
       onSaved(person);
-      onClose(); // Close dialog on successful save
+      onClose();
     },
     onError: (error) => {
       console.error("Error saving person:", error);
-      // Potentially show a user-facing error message here
     },
   });
 
@@ -86,7 +87,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
     if (open) {
       fetchGroups();
     }
-  }, [open, customer_id]); // Added customer_id as dependency for fetchGroups
+  }, [open, customer_id]);
 
   useEffect(() => {
     if (open) {
@@ -108,13 +109,13 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{idForHook ? 'Edit Person' : 'Create Person'}</DialogTitle>
+      <DialogTitle>{idForHook ? t('PersonForm.EditPerson') : t('PersonForm.CreatePerson')}</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Grid container spacing={2} sx={{ paddingTop: 1 }}>
             <Grid item xs={12}>
               <TextField
-                label="Name"
+                label={t('PersonForm.Name')}
                 fullWidth
                 variant="outlined"
                 {...register('name')}
@@ -122,20 +123,9 @@ const PersonForm: React.FC<PersonFormProps> = ({
                 helperText={errors.name?.message}
               />
             </Grid>
-
-            {/* Add email field */}
-            {/* <Grid item xs={12}>
-              <TextField
-                label="Email"
-                fullWidth
-                variant="outlined"
-                {...register('email')}  //  Register the email field!
-                error={!!errors.email}
-                helperText={errors.email?.message}
-              /> */}
             <Grid item xs={12}>
               <FormControl fullWidth error={!!errors.group_id}>
-                <InputLabel id="group-select-label">Group</InputLabel>
+                <InputLabel id="group-select-label">{t('PersonForm.Group')}</InputLabel>
                 <Controller
                   name="group_id"
                   control={control}
@@ -143,14 +133,14 @@ const PersonForm: React.FC<PersonFormProps> = ({
                   render={({ field }) => (
                     <Select
                       labelId="group-select-label"
-                      label="Group"
+                      label={t('PersonForm.Group')}
                       {...field}
                       value={typeof field.value === 'number' ? field.value : undefined}
                       disabled={loadingGroups || groups.length === 0 || isSubmitting}
                     >
-                      <MenuItem value={undefined}><em>Не выбрано</em></MenuItem>
-                      {loadingGroups && <MenuItem value={-1}><em>Loading groups...</em></MenuItem>}
-                      {!loadingGroups && groups.length === 0 && <MenuItem value={-1}><em>No groups available</em></MenuItem>}
+                      <MenuItem value={undefined}><em>{t('PersonForm.NotSelected')}</em></MenuItem>
+                      {loadingGroups && <MenuItem value={-1}><em>{t('PersonForm.LoadingGroups')}</em></MenuItem>}
+                      {!loadingGroups && groups.length === 0 && <MenuItem value={-1}><em>{t('PersonForm.NoGroupsAvailable')}</em></MenuItem>}
                       {groups.map((group) => (
                         <MenuItem key={group.group_id} value={group.group_id}>
                           {group.name}
@@ -166,10 +156,10 @@ const PersonForm: React.FC<PersonFormProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} color="secondary">
-            Cancel
+            {t('PersonForm.Cancel')}
           </Button>
           <Button type="submit" color="primary" disabled={isSubmitting || loadingGroups}>
-            {isSubmitting ? <CircularProgress size={24} /> : 'Save'}
+            {isSubmitting ? <CircularProgress size={24} /> : t('PersonForm.Save')}
           </Button>
         </DialogActions>
       </form>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { LoginForm, SignupForm, PasswordResetForm } from '@userfront/react';
 import { Box, Typography, Paper, Button } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { tenantId } from './globals_VITE';
 import AdvertsView from './pages/adverts/AdvertsView';
 // import { sendResetPasswdEmail } from './api/updateUser';
@@ -11,6 +12,7 @@ interface AppNewbieProps {
 }
 
 const AppNewbie: React.FC<AppNewbieProps> = ({ appTitle }) => {
+  const { t } = useTranslation();
   const [showLogin, setShowLogin] = useState(true);
   const toggleForm = () => {
     setShowLogin(!showLogin);
@@ -51,10 +53,12 @@ const AppNewbie: React.FC<AppNewbieProps> = ({ appTitle }) => {
               <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>
                 {/* {showLogin ? 'Реєстрация' : 'Війти'} - {useUserfront()?.tenantId} Показываем ID тенанта из Userfront */}
                 {/* {showLogin ? 'Реєстрация' : 'Війти'} - {tenantId} */}
-                {showLogin ? 'Реєстрація' : 'Увійти'}
+                {/* {showLogin ? 'Реєстрація' : 'Увійти'} */}
+                { showLogin ? t('Registration') : t('Sign In')}
               </Button>
               <Button onClick={() => navigate('reset')} sx={{ marginTop: '10px' }}>
-                Забыли пароль?
+                {/* Забыли пароль? */}
+                {t('Forgot Password')}
               </Button>
               {/* Optionally add a link to the reset form */}
               {/* <Link to="/reset">Forgot Password?</Link> */}

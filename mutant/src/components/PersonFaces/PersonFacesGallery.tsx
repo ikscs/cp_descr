@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PersonFace } from './personFace.types';
 import { api, uint8ArrayToBase64_ as uint8ArrayToBase64 } from './personFaceApi';
 import {
@@ -23,7 +24,6 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import SelectAllIcon from '@mui/icons-material/SelectAll';
 import DeselectIcon from '@mui/icons-material/Deselect';
 import { GridCheckCircleIcon } from '@mui/x-data-grid';
-// import ImageFromUint8Array from './__ImageFromUint8Array';
 
 // Стили для модального окна
 const modalStyle = {
@@ -52,21 +52,15 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
   personId,
   columns = 4,
 }) => {
+  const { t, i18n } = useTranslation();
   const [faces, setFaces] = useState<PersonFace[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFaces, setSelectedFaces] = useState<Set<string>>(new Set());
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  // Ссылка на input для файла
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Функция, которая будет вызвана при клике на кнопку "Добавить лицо"
-  // const handleAddFaceClick = () => {
-  //   // Программно "кликаем" по скрытому input для выбора файла
-  //   fileInputRef.current?.click();
-  // };
-  
   // --- Загрузка данных ---
   const fetchFaces = useCallback(async () => {
     setLoading(true);
@@ -75,12 +69,12 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
       const data = await api.get(personId); // getFacesByPersonId
       setFaces(data);
     } catch (err) {
-      setError('Не удалось загрузить лица. Пожалуйста, попробуйте еще раз.');
+      setError(t('PersonFacesGallery.Error.FetchFaces'));
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [personId]);
+  }, [personId, t]);
 
   useEffect(() => {
     fetchFaces();
@@ -101,28 +95,28 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
 
   const handleSelectAll = () => {
     if (selectedFaces.size === faces.length && faces.length > 0) {
-      setSelectedFaces(new Set()); // Снять выбор со всех
+      setSelectedFaces(new Set());
     } else {
-      setSelectedFaces(new Set(faces.map(face => face.faceUuid))); // Выбрать все
+      setSelectedFaces(new Set(faces.map(face => face.faceUuid)));
     }
   };
 
   const handleMarkAsMain = async () => {
     if (selectedFaces.size !== 1) {
-      alert('Пожалуйста, выберите одно лицо для установки в качестве главного.');
+      alert(t('PersonFacesGallery.Alert.SelectOneFace'));
       return;
     }
 
     let sortord = 2
     const faceUuid = Array.from(selectedFaces)[0];
     const updatedFaces = faces.map(face => (
-      face.faceUuid === faceUuid 
-      ? { ...face, sortord: 1 } 
-      : { ...face, sortord: sortord++ }
+      face.faceUuid === faceUuid
+        ? { ...face, sortord: 1 }
+        : { ...face, sortord: sortord++ }
     ));
 
     const patch = async (face: PersonFace) => {
-        await api.patchSortord(face.faceUuid, face.sortord?? 0);
+      await api.patchSortord(face.faceUuid, face.sortord?? 0);
     }
 
     try {
@@ -130,31 +124,27 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
       updatedFaces.map(face => {
         patch(face);
       });
-      // Обновляем список лиц после установки главного
       await fetchFaces();
-      setSelectedFaces(new Set()); // Сбрасываем выбор
+      setSelectedFaces(new Set());
     } catch (err) {
-      setError('Не удалось установить главное лицо.');
+      setError(t('PersonFacesGallery.Error.SetMainFace'));
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Обработчик изменения файла (вызывается после выбора файла)
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) {
-      return; // Пользователь ничего не выбрал
+      return;
     }
 
-    const file = files[0]; // Берем первый выбранный файл
+    const file = files[0];
 
     try {
       setLoading(true);
-      setError(null); // Сбрасываем предыдущие ошибки
-
-      // Читаем файл как ArrayBuffer
+      setError(null);
       const arrayBuffer = await file.arrayBuffer();
       const photoUint8Array = new Uint8Array(arrayBuffer);
 
@@ -162,71 +152,43 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
         faceUuid: window.crypto.randomUUID(),
         personId,
         photo: photoUint8Array,
-        comment: 'Загруженное фото',
+        comment: t('PersonFacesGallery.Comment.UploadedPhoto'),
         embedding: [],
       });
 
       setFaces(prev => [...prev, addedFace]);
       setLoading(false);
     } catch (err) {
-      setError('Не удалось добавить лицо.');
+      setError(t('PersonFacesGallery.Error.AddFace'));
       console.error(err);
       setLoading(false);
     } finally {
-      // Очищаем выбранный файл после обработки
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
   };
-  
-  // --- Обработчик добавления ---
+
   const handleAddFace = async () => {
-    // Программно "кликаем" по скрытому input для выбора файла
     fileInputRef.current?.click();
-    return
-    
-    const newComment = prompt('Введите комментарий для нового лица:');
-    if (newComment === null) return; // Пользователь отменил ввод
-
-    // Создаем фиктивное изображение (например, 1x1 прозрачный пиксель)
-    // const dummyPhoto = new Uint8Array(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64'));
-
-    // try {
-    //   setLoading(true);
-    //   const addedFace = await mockApi.addFace({
-    //     personId,
-    //     photo: dummyPhoto,
-    //     comment: newComment || 'Новое лицо',
-    //     embedding: [],
-    //   });
-    //   setFaces(prev => [...prev, addedFace]);
-    //   setLoading(false);
-    // } catch (err) {
-    //   setError('Не удалось добавить лицо.');
-    //   console.error(err);
-    //   setLoading(false);
-    // }
   };
 
-  // --- Обработчик удаления ---
   const handleDeleteSelected = async () => {
     if (selectedFaces.size === 0) {
-      alert('Пожалуйста, выберите лица для удаления.');
+      alert(t('PersonFacesGallery.Alert.SelectFacesToDelete'));
       return;
     }
-    if (!window.confirm(`Вы уверены, что хотите удалить выбранные лица (${selectedFaces.size})?`)) {
+    if (!window.confirm(t('PersonFacesGallery.Confirm.DeleteFaces', { count: selectedFaces.size }))) {
       return;
     }
 
     try {
       setLoading(true);
-      // await mockApi.deleteFaces(Array.from(selectedFaces));
       await api.deleteFaces(Array.from(selectedFaces));
-      setSelectedFaces(new Set()); // Сбросить выбор
-      await fetchFaces(); // Обновить список лиц
+      setSelectedFaces(new Set());
+      await fetchFaces();
     } catch (err) {
-      setError('Не удалось удалить лица.');
+      setError(t('PersonFacesGallery.Error.DeleteFaces'));
       console.error(err);
       setLoading(false);
     }
@@ -245,10 +207,6 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* <Typography variant="h4" component="h1" gutterBottom align="center">
-        Лица человека (ID: {personId})
-      </Typography> */}
-
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 3 }}>
         <Button
           variant="contained"
@@ -256,12 +214,11 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
           onClick={handleAddFace}
           disabled={loading}
         >
-          {loading ? 'Загрузка фото...' : 'Добавить фото'}
+          {loading ? t('PersonFacesGallery.Button.LoadingPhoto') : t('PersonFacesGallery.Button.AddPhoto')}
         </Button>
-        {/* Скрытый input для загрузки файла */}
         <input
           type="file"
-          accept="image/*" // Принимать только изображения
+          accept="image/*"
           ref={fileInputRef}
           onChange={handleFileChange}
           style={{ display: 'none' }}
@@ -273,7 +230,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
           onClick={handleDeleteSelected}
           disabled={selectedFaces.size === 0 || loading}
         >
-          Удалить выбранные ({selectedFaces.size})
+          {t('PersonFacesGallery.Button.DeleteSelected', { count: selectedFaces.size })}
         </Button>
         <Button
           variant="outlined"
@@ -281,7 +238,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
           onClick={handleSelectAll}
           disabled={loading || faces.length === 0}
         >
-          {selectedFaces.size === faces.length && faces.length > 0 ? 'Отменить все' : 'Выбрать все'}
+          {selectedFaces.size === faces.length && faces.length > 0 ? t('PersonFacesGallery.Button.DeselectAll') : t('PersonFacesGallery.Button.SelectAll')}
         </Button>
         <Button
           variant="contained"
@@ -290,14 +247,14 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
           onClick={handleMarkAsMain}
           disabled={selectedFaces.size !== 1 || loading}
         >
-          Главное фото
+          {t('PersonFacesGallery.Button.SetMainPhoto')}
         </Button>
       </Box>
 
       {loading && (
         <Box display="flex" justifyContent="center" alignItems="center" height="200px">
           <CircularProgress />
-          <Typography variant="h6" sx={{ ml: 2 }}>Загрузка...</Typography>
+          <Typography variant="h6" sx={{ ml: 2 }}>{t('PersonFacesGallery.Loading')}</Typography>
         </Box>
       )}
 
@@ -309,7 +266,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
 
       {!loading && !error && faces.length === 0 && (
         <Typography variant="h6" align="center" color="text.secondary">
-          Нет лиц для отображения
+          {t('PersonFacesGallery.NoFaces')}
         </Typography>
       )}
 
@@ -325,7 +282,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
                     display: 'flex',
                     flexDirection: 'column',
                     height: '100%',
-                    boxShadow: isSelected ? '0 0 0 3px blue' : 'none', // Выделение
+                    boxShadow: isSelected ? '0 0 0 3px blue' : 'none',
                     transition: 'box-shadow 0.2s',
                   }}
                 >
@@ -338,7 +295,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
                       />
                     }
                     label=""
-                    sx={{ m: 0, p: 0 }} // Убрать лишние отступы
+                    sx={{ m: 0, p: 0 }}
                   />
                   <Box
                     sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
@@ -351,19 +308,15 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
                       sx={{
                         width: '100%',
                         height: 'auto',
-                        objectFit: 'contain', // Масштабирование изображения
+                        objectFit: 'contain',
                         cursor: 'pointer',
-                        maxHeight: 200, // Ограничение высоты карточки
+                        maxHeight: 200,
                       }}
                     />
-                    {/* <ImageFromUint8Array
-                        photoUint8Array={face.photo}
-                        imageMimeType='image/png'
-                    /> */}
                   </Box>
                   <CardContent sx={{ flexShrink: 0 }}>
                     <Typography variant="body2" color="text.secondary" align="center">
-                      {face.comment + ' ' + face.sortord || 'Без комментария'}
+                      {face.comment ? face.comment + ' ' + face.sortord : t('PersonFacesGallery.NoComment')}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -373,7 +326,6 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
         </Grid>
       )}
 
-      {/* Модальное окно для большого изображения */}
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -388,7 +340,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
             {selectedImage && (
               <img
                 src={selectedImage}
-                alt="Большое изображение лица"
+                alt={t('PersonFacesGallery.Alt.LargeImage')}
                 style={{
                   maxWidth: '100%',
                   maxHeight: '100%',
@@ -409,7 +361,7 @@ const PersonFacesGallery: React.FC<PersonFacesGalleryProps> = ({
                 },
               }}
             >
-              X {/* Можно использовать иконку CloseIcon от Material-UI */}
+              X
             </IconButton>
           </Box>
         </Fade>

@@ -1,5 +1,6 @@
 // src/components/Points/PointForm.tsx
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Formik, Form, Field, } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -31,7 +32,7 @@ interface PointFormProps {
   defaults?: PointFormDefaults; // Данные по умолчанию
   onSave: (values: PointFormValues) => void;
   onCancel: () => void;
-  title?: string;
+  _title?: string;
 }
 
 const PointForm: React.FC<PointFormProps> = ({
@@ -39,13 +40,16 @@ const PointForm: React.FC<PointFormProps> = ({
   defaults,
   onSave,
   onCancel,
-  title = 'Форма точки',
+  _title: title = '',
 }) => {
+  const { t } = useTranslation();
+  const title1 = title ? title : t('PointForm.title');
+
   const initialValues: PointFormValues = point || {
     name: '',
     country: defaults?.country || 'Україна',
     city: defaults?.city || 'Київ',
-    tag: '', // Optional field
+    tag: undefined, // Optional field
     start_time: '',
     end_time: '',
   };
@@ -57,18 +61,23 @@ const PointForm: React.FC<PointFormProps> = ({
   const timeRegex = /^(?:2[0-3]|[01]?[0-9]):[0-5][0-9]:[0-5][0-9]$/;
 
   const validationSchema = Yup.object({
-    name: Yup.string().required('Обязательно'),
+    // name: Yup.string().required('Обязательно'),
+    name: Yup.string().required(t('validation.required')),
     description: Yup.string().optional(),
-    tag: Yup.string().optional(),
+    tag: Yup.string().optional().nullable(),
     start_time: Yup.string()
-      .matches(timeRegex, 'Время должно быть в формате HH:MM:SS')
+      // .matches(timeRegex, 'Время должно быть в формате HH:MM:SS')
+      .matches(timeRegex, t('validation.invalidTimeFormat'))
       .required('Обязательно'),
     end_time: Yup.string()
-      .matches(timeRegex, 'Время должно быть в формате HH:MM:SS')
-      .required('Обязательно')
+      // .matches(timeRegex, 'Время должно быть в формате HH:MM:SS')
+      .matches(timeRegex, t('validation.invalidTimeFormat'))
+      // .required('Обязательно')
+      .required(t('validation.required'))
       .test(
         'is-after-start',
-        'Время окончания должно быть позже времени начала',
+        // 'Час завершення має бути пізніше часу початку',
+        t('validationEnd_time_must_be_later_than_start_time'),
         function (end_time) {
           const { start_time } = this.parent;
           if (!start_time || !end_time) {
@@ -100,7 +109,7 @@ const PointForm: React.FC<PointFormProps> = ({
       {(/*formikProps: FormikProps<PointFormValues>*/) => (
         <Form>
           <Typography variant="h6" gutterBottom>
-            {title}
+            {title1}
           </Typography>
           <Stack spacing={2}>
             <Field name="name">
@@ -109,7 +118,8 @@ const PointForm: React.FC<PointFormProps> = ({
                   {...field}
                   fullWidth
                   id="name"
-                  label="Назва"
+                  // label="Назва"
+                  label={t('PointForm.name')}
                   variant="outlined"
                   margin="normal"
                   error={meta.touched && !!meta.error}
@@ -123,7 +133,8 @@ const PointForm: React.FC<PointFormProps> = ({
                   {...field}
                   fullWidth
                   id="country"
-                  label="Країна"
+                  // label="Країна"
+                  label={t('PointForm.country')}
                   variant="outlined"
                   margin="normal"
                   multiline
@@ -139,7 +150,8 @@ const PointForm: React.FC<PointFormProps> = ({
                   {...field}
                   fullWidth
                   id="city"
-                  label="Місто"
+                  // label="Місто"
+                  label={t('PointForm.city')}
                   variant="outlined"
                   margin="normal"
                   multiline
@@ -155,7 +167,8 @@ const PointForm: React.FC<PointFormProps> = ({
                   {...field}
                   fullWidth
                   id="tag"
-                  label="Тег (необязательно)"
+                  // label="Тег (необязательно)"
+                  label={t('PointForm.tag')}
                   variant="outlined"
                   margin="normal"
                   error={meta.touched && !!meta.error}
@@ -169,7 +182,8 @@ const PointForm: React.FC<PointFormProps> = ({
                   {...field}
                   fullWidth
                   id="start_time"
-                  label="Время начала (HH:MM:SS)"
+                  // label="Время начала (HH:MM:SS)"
+                  label={t('PointForm.start_time')}
                   variant="outlined"
                   margin="normal"
                   placeholder="HH:MM:SS"
@@ -184,7 +198,8 @@ const PointForm: React.FC<PointFormProps> = ({
                   {...field}
                   fullWidth
                   id="end_time"
-                  label="Время окончания (HH:MM:SS)"
+                  // label="Время окончания (HH:MM:SS)"
+                  label={t('PointForm.end_time')}
                   variant="outlined"
                   margin="normal"
                   placeholder="HH:MM:SS"
@@ -196,10 +211,12 @@ const PointForm: React.FC<PointFormProps> = ({
           </Stack>
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
             <Button onClick={onCancel} sx={{ mr: 1 }}>
-              Отмена
+              {/* Отмена */}
+              {t('PointForm.cancel')}
             </Button>
             <Button type="submit" variant="contained">
-              Записать
+              {/* Записать */}
+              {t('PointForm.save')}
             </Button>
           </Box>
         </Form>

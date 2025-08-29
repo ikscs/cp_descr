@@ -19,8 +19,10 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
-import { TFunction } from "i18next";
+import SendIcon from '@mui/icons-material/Send';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import { Payment } from "@mui/icons-material";
+import { TFunction } from "i18next";
 
 /**
  * Generates the menu items based on the user's roles and name.
@@ -34,11 +36,13 @@ export const getMenuItems = (user: any | null, t: TFunction): MenuItem[] => {
       ? [
           { text: t("menu.dashboard"), path: "/dashboard", icon: <DashboardIcon /> },
           { text: t("menu.reports"), path: "/reports", icon: <AssessmentIcon /> },
+          { text: t("menu.schedule"), path: "/schedule", icon: <EmailOutlinedIcon  /> },
         ]
       : [
           { text: t("menu.dashboard"), path: "/dashboard", icon: <DashboardIcon /> },
           { text: t("menu.adverts"), path: "/adverts", icon: <EmojiPeopleIcon /> },
           { text: t("menu.reports"), path: "/reports", icon: <AssessmentIcon /> },
+          { text: t("menu.schedule"), path: "/schedule", icon: <SendIcon  /> },
         ];
 
   const adminMenuItems: MenuItem[] = [

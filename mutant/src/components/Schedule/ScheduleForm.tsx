@@ -1,0 +1,319 @@
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useForm, Controller, FormProvider } from 'react-hook-form';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    TextField,
+    FormControlLabel,
+    Checkbox,
+    MenuItem,
+    Select,
+    InputLabel,
+    FormControl,
+    FormHelperText,
+    Grid,
+    Modal,
+    Box
+} from '@mui/material';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+import packageJson from '../../../package.json';
+import { ReportName, Schedule } from "./Schedule";
+import { useFetch } from '../../hooks/useFetch';
+import { api, cronTransitions } from './api';
+import { useUserfront } from '@userfront/react';
+import { useCustomer } from '../../context/CustomerContext';
+import ScheduleParam from './ScheduleParam';
+
+const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
+
+export interface ScheduleFormProps {
+    open: boolean;
+    onClose: () => void;
+    onSave: (schedule: Schedule) => void;
+    scheduleToEdit?: Schedule;
+}
+
+// Схема валидации с помощью Yup
+const validationSchema = yup.object().shape({
+  id: yup.number().required(), // `id` is a number and required. -1 for new schedule
+  app_id: yup.string().required('App ID is required'),
+  customer_id: yup.number().required('customer_id is required').typeError('customer_id must be a number'),
+  report_id: yup.number().required('Report is required').typeError('Report must be a number'),
+//   report_name: yup.string().optional().nullable(), // It might be undefined/null on creation.
+//   report_name: yup.string().default('').required(),
+  maillist: yup.string().required('Mailing list is required'),
+  lang: yup.string().required('Language is required'),
+  cron: yup.string().required('CRON expression is required'),
+//   enable: yup.boolean().optional(), // `enable` can be undefined.
+  enable: yup.boolean().required().default(true),
+  params: yup.object().required().default({}),
+});
+
+const ScheduleForm: React.FC<ScheduleFormProps> = ({
+    open,
+    onClose,
+    onSave,
+    scheduleToEdit
+}) => {
+    const { t } = useTranslation();
+    const { data: reports } = useFetch<ReportName[]>(api.getReportName, []);
+    const Userfront = useUserfront();
+    const { customerData, isLoading: isCustomerLoading } = useCustomer();
+    const [isParamOpen, setIsParamOpen] = useState(false);
+
+    const cronList = cronTransitions.map(({ label }) => ({ 
+        value: label, 
+        label: t(label) 
+    }));
+
+    const methods = useForm<Schedule>({
+        resolver: yupResolver(validationSchema),
+        defaultValues: {
+            id: -1,
+            app_id: packageJson.name,
+            customer_id: customerData?.customer,
+            report_id: -1,
+            report_name: '',
+            maillist: Userfront.user.email,
+            lang: 'uk',
+            cron: 'daily',
+            enable: true,
+            params: {}
+        }
+    });
+
+    const { handleSubmit, reset, control, setValue } = methods;
+
+    useEffect(() => {
+        if (scheduleToEdit) {
+            reset({
+                ...scheduleToEdit,
+                report_name: reports?.find(r => r.report_id === scheduleToEdit.report_id)?.report_name || ''
+            });
+        } else {
+            reset();
+        }
+    }, [scheduleToEdit, reset, reports]);
+
+    const handleSave = (data: Schedule) => {
+        // Устанавливаем report_name на основе выбранного report_id
+        const selectedReport = reports?.find(r => r.report_id === data.report_id);
+        const scheduleToSave = {
+            ...data,
+            report_name: selectedReport ? selectedReport.report_name : ''
+        };
+        onSave(scheduleToSave);
+        onClose();
+    };
+
+    const handleClose = () => {
+        reset();
+        onClose();
+    };
+
+    const handleCloseModal = () => {
+        setIsParamOpen(false);
+    };
+
+    const handleParam = () => {
+        setIsParamOpen(true);
+    };
+
+    return (
+        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+            <FormProvider {...methods}>
+                <form onSubmit={handleSubmit(handleSave)}>
+                    <DialogTitle>{scheduleToEdit ? t('ScheduleForm.editSchedule') : t('ScheduleForm.addSchedule')}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="id"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <input type="hidden" {...field} />
+                                    )}
+                                />                            
+                                <Controller
+                                    name="app_id"
+                                    control={control}
+                                    render={({ field,  }) => (
+                                        <input type="hidden" {...field} />
+                                    )}
+                                />
+                                <Controller
+                                    name="customer_id"
+                                    control={control}
+                                    render={({ field,  }) => (
+                                        <input type="hidden" {...field} />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="report_id"
+                                    control={control}
+                                    render={({ field, fieldState: { error } }) => (
+                                        <FormControl fullWidth margin="normal" required error={!!error}>
+                                            <InputLabel id="report-id-label">{t('ScheduleForm.reportName')}</InputLabel>
+                                            <Select
+                                                labelId="report-id-label"
+                                                {...field}
+                                                label={t('ScheduleForm.reportName')}
+                                            >
+                                                {reports?.map((report) => (
+                                                    <MenuItem key={report.report_id} value={report.report_id}>
+                                                        {report.report_name}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                            {error && <FormHelperText>{error.message}</FormHelperText>}
+                                        </FormControl>
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="cron"
+                                    control={control}
+                                    render={({ field, fieldState: { error } }) => (
+                                        <FormControl fullWidth error={!!error}>
+                                            <InputLabel id="cron-label">{t('ScheduleForm.cron')}:</InputLabel>
+                                            <Select
+                                                labelId="cron-label"
+                                                id="cron"
+                                                label={t('ScheduleForm.cron')}
+                                                {...field}
+                                            >
+                                            <MenuItem value="">
+                                                <em>{t('ScheduleForm.select')}</em>
+                                            </MenuItem>
+                                            {cronList.map((option) => (
+                                                <MenuItem key={option.value} value={option.value}>
+                                                {option.label}
+                                                </MenuItem>
+                                            ))}
+                                            </Select>
+                                            {error && (
+                                            <FormHelperText>{error.message}</FormHelperText>
+                                            )}
+                                        </FormControl>
+                                    )}
+                                    rules={{ required: 'Это поле обязательно' }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="maillist"
+                                    control={control}
+                                    render={({ field, fieldState: { error } }) => (
+                                        <TextField
+                                            {...field}
+                                            label={t('ScheduleForm.maillist')}
+                                            multiline
+                                            rows={4} 
+                                            fullWidth
+                                            margin="normal"
+                                            required
+                                            // defaultValue="asd@mail.co"
+                                            error={!!error}
+                                            helperText={error?.message}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="lang"
+                                    control={control}
+                                    render={({ field, fieldState: { error } }) => (
+                                        <FormControl fullWidth sx={{ width: '50%' }} margin="normal" required error={!!error}>
+                                            <InputLabel id="lang-label">{t('language')}</InputLabel>
+                                            <Select
+                                                labelId="lang-label"
+                                                {...field}
+                                                label={t('language')}
+                                            >
+                                                <MenuItem value="uk">{t('ukrainian')}</MenuItem>
+                                                <MenuItem value="en">{t('english')}</MenuItem>
+                                                <MenuItem value="pl">{t('polish')}</MenuItem>
+                                            </Select>
+                                            {error && <FormHelperText>{error.message}</FormHelperText>}
+                                        </FormControl>
+                                    )}
+                                />
+                            </Grid>
+                            {/* <Grid item xs={12}>
+                                <Controller
+                                    name="cron"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <CronEditor {...field} />
+                                    )}
+                                />
+                            </Grid> */}
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="enable"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormControlLabel
+                                            control={<Checkbox {...field} checked={field.value} />}
+                                            label="Включено"
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleParam} color="primary">
+                            Параметри
+                        </Button>
+                        <Button onClick={handleClose} color="secondary">
+                            Відмінити
+                        </Button>
+                        <Button type="submit" color="primary">
+                            Зберегти
+                        </Button>
+                    </DialogActions>
+                </form>
+            </FormProvider>
+
+            <Modal
+                open={isParamOpen}
+                onClose={handleCloseModal}
+                aria-labelledby="schedule-form-modal-title"
+                aria-describedby="schedule-form-modal-description"
+            >
+                <Box sx={style}>
+                    <ScheduleParam
+                        reportId={scheduleToEdit?.report_id}
+                        // open={isParamOpen}
+                        // onSave={handleSaveParam}
+                        // onClose={handleCloseModal}
+                        // scheduleToEdit={selectedSchedule}
+                    />
+                </Box>
+            </Modal>
+        </Dialog>
+    );
+};
+
+export default ScheduleForm;

@@ -37,5 +37,5 @@ export function useFetch<T>(
         };
     }, [apiCall]);
 
-    return { data, loading, error };
+    return { data, loading, error, setData };
 }

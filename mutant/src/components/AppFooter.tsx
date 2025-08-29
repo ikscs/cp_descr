@@ -2,9 +2,11 @@
 import React from 'react';
 import { Box, Typography, Link, Container } from '@mui/material';
 import packageJson from '../../package.json';
+import { useTranslation } from 'react-i18next';
 
 const AppFooter: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -33,9 +35,9 @@ const AppFooter: React.FC = () => {
             rel="noopener noreferrer"
           >            ІК СКС
           </Link>
-          {'. Всі права захищені.'}
+          {t('footer.copyright')}          
           {' | '}
-          Версія: {packageJson.version}
+          {t('footer.version', { version: packageJson.version })}
         </Typography>
         {/* Можно добавить другие ссылки или информацию */}
         {/* <Typography variant="caption" color="text.secondary" align="center" sx={{ mt: 1 }}>

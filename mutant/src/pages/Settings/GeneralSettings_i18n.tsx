@@ -38,7 +38,7 @@ const GeneralSettings = () => {
 
             {Userfront.user && (
                 <Box mt={4} p={2} border={1} borderColor="grey.300" borderRadius={2}>
-                    <Typography variant="h5" mb={2}>{t('generalSettings.currentUserInfo')}</Typography>
+                    {/* <Typography variant="h5" mb={2}>{t('generalSettings.currentUserInfo')}</Typography>
                     <Typography><strong>{t('generalSettings.userId')}</strong> {Userfront.user.userId}</Typography>
                     <Typography><strong>{t('generalSettings.uuid')}</strong> {Userfront.user.userUuid}</Typography>
                     <Typography><strong>{t('generalSettings.email')}</strong> {Userfront.user.email}</Typography>
@@ -47,7 +47,7 @@ const GeneralSettings = () => {
                     <Typography><strong>{t('generalSettings.username')}</strong> {Userfront.user.username}</Typography>
                     <Typography><strong>{t('generalSettings.emailVerified')}</strong> {Userfront.user.isEmailVerified ? t('generalSettings.yes') : t('generalSettings.no')}</Typography>
                     <Typography><strong>{t('generalSettings.createdAt')}</strong> {new Date(Userfront.user.createdAt).toLocaleString(i18n.language === 'uk' ? 'uk-UA' : 'en-US')}</Typography>
-                    <Typography><strong>{t('generalSettings.updatedAt')}</strong> {new Date(Userfront.user.updatedAt).toLocaleString(i18n.language === 'uk' ? 'uk-UA' : 'en-US')}</Typography>
+                    <Typography><strong>{t('generalSettings.updatedAt')}</strong> {new Date(Userfront.user.updatedAt).toLocaleString(i18n.language === 'uk' ? 'uk-UA' : 'en-US')}</Typography> */}
 
                     <Box mt={3}>
                         <Typography variant="h6">{t('generalSettings.allUserProperties')}</Typography>
