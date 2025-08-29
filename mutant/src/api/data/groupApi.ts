@@ -1,6 +1,7 @@
-import { fetchData, postData, getBackend, escapeSingleQuotes } from './fetchData';
+import { fetchData, postData, getBackend, escapeSingleQuotes, apiToken } from './fetchData';
 import { selectData, } from './genericApi';
 import type { IFetchResponse, IPostResponse } from './fetchData';
+import axios from 'axios';
 
 export interface Group {
     customer_id: number;
@@ -9,8 +10,20 @@ export interface Group {
     name: string;
 }
 
+// переводим не axios / DRF
+const API_URL = 'https://cnt.theweb.place/api/pcnt/person_group/'; 
+// const get_ = async (customer_id: number): Promise<Group[]> => {
+//     console.log('[groupApi] get called with customer_id:', customer_id);
+//     const res = await axios.get<Group[]>(API_URL, {
+//         headers: {
+//             "Content-Type": "application/json",
+//             'authorization': `Bearer ${apiToken.token}`,
+//         }
+//     });
+//     return res.data;
+// }
+ 
 const TABLE_NAME = 'pcnt.person_group';
-
 const get = async (customer_id: number): Promise<Group[]> => {
 
     try {
@@ -193,11 +206,11 @@ const _delete = async (group_id: number): Promise<void> => {
   }
 };
 
-const grouApi = {
+const groupApi = {
   get,
   post,
   put,
   delete: _delete,
 };
 
-export default grouApi;
+export default groupApi;
