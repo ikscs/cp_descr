@@ -4,6 +4,10 @@
   "english": "Англійська",
   "polish": "Польська",
   "theme": "Тема",
+  "unknown": "Невідомо",
+  "daily": "Щоденно",
+  "weekly": "Щотижнєво",
+  "monthly": "Шомісячно",
   "menu": {
     "dashboard": "Дашборд",
     "adverts": "Реклама",
@@ -31,7 +35,8 @@
     "general": "Загальні",
     "personGroups": "Групи Персон",
     "logout": "Вийти ( {{userName}} )",
-    "billing": "Біллінг"
+    "billing": "Біллінг",
+    "schedule": "Звіти по пошті"
   },
   "generalSettings": {
     "title": "Загальні налаштування",
@@ -92,14 +97,14 @@
       "tooltip_cameras_recorders": "Камери та реєстратори",
       "modal_add_title": "Додати новий пункт обрахунку",
       "modal_edit_title": "Редагувати пункт обрахунку",
-      "confirm_delete": "Ви впевнені, що хочете видалити цю точку?",
+      "confirm_delete": "Ви впевнені, що хочете видалити цю пункт обрахунку?",
       "error_fetching_customer_data": "Не вдалося отримати дані клієнта.",
-      "error_unexpected_loading_points": "Сталася непередбачена помилка під час завантаження точок.",
-      "error_updating_point": "Помилка під час оновлення точки.",
-      "error_creating_point": "Помилка під час створення точки.",
-      "error_deleting_point": "Помилка під час видалення точки.",
-      "no_customer_selected": "Будь ласка, оберіть клієнта для відображення точок.",
-      "no_data_to_display": "Немає даних для відображення.",
+      "error_unexpected_loading_points": "Сталася непередбачена помилка під час завантаження пунктів обрахунку.",
+      "error_updating_point": "Помилка під час оновлення пункту обрахунку.",
+      "error_creating_point": "Помилка під час створення пункту обрахунку.",
+      "error_deleting_point": "Помилка під час видалення пункту обрахунку.",
+      "no_customer_selected": "Будь ласка, оберіть клієнта для відображення пунктів обрахунку.",
+      "no_data_to_display": "Внесіть інформацію про пункти обрахунку.",
       "columns": {
         "id": "ID",
         "name": "Назва",
@@ -166,5 +171,170 @@
     "edit": "Редагувати",
     "faces": "Фото",
     "delete": "Видалити"
+  },
+  "Forgot Password": "Забули пароль?",
+  "Registration": "Реєстрація",
+  "Sign In": "Увійти",
+  "PointAdvancedForm": {
+    "CamerasAndRegistrators": "Камери та реєстратори",
+    "Close": "Закрити"
+  },
+  "PointForm": {
+    "title": "Форма пункту обрахунку",
+    "name": "Назва",
+    "country": "Країна",
+    "city": "Місто",
+    "tag": "Тег (необов'язково)",
+    "start_time": "Час початку (HH:MM:SS)",
+    "end_time": "Час закінчення (HH:MM:SS)",
+    "cancel": "Відмінити",
+    "save": "Зберегти"
+  },
+  "validation": {
+    "required": "Обов'язково",
+    "invalidTimeFormat": "Час повинен бути у форматі HH:MM:SS"
+  },
+  "validationEnd_time_must_be_later_than_start_time": "Час завершення має бути пізніше часу початку",
+  "OriginList": {
+    "AddOrigin": "Додати джерело",
+    "Name": "Назва",
+    "OriginIdentifier": "Ідентифікатор",
+    "Type": "Тип",
+    "Enabled": "Включений",
+    "Actions": "Дії",
+    "Edit": "Редагувати",
+    "Delete": "Видалити",
+    "Are_you_sure": "Ви впевнені, що хочете видалити це джерело?"
+  },
+  "OriginForm": {
+    "Edit_Origin": "Редагувати джерело",
+    "Add_New_Origin": "Додати нове джерело",
+    "Name_is_required": "Ім'я є обов'язковим",
+    "Point_is_required": "Пункт є обов'язковим",
+    "Origin_identifier_is_required": "Ідентифікатор джерела (URL/шлях) є обов'язковим",
+    "Origin_type_is_required": "Тип джерела є обов'язковим",
+    "Credentials_must_be_valid_JSON": "Дані доступу повинні бути дійсним рядком JSON або порожніми",
+    "Polling_period_must_be_positive": "Період опитування повинен бути позитивним числом",
+    "Polling_period_must_be_integer": "Період опитування повинен бути цілим числом",
+    "Loading_form_data": "Завантаження даних форми...",
+    "Select_Customer_Prompt": "Будь ласка, оберіть клієнта, щоб завантажити доступні пункти.",
+    "Invalid_Customer_ID": "Надано недійсний ідентифікатор клієнта.",
+    "Failed_to_load_dropdown_data": "Не вдалося завантажити дані для спадних списків.",
+    "Name_Label": "Ім'я",
+    "Point_Label": "Пункт",
+    "Select_a_Point": "Оберіть пункт",
+    "Origin_Identifier_Label": "Ідентифікатор джерела (URL/Шлях)",
+    "Origin_Helper_Text": "наприклад, rtsp://... або /dev/video0",
+    "Origin_Title_Note": "Примітка: Бекенд API може автоматично генерувати або не дозволяти оновлення цього конкретного ідентифікатора після створення.",
+    "Origin_Type_Label": "Тип джерела",
+    "Select_an_Origin_Type": "Оберіть тип джерела",
+    "Credentials_Label": "Дані доступу (формат JSON)",
+    "Credentials_Helper_Text": "Необов'язково. наприклад, {\"user\":\"admin\", \"pass\":\"secret\"}",
+    "Edit_JSON_Button": "Редагувати JSON",
+    "Enabled_Label": "Увімкнено",
+    "Cancel": "Скасувати",
+    "Saving": "Збереження...",
+    "Save_Origin": "Зберегти джерело",
+    "Credentials_JSON": "JSON даних доступу",
+    "JSON_Placeholder": "Введіть дійсний JSON. наприклад, {\"user\":\"admin\", \"pass\":\"secret\"}. Залиште порожнім або використовуйте {} для відсутності даних доступу.",
+    "Edit_Credentials_JSON_Title": "Редагувати JSON даних доступу",
+    "Apply_JSON_Button": "Застосувати JSON"
+  },
+  "GroupForm": {
+    "cancel": "Відмінити",
+    "Save": "Зберегти"
+  },
+  "PersonForm": {
+    "EditPerson": "Редагувати особу",
+    "CreatePerson": "Створити особу",
+    "Name": "Ім'я",
+    "Group": "Група",
+    "NotSelected": "Не вибрано",
+    "LoadingGroups": "Завантаження груп...",
+    "NoGroupsAvailable": "Немає доступних груп",
+    "Cancel": "Скасувати",
+    "Save": "Зберегти"
+  },
+  "PersonFaces": {
+    "Title": "Фотографії особи (ID: {{personId}})"
+  },
+  "PersonFacesGallery": {
+    "Button": {
+      "AddPhoto": "Додати фото",
+      "LoadingPhoto": "Завантаження фото...",
+      "DeleteSelected": "Видалити вибрані ({{count}})",
+      "SelectAll": "Вибрати всі",
+      "DeselectAll": "Скасувати все",
+      "SetMainPhoto": "Головне фото"
+    },
+    "Loading": "Завантаження...",
+    "NoFaces": "Немає облич для відображення",
+    "NoComment": "Без коментаря",
+    "Error": {
+      "FetchFaces": "Не вдалося завантажити обличчя. Будь ласка, спробуйте ще раз.",
+      "AddFace": "Не вдалося додати обличчя.",
+      "SetMainFace": "Не вдалося встановити головне обличчя.",
+      "DeleteFaces": "Не вдалося видалити обличчя."
+    },
+    "Alert": {
+      "SelectOneFace": "Будь ласка, виберіть одне обличчя для встановлення в якості головного.",
+      "SelectFacesToDelete": "Будь ласка, виберіть обличчя для видалення."
+    },
+    "Confirm": {
+      "DeleteFaces": "Ви впевнені, що хочете видалити вибрані обличчя ({{count}})?"
+    },
+    "Comment": {
+      "UploadedPhoto": "Завантажене фото"
+    },
+    "Alt": {
+      "LargeImage": "Велике зображення обличчя"
+    }
+  },
+  "BalanceForm": {
+    "Loading": "Завантаження...",
+    "LoadingError": "Помилка при завантаженні балансу",
+    "CardTitle": "Баланс",
+    "AsOf": "Станом на:",
+    "PaidUntil": "Послуги сплачені до:",
+    "ReplenishButton": "Поповнити",
+    "NoBalanceError": "Баланс не задано"
+  },
+  "OrderForm": {
+    "Title": "Формування ордера",
+    "PleaseAcceptAgreement": "Будь ласка, ознайомтесь та прийміть умови Публічного договору.",
+    "Description": "Оплата за відеоаналіз ордер N {{orderId}}",
+    "FailedToCreateOrder": "Не вдалося створити замовлення",
+    "PaymentStartedMessage": "Оплата розпочата. Після завершення перевірте статус замовлення.",
+    "PaymentSuccessMessage": "✅ Оплата успішно завершена. Номер замовлення {{orderId}}",
+    "ErrorFetchingStatus": "Помилка при отриманні статусу оплати",
+    "PeriodLabel": "Кількість місяців",
+    "CurrencyLabel": "Валюта",
+    "CamerasTitle": "Кількість камер",
+    "AnaliticCamerasLabel": "Аналітика камери",
+    "SimpleCamerasLabel": "Аналітика системи",
+    "TotalAmount": "Сума до сплати: {{amount}} {{currency}}",
+    "AgreementLink": "З умовами Публічного договіру згоден",
+    "PayButton": "Оплатити",
+    "ExitButton": "Вийти",
+    "CheckingPayment": "Перевіряємо оплату..."
+  },
+  "ScheduleList": {
+    "title": "Звіти по пошті",
+    "addButton": "Додати звіт",
+    "Edit": "Редагувати",
+    "Delete": "Видалити",
+    "report_name": "Назва",
+    "cron": "Розклад",
+    "maillist": "Список розсилки",
+    "params": "Параметри",
+    "enable": "Увімкнено"
+  },
+  "ScheduleForm": {
+    "editSchedule": "Редагувати розклад",
+    "addSchedule": "Додати розклад",
+    "reportName": "Звіт",
+    "maillist": "Список розсилки (e-mail)",
+    "cron": "Розклад",
+    "select": "Виберіть"
   }
 }

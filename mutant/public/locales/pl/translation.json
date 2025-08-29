@@ -31,7 +31,8 @@
     "general": "Ogólne",
     "personGroups": "Grupy Osób",
     "logout": "Wyloguj ( {{userName}} )",
-    "billing": "Billing"
+    "billing": "Billing",
+    "schedule": "Raporty pocztą"
   },
   "generalSettings": {
     "title": "Ustawienia ogólne",
@@ -99,7 +100,7 @@
       "error_creating_point": "Błąd podczas tworzenia punktu.",
       "error_deleting_point": "Błąd podczas usuwania punktu.",
       "no_customer_selected": "Proszę wybrać klienta, aby wyświetlić punkty.",
-      "no_data_to_display": "Brak danych do wyświetlenia.",
+      "no_data_to_display": "Wprowadź informacje o punktach rozliczeniowych.",
       "columns": {
         "id": "ID",
         "name": "Nazwa",
@@ -123,5 +124,153 @@
     "id": "Identyfikator grupy",
     "name": "Nazwa grupy",
     "pointID": "Identyfikator punktu"
+  },
+  "Forgot Password": "Zapomniałeś hasła?",
+  "Registration": "Rejestracja",
+  "Sign In": "Zalogować się",
+  "PointAdvancedForm": {
+    "CamerasAndRegistrators": "Kamery i rejestratory",
+    "Close": "Zamknąć"
+  },
+  "PointForm": {
+    "title": "Formularz punktów liczenia odwiedzających",
+    "name": "Nazwa",
+    "country": "Kraj",
+    "city": "Miasto",
+    "tag": "Tag (opcjonalnie)",
+    "start_time": "Godzina rozpoczęcia (HH:MM:SS)",
+    "end_time": "Czas zakończenia (HH:MM:SS)",
+    "save": "Zapisz"
+  },
+  "validation": {
+    "invalidTimeFormat": "Czas musi być w formacie HH:MM:SS",
+    "required": "Koniecznie"
+  },
+  "validationEnd_time_must_be_later_than_start_time": "Czas zakończenia musi być późniejszy niż czas rozpoczęcia",
+  "OriginList": {
+    "AddOrigin": "Dodaj źródło",
+    "Name": "Nazwa",
+    "OriginIdentifier": "Identyfikator",
+    "Type": "Typ",
+    "Enabled": "Dołączony",
+    "Actions": "Akcje",
+    "Edit": "Redagować",
+    "Delete": "Usunąć",
+    "Are_you_sure": "Czy na pewno chcesz usunąć to źródło?"
+  },
+  "OriginForm": {
+    "Edit_Origin": "Edytuj źródło",
+    "Add_New_Origin": "Dodaj nowe źródło",
+    "Name_is_required": "Nazwa jest wymagana",
+    "Point_is_required": "Punkt jest wymagany",
+    "Origin_identifier_is_required": "Identyfikator źródła (URL/ścieżka) jest wymagany",
+    "Origin_type_is_required": "Typ źródła jest wymagany",
+    "Credentials_must_be_valid_JSON": "Dane uwierzytelniające muszą być poprawnym ciągiem JSON lub puste",
+    "Polling_period_must_be_positive": "Okres odpytywania musi być liczbą dodatnią",
+    "Polling_period_must_be_integer": "Okres odpytywania musi być liczbą całkowitą",
+    "Loading_form_data": "Ładowanie danych formularza...",
+    "Select_Customer_Prompt": "Proszę wybrać klienta, aby załadować dostępne punkty.",
+    "Invalid_Customer_ID": "Podano nieprawidłowy identyfikator klienta.",
+    "Failed_to_load_dropdown_data": "Nie udało się załadować danych dla list rozwijanych.",
+    "Name_Label": "Nazwa",
+    "Point_Label": "Punkt",
+    "Select_a_Point": "Wybierz punkt",
+    "Origin_Identifier_Label": "Identyfikator źródła (URL/Ścieżka)",
+    "Origin_Helper_Text": "np. rtsp://... lub /dev/video0",
+    "Origin_Title_Note": "Uwaga: API zaplecza może automatycznie generować lub nie zezwalać na aktualizację tego konkretnego identyfikatora po jego utworzeniu.",
+    "Origin_Type_Label": "Typ źródła",
+    "Select_an_Origin_Type": "Wybierz typ źródła",
+    "Credentials_Label": "Dane uwierzytelniające (format JSON)",
+    "Credentials_Helper_Text": "Opcjonalnie. np. {\"user\":\"admin\", \"pass\":\"secret\"}",
+    "Edit_JSON_Button": "Edytuj JSON",
+    "Enabled_Label": "Włączone",
+    "Cancel": "Anuluj",
+    "Saving": "Zapisywanie...",
+    "Save_Origin": "Zapisz źródło",
+    "Credentials_JSON": "JSON danych uwierzytelniających",
+    "JSON_Placeholder": "Wprowadź poprawny JSON. np. {\"user\":\"admin\", \"pass\":\"secret\"}. Pozostaw puste lub użyj {} dla braku danych uwierzytelniających.",
+    "Edit_Credentials_JSON_Title": "Edytuj JSON danych uwierzytelniających",
+    "Apply_JSON_Button": "Zastosuj JSON"
+  },
+  "GroupForm": {
+    "cancel": "Anulować",
+    "Save": "Ratować"
+  },
+  "PersonForm": {
+    "EditPerson": "Edytuj osobę",
+    "CreatePerson": "Stwórz osobę",
+    "Name": "Imię",
+    "Group": "Grupa",
+    "NotSelected": "Nie wybrano",
+    "LoadingGroups": "Ładowanie grup...",
+    "NoGroupsAvailable": "Brak dostępnych grup",
+    "Cancel": "Anuluj",
+    "Save": "Zapisz"
+  },
+  "PersonFaces": {
+    "Title": "Zdjęcia osoby (ID: {{personId}})"
+  },
+  "PersonFacesGallery": {
+    "Button": {
+      "AddPhoto": "Dodaj zdjęcie",
+      "LoadingPhoto": "Ładowanie zdjęcia...",
+      "DeleteSelected": "Usuń wybrane ({{count}})",
+      "SelectAll": "Zaznacz wszystkie",
+      "DeselectAll": "Odznacz wszystkie",
+      "SetMainPhoto": "Ustaw jako główne"
+    },
+    "Loading": "Ładowanie...",
+    "NoFaces": "Brak zdjęć twarzy do wyświetlenia",
+    "NoComment": "Brak komentarza",
+    "Error": {
+      "FetchFaces": "Nie udało się załadować zdjęć twarzy. Proszę spróbować ponownie.",
+      "AddFace": "Nie udało się dodać zdjęcia twarzy.",
+      "SetMainFace": "Nie udało się ustawić zdjęcia jako głównego.",
+      "DeleteFaces": "Nie udało się usunąć zdjęć twarzy."
+    },
+    "Alert": {
+      "SelectOneFace": "Proszę wybrać jedną twarz, aby ustawić ją jako główną.",
+      "SelectFacesToDelete": "Proszę wybrać twarze do usunięcia."
+    },
+    "Confirm": {
+      "DeleteFaces": "Czy na pewno chcesz usunąć wybrane twarze ({{count}})?"
+    },
+    "Comment": {
+      "UploadedPhoto": "Załadowane zdjęcie"
+    },
+    "Alt": {
+      "LargeImage": "Duże zdjęcie twarzy"
+    }
+  },
+  "BalanceForm": {
+    "Loading": "Ładowanie...",
+    "LoadingError": "Błąd podczas ładowania salda",
+    "CardTitle": "Saldo",
+    "AsOf": "Stan na:",
+    "PaidUntil": "Usługi opłacone do:",
+    "ReplenishButton": "Doładuj",
+    "NoBalanceError": "Saldo nie jest ustawione"
+  },
+  "OrderForm": {
+    "Title": "Tworzenie zamówienia",
+    "PleaseAcceptAgreement": "Proszę zapoznać się i zaakceptować warunki umowy publicznej.",
+    "Description": "Płatność za analizę wideo, zamówienie nr {{orderId}}",
+    "FailedToCreateOrder": "Nie udało się utworzyć zamówienia",
+    "PaymentStartedMessage": "Płatność rozpoczęta. Po zakończeniu, proszę sprawdzić status zamówienia.",
+    "PaymentSuccessMessage": "✅ Płatność zakończona pomyślnie. Numer zamówienia {{orderId}}",
+    "ErrorFetchingStatus": "Błąd podczas pobierania statusu płatności",
+    "PeriodLabel": "Liczba miesięcy",
+    "CurrencyLabel": "Waluta",
+    "CamerasTitle": "Liczba kamer",
+    "AnaliticCamerasLabel": "Analityka kamery",
+    "SimpleCamerasLabel": "Analityka systemu",
+    "TotalAmount": "Łączna kwota do zapłaty: {{amount}} {{currency}}",
+    "AgreementLink": "Zgadzam się z warunkami umowy publicznej",
+    "PayButton": "Zapłać",
+    "ExitButton": "Wyjdź",
+    "CheckingPayment": "Sprawdzanie płatności..."
+  },
+  "ScheduleList": {
+    "addButton": "Dodaj raport"
   }
 }
