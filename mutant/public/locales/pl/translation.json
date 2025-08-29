@@ -30,7 +30,8 @@
     "settings": "Ustawienia",
     "general": "Ogólne",
     "personGroups": "Grupy Osób",
-    "logout": "Wyloguj ( {{userName}} )"
+    "logout": "Wyloguj ( {{userName}} )",
+    "billing": "Billing"
   },
   "generalSettings": {
     "title": "Ustawienia ogólne",
@@ -115,5 +116,12 @@
     "cancelButtonText": "Anuluj",
     "savingButtonText": "Zapisywanie...",
     "saveButtonText": "Zapisz zmiany"
+  },
+  "group": {
+    "title": "Grupa",
+    "schema": "Schemat dla obiektu grupy",
+    "id": "Identyfikator grupy",
+    "name": "Nazwa grupy",
+    "pointID": "Identyfikator punktu"
   }
 }

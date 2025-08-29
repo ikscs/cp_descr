@@ -1,0 +1,23 @@
+{
+    "title": "Grupy",
+    "addButton": "Dodaj",
+    "loadingMessage": "Ładowanie grup...",
+    "errorMessage": "Błąd: {error_message}",
+    "fetchGroupsError": "Nie udało się załadować listy grup.",
+    "fetchPointsError": "Nie udało się załadować punktów.",
+    "deleteConfirm": "Czy na pewno chcesz usunąć grupę o ID {groupId}?",
+    "deleteError": "Nie udało się usunąć grupy.",
+    "saveError": "Nie udało się zmodyfikować/dodać grupy.",
+    "emptyIdError": "group_id nie może być pusty.",
+    "columns": {
+      "id": "ID",
+      "name": "Nazwa",
+      "pointId": "ID Punktu",
+      "actions": "Działania"
+    },
+    "actions": {
+      "edit": "Edytuj",
+      "delete": "Usuń"
+    },
+    "modalTitle": "Edytowanie grupy: {groupName}"
+}

@@ -116,5 +116,55 @@
     "cancelButtonText": "Скасувати",
     "savingButtonText": "Збереження...",
     "saveButtonText": "Зберегти зміни"
+  },
+  "group": {
+    "title": "Група",
+    "schema": "Схема для об'єкта групи",
+    "id": "Ідентифікатор групи",
+    "name": "Назва групи",
+    "pointID": "Ідентифікатор пункту"
+  },
+  "ReportList": {
+    "title": "Перелік звітів для виконання",
+    "filter": "Фільтр звітів",
+    "name": "Назва",
+    "description": "Опис",
+    "action": "Дія",
+    "parameters": "Параметри для звіту",
+    "CannotExecuteReport": "Не вдалося виконати звіт"
+  },
+  "UserfrontRoles": {
+    "title": "Ролі користувача"
+  },
+  "QueryParam": {
+    "showAsChart": "графік",
+    "cancel": "Скасувати",
+    "execute": "Виконати з параметрами",
+    "noParams": "Звіт не має параметрів"
+  },
+  "Common": {
+    "RequiredField": "Обов'язкове поле",
+    "error": "Помилка",
+    "message": "Повідомлення"
+  },
+  "ReportResult": {
+    "title": "Результат виконання звіту",
+    "exportToExcel": "Експорт в Excel",
+    "chart": "График",
+    "changeParams": "Змінити параметри",
+    "pivotTable": "Зведена таблиця"
+  },
+  "PersonList": {
+    "title": "Персони",
+    "addPerson": "Додати Персону",
+    "refresh": "Оновити",
+    "group": "Група",
+    "name": "Ім'я",
+    "photo": "Фото",
+    "noPhoto": "Немає фото",
+    "Actions": "Дії",
+    "edit": "Редагувати",
+    "faces": "Фото",
+    "delete": "Видалити"
   }
 }

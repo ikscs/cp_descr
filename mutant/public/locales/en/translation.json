@@ -4,7 +4,6 @@
   "english": "English",
   "polish": "Polski",
   "theme": "Theme",
-
   "menu": {
     "dashboard": "Dashboard",
     "adverts": "Adverts",
@@ -31,9 +30,9 @@
     "settings": "Settings",
     "general": "General",
     "personGroups": "Person Groups",
-    "logout": "Logout ( {{userName}} )"
+    "logout": "Logout ( {{userName}} )",
+    "billing": "Billing"
   },
-
   "generalSettings": {
     "title": "General Settings",
     "currentUserInfo": "Current User Information (Userfront.user):",
@@ -51,7 +50,6 @@
     "allUserProperties": "All available Userfront.user properties (for reference):",
     "languageSwitcher": "Language Switcher"
   },
-
   "customerForm": {
     "fields": {
       "customerId": "Customer ID",
@@ -80,7 +78,6 @@
       "save": "Save details"
     }
   },
-
   "themeToggle": {
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode"
@@ -119,5 +116,55 @@
     "cancelButtonText": "Cancel",
     "savingButtonText": "Saving...",
     "saveButtonText": "Save changes"
+  },
+  "group": {
+    "title": "Group",
+    "schema": "Schema for a group object",
+    "id": "Group ID",
+    "name": "Group Name",
+    "pointID": "Point ID"
+  },
+  "ReportList": {
+    "title": "Report List",
+    "filter": "Report filter",
+    "action": "Action",
+    "name": "Name",
+    "description": "Description",
+    "parameters": "Report parameters",
+    "CannotExecuteReport": "Cannot Execute Report"
+  },
+  "UserfrontRoles": {
+    "title": "User Roles"
+  },
+  "QueryParam": {
+    "showAsChart": "chart",
+    "cancel": "Cancel",
+    "execute": "Execute with parameteres",
+    "noParams": "No Parameters"
+  },
+  "Common": {
+    "RequiredField": "Required Field",
+    "error": "Error",
+    "message": "Message"
+  },
+  "ReportResult": {
+    "exportToExcel": "Export To Excel",
+    "chart": "Chart",
+    "changeParams": "Change Parameters",
+    "pivotTable": "Pivot Table",
+    "title": "Report Result"
+  },
+  "PersonList": {
+    "title": "Person List",
+    "addPerson": "Add Person",
+    "refresh": "Refresh",
+    "group": "Group",
+    "name": "Name",
+    "photo": "Photo",
+    "noPhoto": "No Photo",
+    "Actions": "Actions",
+    "edit": "Edit",
+    "faces": "Faces",
+    "delete": "Delete"
   }
 }
