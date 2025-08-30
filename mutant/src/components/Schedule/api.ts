@@ -24,11 +24,17 @@ const del = async (id: number): Promise<void> => {
     await axios.delete(API_URL + `${id}/`);
 }
 
-export const getReportName = async (): Promise<ReportName[]> => {
+const getReportName = async (): Promise<ReportName[]> => {
     const res = await axios.get<ReportName[]>(
         'https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=mutant&lang=uk');
     return res.data;
 }
+
+// const getReport = async (reportId: number): Promise<Report[]> => {
+//     const res = await axios.get<Report[]>(
+//         'https://cnt.theweb.place/api/pcnt/perm_report/?app_id=mutant&lang=uk/report_id=' + reportId);
+//     return res.data;
+// }
 
 export const api = {
     getReportName,

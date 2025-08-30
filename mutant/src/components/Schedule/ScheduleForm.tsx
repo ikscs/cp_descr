@@ -307,7 +307,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                         reportId={scheduleToEdit?.report_id}
                         // open={isParamOpen}
                         // onSave={handleSaveParam}
-                        // onClose={handleCloseModal}
+                        onClose={handleCloseModal}
                         // scheduleToEdit={selectedSchedule}
                     />
                 </Box>
