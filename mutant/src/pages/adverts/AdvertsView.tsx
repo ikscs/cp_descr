@@ -121,7 +121,7 @@ const AdvertsView: React.FC = () => {
         </ToggleButtonGroup>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, flexWrap: 'wrap', mb: 6 }}>
-        {t.tariffs.map((tariff, idx) => (
+        {t.tariffs.map((tariff, _idx) => (
           <Paper key={tariff.name} sx={{ width: 300, minHeight: 420, p: 4, background: '#181a1b', border: '1px solid #bdbdbd', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Box sx={{ width: 90, height: 90, borderRadius: '50%', background: '#ffb199', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
               <span style={{ fontSize: 48 }}>{tariff.icon}</span>
