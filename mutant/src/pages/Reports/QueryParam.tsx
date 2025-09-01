@@ -27,6 +27,7 @@ export interface QueryParamProps {
   initialParams?: { name: string; value: string | number | boolean }[];
   initialShowAsChart?: boolean;
   reportContext?: { [key: string]: number | null | undefined }; // Add reportContext prop
+  onSaveParams?: (params: { name: string; value: string | number | boolean }[]) => void; 
 }
 
 const backend = getBackend(); // For db_select
@@ -46,7 +47,7 @@ interface DbSelectOption {
   label: string;
 }
 
-const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, initialParams, initialShowAsChart, reportContext }) => {
+const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, initialParams, initialShowAsChart, reportContext, onSaveParams }) => {
   const [parameters, setParameters] = useState<Parameter[]>([]);
   const [dbSelectOptions, setDbSelectOptions] = useState<{ [paramName: string]: DbSelectOption[] }>({});
   const [dbSelectLoading, setDbSelectLoading] = useState<{ [paramName: string]: boolean }>({});
@@ -240,6 +241,15 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
     }
   };
 
+  const handleParamSave = async () => {
+    if (!validateParams()) {
+      return;
+    }
+    if (onSaveParams) {
+      // onSaveParams([{name: 'aa', value: 'bb'}]);
+      onSaveParams(parameters);
+    }
+  }
   return (
     <Box mt={2}>
       {parameters.length === 0 ? (
@@ -377,14 +387,27 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           label={t('QueryParam.showAsChart')}
           sx={{ marginRight: 'auto' }} // Pushes buttons to the right
         />
+
+        {/* <Button onClick={handleParamChange}>
+          {t('QueryParam.saveParam')}
+        </Button>  */}
+
+        {onSaveParams && (
+        <Button onClick={handleParamSave}>
+          {t('QueryParam.saveParaml')}
+        </Button>
+        )}
+
         <Button onClick={onClose}>
           {/* Скасувати */}
           {t('QueryParam.cancel')}
         </Button>
+
         <Button
           variant="contained"
           color="primary"
           onClick={handleExecute}
+          id="query-param-execute-button"
         >
           {/* Виконати з параметрами */}
           {t('QueryParam.execute')}

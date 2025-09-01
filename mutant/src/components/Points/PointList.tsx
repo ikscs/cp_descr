@@ -181,13 +181,6 @@ const PointList: React.FC = () => {
       renderCell: (params: GridRenderCellParams<Point>) => (
         <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
           <Stack direction="row" spacing={1}>
-            <Button
-              onClick={() => handleOpenModal(params.row)}
-              size="small"
-              sx={{ mr: 1 }}
-            >
-              {t('Points.PointList.edit_button')}
-            </Button>
             <Tooltip title={t('Points.PointList.tooltip_cameras_recorders')}>
               <Button
                 onClick={() => handleOpenAdvancedModal(params.row)}
@@ -197,6 +190,13 @@ const PointList: React.FC = () => {
                 {t('Points.PointList.sources_button')}
               </Button>
             </Tooltip>
+            <Button
+              onClick={() => handleOpenModal(params.row)}
+              size="small"
+              sx={{ mr: 1 }}
+            >
+              {t('Points.PointList.edit_button')}
+            </Button>
             <Button
               onClick={() => handleDeletePoint(params.row.point_id)}
               size="small"

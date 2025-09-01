@@ -9,6 +9,7 @@ export interface Schedule {
     cron: string;
     enable: boolean;
     params: Object;
+    // params: { name: string; value: string | number | boolean }[];
 }
 
 export interface ReportName {

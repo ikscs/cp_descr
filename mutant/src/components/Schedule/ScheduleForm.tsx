@@ -35,7 +35,7 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 600,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -94,11 +94,17 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
             lang: 'uk',
             cron: 'daily',
             enable: true,
-            params: {}
+            params: []
         }
     });
 
-    const { handleSubmit, reset, control, setValue } = methods;
+    const { handleSubmit, reset, control, setValue, formState: { errors }  } = methods;
+
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            console.log('Form validation errors:', errors);
+        }
+    }, [errors]);
 
     useEffect(() => {
         if (scheduleToEdit) {
@@ -126,6 +132,17 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
         reset();
         onClose();
     };
+
+    const handleSaveParam = (params: { name: string; value: string | number | boolean }[]) => {
+        const paramsObject = params.reduce((acc: any, param) => {
+            acc[param.name] = param.value;
+            return acc;
+        }, {});
+
+        setValue('params', paramsObject);
+        // setValue('params', params, { shouldDirty: true });
+        setIsParamOpen(false);
+    }
 
     const handleCloseModal = () => {
         setIsParamOpen(false);
@@ -306,8 +323,9 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                     <ScheduleParam
                         reportId={scheduleToEdit?.report_id}
                         // open={isParamOpen}
-                        // onSave={handleSaveParam}
+                        onSave={handleSaveParam}
                         onClose={handleCloseModal}
+
                         // scheduleToEdit={selectedSchedule}
                     />
                 </Box>
