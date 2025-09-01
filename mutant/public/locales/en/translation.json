@@ -31,7 +31,8 @@
     "general": "General",
     "personGroups": "Person Groups",
     "logout": "Logout ( {{userName}} )",
-    "billing": "Billing"
+    "billing": "Billing",
+    "schedule": "Reports by mail"
   },
   "generalSettings": {
     "title": "General Settings",
@@ -99,7 +100,7 @@
       "error_creating_point": "Error creating point.",
       "error_deleting_point": "Error deleting point.",
       "no_customer_selected": "Please select a customer to display points.",
-      "no_data_to_display": "No data to display.",
+      "no_data_to_display": "Enter information about the billing points.",
       "columns": {
         "id": "ID",
         "name": "Name",
@@ -166,5 +167,153 @@
     "edit": "Edit",
     "faces": "Faces",
     "delete": "Delete"
+  },
+  "Forgot Password": "Forgot your password?",
+  "Registration": "Registration",
+  "Sign In": "Sign In",
+  "PointAdvancedForm": {
+    "CamerasAndRegistrators": "Cameras And Registrators",
+    "Close": "Close"
+  },
+  "PointForm": {
+    "title": "Visitor counting point form",
+    "name": "Name",
+    "country": "Country",
+    "city": "City",
+    "tag": "Tag (optional)",
+    "start_time": "Start time (HH:MM:SS)",
+    "end_time": "End time",
+    "save": "Save"
+  },
+  "validation": {
+    "invalidTimeFormat": "The time must be in the format HH:MM:SS",
+    "required": "Necessarily"
+  },
+  "validationEnd_time_must_be_later_than_start_time": "End time must be later than start time",
+  "OriginList": {
+    "AddOrigin": "Add Origin",
+    "Name": "Name",
+    "OriginIdentifier": "Identifier",
+    "Type": "Type",
+    "Enabled": "Enabled",
+    "Actions": "Actions",
+    "Edit": "Edit",
+    "Delete": "Delete",
+    "Are_you_sure": "Are you sure you want to delete this origin?"
+  },
+  "OriginForm": {
+    "Edit_Origin": "Edit Origin",
+    "Add_New_Origin": "Add New Origin",
+    "Name_is_required": "Name is required",
+    "Point_is_required": "Point is required",
+    "Origin_identifier_is_required": "Origin identifier (URL/path) is required",
+    "Origin_type_is_required": "Origin type is required",
+    "Credentials_must_be_valid_JSON": "Credentials must be a valid JSON string or empty",
+    "Polling_period_must_be_positive": "Polling period must be a positive number",
+    "Polling_period_must_be_integer": "Polling period must be an integer",
+    "Loading_form_data": "Loading form data...",
+    "Select_Customer_Prompt": "Please select a customer to load available points.",
+    "Invalid_Customer_ID": "Invalid customer ID provided.",
+    "Failed_to_load_dropdown_data": "Failed to load data for dropdowns.",
+    "Name_Label": "Name",
+    "Point_Label": "Point",
+    "Select_a_Point": "Select a Point",
+    "Origin_Identifier_Label": "Origin Identifier (URL/Path)",
+    "Origin_Helper_Text": "e.g., rtsp://... or /dev/video0",
+    "Origin_Title_Note": "Note: The backend API might auto-generate or not allow updates to this specific identifier after creation.",
+    "Origin_Type_Label": "Origin Type",
+    "Select_an_Origin_Type": "Select an Origin Type",
+    "Credentials_Label": "Credentials (JSON format)",
+    "Credentials_Helper_Text": "Optional. e.g., {\"user\":\"admin\", \"pass\":\"secret\"}",
+    "Edit_JSON_Button": "Edit JSON",
+    "Enabled_Label": "Enabled",
+    "Cancel": "Cancel",
+    "Saving": "Saving...",
+    "Save_Origin": "Save Origin",
+    "Credentials_JSON": "Credentials JSON",
+    "JSON_Placeholder": "Enter valid JSON. e.g., {\"user\":\"admin\", \"pass\":\"secret\"}. Leave empty or use {} for no credentials.",
+    "Edit_Credentials_JSON_Title": "Edit Credentials JSON",
+    "Apply_JSON_Button": "Apply JSON"
+  },
+  "GroupForm": {
+    "cancel": "Cancel",
+    "Save": "Save"
+  },
+  "PersonForm": {
+    "EditPerson": "Edit Person",
+    "CreatePerson": "Create Person",
+    "Name": "Name",
+    "Group": "Group",
+    "NotSelected": "Not selected",
+    "LoadingGroups": "Loading groups...",
+    "NoGroupsAvailable": "No groups available",
+    "Cancel": "Cancel",
+    "Save": "Save"
+  },
+  "PersonFaces": {
+    "Title": "Person's photos (ID: {{personId}})"
+  },
+  "PersonFacesGallery": {
+    "Button": {
+      "AddPhoto": "Add photo",
+      "LoadingPhoto": "Loading photo...",
+      "DeleteSelected": "Delete selected ({{count}})",
+      "SelectAll": "Select all",
+      "DeselectAll": "Deselect all",
+      "SetMainPhoto": "Set as main photo"
+    },
+    "Loading": "Loading...",
+    "NoFaces": "No faces to display",
+    "NoComment": "No comment",
+    "Error": {
+      "FetchFaces": "Failed to load faces. Please try again.",
+      "AddFace": "Failed to add face.",
+      "SetMainFace": "Failed to set main face.",
+      "DeleteFaces": "Failed to delete faces."
+    },
+    "Alert": {
+      "SelectOneFace": "Please select one face to set as the main one.",
+      "SelectFacesToDelete": "Please select faces to delete."
+    },
+    "Confirm": {
+      "DeleteFaces": "Are you sure you want to delete the selected faces ({{count}})?"
+    },
+    "Comment": {
+      "UploadedPhoto": "Uploaded photo"
+    },
+    "Alt": {
+      "LargeImage": "Large face image"
+    }
+  },
+  "BalanceForm": {
+    "Loading": "Loading...",
+    "LoadingError": "Error loading balance",
+    "CardTitle": "Balance",
+    "AsOf": "As of:",
+    "PaidUntil": "Services paid until:",
+    "ReplenishButton": "Replenish",
+    "NoBalanceError": "Balance is not set"
+  },
+  "OrderForm": {
+    "Title": "Order creation",
+    "PleaseAcceptAgreement": "Please read and accept the terms of the Public Agreement.",
+    "Description": "Payment for video analysis order N {{orderId}}",
+    "FailedToCreateOrder": "Failed to create order",
+    "PaymentStartedMessage": "Payment started. After completion, please check the order status.",
+    "PaymentSuccessMessage": "✅ Payment successfully completed. Order number {{orderId}}",
+    "ErrorFetchingStatus": "Error fetching payment status",
+    "PeriodLabel": "Number of months",
+    "CurrencyLabel": "Currency",
+    "CamerasTitle": "Number of cameras",
+    "AnaliticCamerasLabel": "Camera analytics",
+    "SimpleCamerasLabel": "System analytics",
+    "TotalAmount": "Total amount: {{amount}} {{currency}}",
+    "AgreementLink": "I agree with the terms of the Public Agreement",
+    "PayButton": "Pay",
+    "ExitButton": "Exit",
+    "CheckingPayment": "Checking payment..."
+  },
+  "ScheduleList": {
+    "addButton": "Add report"
   }
 }

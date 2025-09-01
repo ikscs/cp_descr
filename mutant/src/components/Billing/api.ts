@@ -1,11 +1,22 @@
 import axios from "axios"
-import { create } from "domain";
+import packageJson from '../../../package.json';
+// import { create } from "domain";
 
 export interface Balance {
     value: number;
     crn: string;
     startDate?: Date;
     endDate?: Date;
+}
+
+export interface BasePrice {
+    crn: string;
+    value: number;
+}
+
+export interface CameraCatg {
+    type: string;
+    coeff: number;
 }
 
 const balanceKeyMap: Record<keyof Balance, string> = {
@@ -30,13 +41,16 @@ const getBalance = async (): Promise<Balance | null> => {
 }
 
 // todo: replace any by Order
-const createOrder = async (orderId: string, amount: number, currency: string, description: string): Promise<any> => {
+// const createOrder = async (orderId: string, amount: number, currency: string, description: string, param: any): Promise<any> => {
+const createOrder = async (amount: number, currency: string, description: string, param: any): Promise<any> => {
     try {
-        const res = await axios.post('https://cnt.theweb.place/api/billing/test_order/', {
-            order_id: orderId,
-            amount: amount,
-            currency: currency,
-            description: description,
+        const res = await axios.post('https://cnt.theweb.place/api/billing/create_liqpay_order/', {
+            // order_id: orderId,
+            amount,
+            currency,
+            description,
+            param,
+            app_id: packageJson.name,
         });
         return res.data ? res.data : null;
     } catch {
@@ -53,8 +67,20 @@ const getOrderStatus = async (orderId: string): Promise<any> => {
     }
 }
 
+const getBasePrice = async (): Promise<BasePrice[]> => {
+    const res = await axios.get('https://cnt.theweb.place/api/billing/subscription_base_price/');
+    return res.data ? res.data : [];
+}
+
+const getCameraCatg = async (): Promise<CameraCatg[]> => {
+    const res = await axios.get('https://cnt.theweb.place/api/billing/camera_catg/');
+    return res.data ? res.data : [];
+}
+
 export const api = {
     getBalance,
     createOrder,
     getOrderStatus,
+    getBasePrice,
+    getCameraCatg,
 }

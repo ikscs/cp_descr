@@ -35,6 +35,8 @@ import SystemMetricForm from './components/SysMetrics/SystemMetricForm';
 import AdvertsView from './pages/adverts/AdvertsView';
 import ThemeList from './components/themes/ThemeList';
 import BalanceForm from './components/Billing/BillingForm';
+import ScheduleList from './components/Schedule/ScheduleList';
+import Switcher from './pages/dashboard/Switcher';
 
 // Protected Route Component
 const ProtectedRoute = ({
@@ -110,7 +112,8 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
         >
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardView />} />
+            {/* <Route path="/dashboard" element={<DashboardView />} /> */}
+            <Route path="/dashboard" element={<Switcher />} />
             <Route path="/adverts" element={<AdvertsView />} />
             <Route path="/logout" element={<LogoutHandler onLogout={handleLogout} />} />
             <Route path="/selectCustomer" element={<SelectCustomer />} />
@@ -121,6 +124,7 @@ const AppCustomer: React.FC<AppCustomerProps> = ({
             <Route path="/origins" element={<ProtectedRoute user={user} requiredRole="admin"><OriginView /></ProtectedRoute>} />
             <Route path="/groups" element={<ProtectedRoute user={user} requiredRole="admin"><GroupList /></ProtectedRoute>} />
             <Route path="/persons" element={<ProtectedRoute user={user} requiredRole="admin"><PersonList /></ProtectedRoute>} />
+            <Route path="/schedule" element={<ScheduleList />} />
             <Route path="/reports" element={<ReportList />} />
             <Route path="/viewerReports" element={<ViewerReportList />} />
             <Route path="/settings/themes" element={<ThemeList />} />

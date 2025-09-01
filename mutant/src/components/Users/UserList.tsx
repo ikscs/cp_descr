@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import UserForm from './UserForm';
+import UserForm from './UserForm2';
 import { fetchUsers, type User } from '../../api/fetchUsers';
 import { updateUser } from '../../api/updateUser';
 import { createUser } from '../../api/createUser';
@@ -83,7 +83,7 @@ const UserList: React.FC = () => {
   };
 
   const handleUserCreate = async (newUser: User) => {
-    try {
+    // try {
       const createdUser = await createUser(tenantId, apiKey, newUser);
 
       const roles = newUser.authorization[tenantId].roles;
@@ -92,10 +92,10 @@ const UserList: React.FC = () => {
       }
       await getUsers();
       handleCloseModal();
-    } catch (err) {
-      console.error('Error creating user:', err);
-      setError(new Error('Не вдалося створити користувача.'));
-    }
+    // } catch (err) {
+    //   console.error('Error creating user:', err);
+    //   setError(new Error('Не вдалося створити користувача.'));
+    // }
   };
 
   const handleSave = async (values: User) => {
@@ -161,7 +161,7 @@ const UserList: React.FC = () => {
         </Button>
       </Box>
 
-      {error && (
+      {!!error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error.message}
         </Alert>

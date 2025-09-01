@@ -17,7 +17,7 @@ i18n
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json', // path to your translation files
     },
-    ns: ['translation'], // default namespace
+    ns: ['translation', 'groupList'], // namespaces
     defaultNS: 'translation',
   });
 

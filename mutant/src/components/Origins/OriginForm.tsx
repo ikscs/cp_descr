@@ -1,3 +1,6 @@
+// Перероблена форма з підтримкою i18n
+// Re-written form with i18n support
+// Formularz przepisany z obsługą i18n
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, type FormikProps, type FieldProps } from 'formik';
 import * as Yup from 'yup';
@@ -18,42 +21,39 @@ import {
   Alert,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import { useTranslation } from 'react-i18next';
 import { pointApi } from '../../api/data/pointApi';
-import { useCustomer } from '../../context/CustomerContext'; // Import useCustomer
-// import { originTypeApi, OriginTypeOption, type OriginTypeOption as ApiOriginTypeOption } from '../../api/data/originTypeApi'; // Import OriginTypeOption
-import { originTypeApi, OriginTypeOption, } from '../../api/data/originTypeApi'; // Import OriginTypeOption
+import { useCustomer } from '../../context/CustomerContext';
+import { originTypeApi, OriginTypeOption } from '../../api/data/originTypeApi';
 import JsonForm, { type JsonFormTemplate } from '../common/JsonForm';
-// import type { Point } from '../../api/data/pointApi'; // Not directly used, but good for context if pointApi returns full Point objects
 
-// Interface for form values
 export interface OriginFormValues {
-  id?: number; // Present when editing
-  point_id: string | number; // Dropdown value, needs to be number for API
+  id?: number;
+  point_id: string | number;
   name: string;
-  origin: string; // Textual identifier for the stream/camera
-  origin_type_id: string | number; // Dropdown value, needs to be number for API
-  credentials?: string; // JSON string
+  origin: string;
+  origin_type_id: string | number;
+  credentials?: string;
   is_enabled: boolean;
-  poling_period_s?: number; // Optional polling period in seconds
+  poling_period_s?: number;
 }
 
-// Props for the form component
 export interface OriginFormProps {
   originToEdit?: OriginFormValues;
   onSave: (values: OriginFormValues) => void;
   onCancel: () => void;
-  title?: string;
-  lockPointId?: boolean; // New prop to lock point_id field
+  lockPointId?: boolean;
 }
 
 const OriginForm: React.FC<OriginFormProps> = ({
   originToEdit,
   onSave,
   onCancel,
-  title = originToEdit ? 'Edit Origin' : 'Add New Origin',
-  lockPointId = false, // Default to false for backward compatibility
+  lockPointId = false,
 }) => {
-  const { customerData, isLoading: isCustomerLoading } = useCustomer(); // Access customer context
+  const { t } = useTranslation();
+  const title = originToEdit ? t('OriginForm.Edit_Origin') : t('OriginForm.Add_New_Origin');
+  const { customerData, isLoading: isCustomerLoading } = useCustomer();
   const [points, setPoints] = useState<Array<{ value: number | string; label: string }>>([]);
   const [originTypes, setOriginTypes] = useState<OriginTypeOption[]>([]);
   const [isLoadingDropdowns, setIsLoadingDropdowns] = useState(true);
@@ -63,15 +63,14 @@ const OriginForm: React.FC<OriginFormProps> = ({
   const defaultCredentialsEditorTemplate: JsonFormTemplate = {
     fields: [
       {
-        name: 'jsonString', // This name is crucial for how JsonForm returns data
-        label: 'Credentials JSON',
-        type: 'json', // Assuming 'json' type is handled by JsonForm as a textarea for JSON string
-        validation: { isJson: true }, // JsonForm might handle this internally for type: 'json'
+        name: 'jsonString',
+        label: t('OriginForm.Credentials_JSON'),
+        type: 'json',
+        validation: { isJson: true },
         muiProps: {
           multiline: true,
           rows: 10,
-          placeholder:
-            'Enter valid JSON. e.g., {"user":"admin", "pass":"secret"}. Leave empty or use {} for no credentials.',
+          placeholder: t('OriginForm.JSON_Placeholder'),
         },
       },
     ],
@@ -89,7 +88,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
       if (!customerData?.customer) {
         setPoints([]);
         setOriginTypes([]);
-        setDropdownError('Please select a customer to load available points.');
+        setDropdownError(t('OriginForm.Select_Customer_Prompt'));
         setIsLoadingDropdowns(false);
         return;
       }
@@ -97,7 +96,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
       try {
         const customerId = Number(customerData.customer);
         if (isNaN(customerId) || customerId <= 0) {
-          setDropdownError("Invalid customer ID provided.");
+          setDropdownError(t('OriginForm.Invalid_Customer_ID'));
           setPoints([]);
           setOriginTypes([]);
           setIsLoadingDropdowns(false);
@@ -105,7 +104,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
         }
 
         const [pointsData, originTypesData] = await Promise.all([
-          pointApi.getPoints(/*customerId*/),
+          pointApi.getPoints(),
           originTypeApi.getOriginTypes(),
         ]);
 
@@ -117,7 +116,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
         setOriginTypes(originTypesData as OriginTypeOption[]);
       } catch (err) {
         console.error('[OriginForm] Error loading dropdown data:', err);
-        const message = err instanceof Error ? err.message : 'Failed to load data for dropdowns.';
+        const message = err instanceof Error ? err.message : t('OriginForm.Failed_to_load_dropdown_data');
         setDropdownError(message);
         setPoints([]);
         setOriginTypes([]);
@@ -126,7 +125,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
       }
     };
     loadDropdownData();
-  }, [customerData?.customer, isCustomerLoading]);
+  }, [customerData?.customer, isCustomerLoading, t]);
 
   const initialValues: OriginFormValues = originToEdit || {
     name: '',
@@ -135,17 +134,17 @@ const OriginForm: React.FC<OriginFormProps> = ({
     origin_type_id: '',
     credentials: '{}',
     is_enabled: true,
-    poling_period_s: undefined, // Optional polling period
+    poling_period_s: undefined,
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required('Name is required'),
-    point_id: Yup.number().required('Point is required'),
-    origin: Yup.string().required('Origin identifier (URL/path) is required'),
-    origin_type_id: Yup.number().required('Origin type is required'),
+    name: Yup.string().required(t('OriginForm.Name_is_required')),
+    point_id: Yup.number().required(t('OriginForm.Point_is_required')),
+    origin: Yup.string().required(t('OriginForm.Origin_identifier_is_required')),
+    origin_type_id: Yup.number().required(t('OriginForm.Origin_type_is_required')),
     credentials: Yup.string().test(
       'is-json',
-      'Credentials must be a valid JSON string or empty',
+      t('OriginForm.Credentials_must_be_valid_JSON'),
       (value) => {
         if (!value || value.trim() === '' || value.trim() === '{}') return true;
         try {
@@ -159,15 +158,15 @@ const OriginForm: React.FC<OriginFormProps> = ({
     is_enabled: Yup.boolean().required(),
     poling_period_s: Yup.number()
       .optional()
-      .positive('Polling period must be a positive number')
-      .integer('Polling period must be an integer'),
+      .positive(t('OriginForm.Polling_period_must_be_positive'))
+      .integer(t('OriginForm.Polling_period_must_be_integer')),
   });
 
   if (isLoadingDropdowns) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 3 }}>
         <CircularProgress />
-        <Typography sx={{ ml: 2 }}>Loading form data...</Typography>
+        <Typography sx={{ ml: 2 }}>{t('OriginForm.Loading_form_data')}</Typography>
       </Box>
     );
   }
@@ -195,8 +194,6 @@ const OriginForm: React.FC<OriginFormProps> = ({
         const currentCredentialsTemplate: JsonFormTemplate =
           selectedOriginType?.template || defaultCredentialsEditorTemplate;
 
-        // console.log("[OriginForm] Current credentials template:", currentCredentialsTemplate);
-
         return (
           <Form>
             <Typography variant="h6" gutterBottom>
@@ -208,7 +205,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
                   <TextField
                     {...field}
                     fullWidth
-                    label="Name"
+                    label={t('OriginForm.Name_Label')}
                     error={meta.touched && !!meta.error}
                     helperText={meta.touched && meta.error}
                   />
@@ -218,14 +215,14 @@ const OriginForm: React.FC<OriginFormProps> = ({
               <Field name="point_id">
                 {({ field, meta }: { field: any; meta: any }) => (
                   <FormControl fullWidth error={meta.touched && !!meta.error}>
-                    <InputLabel id="point-id-label">Point</InputLabel>
+                    <InputLabel id="point-id-label">{t('OriginForm.Point_Label')}</InputLabel>
                     <Select
                       labelId="point-id-label"
-                      label="Point"
+                      label={t('OriginForm.Point_Label')}
                       {...field}
                       disabled={lockPointId}
                     >
-                      <MenuItem value=""><em>Select a Point</em></MenuItem>
+                      <MenuItem value=""><em>{t('OriginForm.Select_a_Point')}</em></MenuItem>
                       {points.map((point) => (
                         <MenuItem key={point.value} value={point.value}>
                           {point.label}
@@ -244,11 +241,11 @@ const OriginForm: React.FC<OriginFormProps> = ({
                   <TextField
                     {...field}
                     fullWidth
-                    label="Origin Identifier (URL/Path)"
+                    label={t('OriginForm.Origin_Identifier_Label')}
                     disabled={true}
                     error={meta.touched && !!meta.error}
-                    helperText={(meta.touched && meta.error) || "e.g., rtsp://... or /dev/video0"}
-                    title="Note: The backend API might auto-generate or not allow updates to this specific identifier after creation."
+                    helperText={(meta.touched && meta.error) || t('OriginForm.Origin_Helper_Text')}
+                    title={t('OriginForm.Origin_Title_Note')}
                   />
                 )}
               </Field>
@@ -256,9 +253,9 @@ const OriginForm: React.FC<OriginFormProps> = ({
               <Field name="origin_type_id">
                 {({ field, meta }: { field: any; meta: any }) => (
                   <FormControl fullWidth error={meta.touched && !!meta.error}>
-                    <InputLabel id="origin-type-id-label">Origin Type</InputLabel>
-                    <Select labelId="origin-type-id-label" label="Origin Type" {...field}>
-                      <MenuItem value=""><em>Select an Origin Type</em></MenuItem>
+                    <InputLabel id="origin-type-id-label">{t('OriginForm.Origin_Type_Label')}</InputLabel>
+                    <Select labelId="origin-type-id-label" label={t('OriginForm.Origin_Type_Label')} {...field}>
+                      <MenuItem value=""><em>{t('OriginForm.Select_an_Origin_Type')}</em></MenuItem>
                       {originTypes.map((type) => (
                         <MenuItem key={type.value} value={type.value}>
                           {type.label}
@@ -272,32 +269,17 @@ const OriginForm: React.FC<OriginFormProps> = ({
                 )}
               </Field>
 
-              <Field name="poling_period_s">
-                {({ field, meta }: { field: any; meta: any }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Polling Period (seconds)"
-                    type="number"
-                    error={meta.touched && !!meta.error}
-                    helperText={
-                      (meta.touched && meta.error) || 'Optional. How often data is polled (e.g., 60 for every minute).'
-                    }
-                  />
-                )}
-              </Field>
-              
               <Field name="credentials">
                 {({ field: fieldPropsForTextField, meta }: FieldProps<string | undefined, OriginFormValues>) => (
                   <div>
                     <TextField
                       {...fieldPropsForTextField}
                       fullWidth
-                      label="Credentials (JSON format)"
+                      label={t('OriginForm.Credentials_Label')}
                       multiline
                       rows={3}
                       error={meta.touched && !!meta.error}
-                      helperText={(meta.touched && meta.error) || "Optional. e.g., {\"user\":\"admin\", \"pass\":\"secret\"}"}
+                      helperText={(meta.touched && meta.error) || t('OriginForm.Credentials_Helper_Text')}
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
                       <Button
@@ -306,7 +288,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
                         onClick={() => setIsCredentialsModalOpen(true)}
                         startIcon={<EditIcon />}
                       >
-                        Edit JSON
+                        {t('OriginForm.Edit_JSON_Button')}
                       </Button>
                     </Box>
                   </div>
@@ -317,7 +299,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
                 {({ field }: { field: any }) => (
                   <FormControlLabel
                     control={<Checkbox {...field} checked={field.value} />}
-                    label="Enabled"
+                    label={t('OriginForm.Enabled_Label')}
                   />
                 )}
               </Field>
@@ -325,10 +307,10 @@ const OriginForm: React.FC<OriginFormProps> = ({
 
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
               <Button onClick={onCancel} sx={{ mr: 1 }} disabled={formikProps.isSubmitting}>
-                Cancel
+                {t('OriginForm.Cancel')}
               </Button>
               <Button type="submit" variant="contained" disabled={formikProps.isSubmitting || !formikProps.isValid}>
-                {formikProps.isSubmitting ? 'Saving...' : 'Save Origin'}
+                {formikProps.isSubmitting ? t('OriginForm.Saving') : t('OriginForm.Save_Origin')}
               </Button>
             </Box>
 
@@ -353,7 +335,6 @@ const OriginForm: React.FC<OriginFormProps> = ({
                 }}
                 >
                   {(() => {
-                    // Determine initialData for JsonForm based on the template
                     let jsonFormInitialData: Record<string, any>;
                     const isSingleJsonStringFieldTemplate =
                       currentCredentialsTemplate.fields.length === 1 &&
@@ -398,7 +379,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
                           }
 
                           try {
-                            JSON.parse(finalCredentialsString); // Validate
+                            JSON.parse(finalCredentialsString);
                           } catch (e) {
                             console.warn("[OriginForm] Produced invalid JSON for credentials after JsonForm submission. Defaulting to '{}'. String was:", finalCredentialsString);
                             finalCredentialsString = '{}';
@@ -408,9 +389,9 @@ const OriginForm: React.FC<OriginFormProps> = ({
                           setIsCredentialsModalOpen(false);
                         }}
                         onCancel={() => setIsCredentialsModalOpen(false)}
-                        title="Edit Credentials JSON"
-                        submitButtonText="Apply JSON"
-                        cancelButtonText="Cancel"
+                        title={t('OriginForm.Edit_Credentials_JSON_Title')}
+                        submitButtonText={t('OriginForm.Apply_JSON_Button')}
+                        cancelButtonText={t('OriginForm.Cancel')}
                       />
                     );
                   })()}

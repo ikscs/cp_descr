@@ -3,7 +3,7 @@ import { Box, Typography, Button } from '@mui/material';
 import AppFooter from './components/AppFooter';
 // import SideBar, { type MenuItem } from './components/Shared/SideBar3';
 import SideBar, { type MenuItem } from './components/Shared/SideBar5';
-import SideBarWrapper from './components/Shared/SideBarWrapper';
+// import SideBarWrapper from './components/Shared/SideBarWrapper';
 
 interface AuthenticatedLayoutProps {
   userName: string;

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Person } from './person.types';
 import personApi from '../../api/data/personApiAxios';
-// import api from '../../api/data/personApi';
 import { useCustomer } from '../../context/CustomerContext';
 // import PersonFormPlaceholder from './PersonFormPlaceholder'; // Placeholder form
 import PersonForm /*{ PersonFormProps }*/ from './PersonForm'; // Import PersonFormProps
@@ -9,12 +8,17 @@ import PersonFaces from './PersonFaces'; // Import the new component
 import { Alert, Avatar, Box, Button, Stack, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowIdGetter } from '@mui/x-data-grid';
 import groupApi from '../../api/data/groupApiAxios';
+import { useTranslation } from "react-i18next";
+import LocalizedGrid from '../Shared/grid/LocalizedGrid';
+import i18n from '../../i18n';
+import { LocaleKey } from '../Shared/grid/locales';
 
 interface PersonListProps {
   // Future props can be added here
 }
 
 const PersonList: React.FC<PersonListProps> = () => {
+  const { t } = useTranslation();
   const { customerData } = useCustomer();
   const [persons, setPersons] = useState<Person[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -151,11 +155,11 @@ const PersonList: React.FC<PersonListProps> = () => {
   const columns: GridColDef<Person>[] = [
     // { field: 'customer_id', width: 90 },
     { field: 'person_id', headerName: 'ID', width: 100 },
-    { field: 'group_name', width: 250 },
-    { field: 'name', headerName: 'Name', width: 250, flex: 1 },
+    { field: 'group_name', headerName: t('PersonList.group'), width: 250 },
+    { field: 'name', headerName: t('PersonList.name'), width: 250, flex: 1 },
     {
       field: 'photo',
-      headerName: 'Фото',
+      headerName: t('PersonList.photo'),
       width: 100,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Person>) => {
@@ -170,11 +174,11 @@ const PersonList: React.FC<PersonListProps> = () => {
             />
           );
         }
-        return <Typography variant="caption">Нет фото</Typography>;
+        return <Typography variant="caption">{t('PersonList.noPhoto')}</Typography>;
       },
     },    {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: t('PersonList.Actions'),
       width: 300,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Person>) => (
@@ -186,7 +190,8 @@ const PersonList: React.FC<PersonListProps> = () => {
             variant="outlined"
             disabled={isSubmitting}
           >
-            Редагувати
+            {/* Редагувати */}
+            {t('PersonList.edit')}
           </Button>
           <Button
             onClick={() => handleOpenFaces(params.row)}
@@ -194,7 +199,8 @@ const PersonList: React.FC<PersonListProps> = () => {
             variant="outlined"
             disabled={isSubmitting}
           >
-            Фото
+            {/* Фото */}
+            {t('PersonList.faces')}
           </Button>
           <Button
             onClick={() => handleDeletePerson(params.row.person_id)}
@@ -203,7 +209,8 @@ const PersonList: React.FC<PersonListProps> = () => {
             color="error"
             disabled={isSubmitting}
           >
-            Видалити
+            {/* Видалити */}
+            {t('PersonList.delete')}
           </Button>
         </Stack>
         </Box>
@@ -213,11 +220,13 @@ const PersonList: React.FC<PersonListProps> = () => {
 
   if (loading && persons.length === 0) return <Typography sx={{ p: 2 }}>Загрузка персон...</Typography>;
   
+  const lang = i18n.language as LocaleKey;
   return (
     <Box sx={{ p: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Typography variant="h5">
-          Персони
+          {/* Персони */}
+          {t('PersonList.title')}
         </Typography>
         <Stack direction="column" spacing={1}>
         <Button
@@ -225,14 +234,16 @@ const PersonList: React.FC<PersonListProps> = () => {
           onClick={() => handleOpenForm(null)}
           disabled={isSubmitting || !customerData?.customer}
         >
-          Додати Персону
+          {/* Додати Персону */}
+          {t('PersonList.addPerson')}
         </Button>
         <Button
           variant="outlined"
           onClick={() => handleRefresh()}
           disabled={isSubmitting || !customerData?.customer}
         >
-          Оновити
+          {/* Оновити */}
+          {t('PersonList.refresh')}
         </Button>
         </Stack>
       </Stack>
@@ -247,7 +258,9 @@ const PersonList: React.FC<PersonListProps> = () => {
       )}
 
       <Box sx={{ height: 500, width: '100%' }}>
-        <DataGrid
+        {/* <DataGrid */}
+        <LocalizedGrid
+          lang={lang}
           rows={persons}
           columns={columns}
           getRowId={getRowId}

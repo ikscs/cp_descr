@@ -20,6 +20,19 @@ const formatSqlString = (s: string): string => {
     return `''${escapeSingleQuotes(s)}''`;
 };
 
+// const get = async (customerId: number): Promise<Person[]> => {
+// const API_URL = 'https://cnt.theweb.place/api/pcnt/origin/';
+// const getOrigins = async (point_id?: number): Promise<Origin[]> => {
+//   console.log(`[originApi] getOrigins called for point_id: ${point_id}`);
+//   if (point_id === undefined) {
+//     const res = await axios.get<Origin[]>('https://cnt.theweb.place/api/pcnt/v_customer_origin/');
+//     return res.data;
+//   } else {
+//     const res = await axios.get<Origin[]>(API_URL + `point/${point_id}/`);
+//     return res.data;
+//   }
+// }
+
 const get = async (customerId: number): Promise<Person[]> => {
   console.log(`[personApi] get called for customerId: ${customerId}`);
   try {
@@ -92,7 +105,7 @@ export const getPersonById = async (person_id: number): Promise<Person | null> =
  * @param personData - The data for the new person (without person_id).
  * @returns A promise that resolves to the newly created person.
  */
-export const post = async (personData: Omit<Person, 'person_id' | 'customer_id'>): Promise<Person> => {
+export const post = async (personData: Omit<Person, 'person_id' | 'customer_id' | 'group_name'>): Promise<Person> => {
     console.log('[personApi] createPerson called with data:', personData);
 
     if (typeof personData.group_id !== 'number' || !personData.name || typeof personData.name !== 'string') {
@@ -141,7 +154,7 @@ export const post = async (personData: Omit<Person, 'person_id' | 'customer_id'>
  * @param updates - An object containing the fields to update.
  * @returns A promise that resolves to the updated person.
  */
-export const put = async (person_id: number, updates: Partial<Omit<Person, 'person_id' | 'customer_id'>>): Promise<Person> => {
+export const put = async (person_id: number, updates: Partial<Omit<Person, 'person_id' | 'customer_id' | 'group_name'>>): Promise<Person> => {
     console.log('[personApi] updatePerson called for person_id:', person_id, 'with updates:', updates);
 
     if (Object.keys(updates).length === 0) {
@@ -151,7 +164,7 @@ export const put = async (person_id: number, updates: Partial<Omit<Person, 'pers
 
     const setClauses: string[] = [];
     // Ensure updatableFields only contains keys that are valid for the 'updates' object type.
-    const updatableFields: (keyof Omit<Person, 'person_id' | 'customer_id'>)[] = ['group_id', 'name'];
+    const updatableFields: (keyof Omit<Person, 'person_id' | 'customer_id' | 'group_name'>)[] = ['group_id', 'name'];
 
     for (const key of updatableFields) {
         if (updates.hasOwnProperty(key)) {

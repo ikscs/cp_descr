@@ -189,7 +189,8 @@ const SideBar3: React.FC<SideBar3Props> = ({
     };
 
     if (isLoadingThemes) {
-        return <div>Загрузка тем...</div>;
+        // return <div>Загрузка тем...</div>;
+        return <div/>;
     }
     
     if (themeError) {

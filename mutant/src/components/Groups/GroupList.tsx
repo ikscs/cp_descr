@@ -9,6 +9,7 @@ import { DataGrid, GridColDef, GridRenderCellParams, GridRowIdGetter } from '@mu
 import { getPoints } from '../../api/data/customerTools';
 // import { fr } from 'date-fns/locale';
 // import { Point } from '../../api/data/pointApi';
+import { useTranslation } from 'react-i18next'; // Импортируем хук
 
 interface LookupData {
   point_id: number;
@@ -24,6 +25,7 @@ interface GroupListProps {
 }
 
 const GroupList: React.FC<GroupListProps> = (_props) => {
+  const { t } = useTranslation('groupList');
   const { customerData, } = useCustomer();
   const [groups, setGroups] = useState<Group[]>([]);
   const [points, setPoints] = useState<LookupData[]>([]);
@@ -102,7 +104,8 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
   };
 
   const handleDeleteGroup = async (groupId: number) => {
-    if (!window.confirm('Are you sure you want to delete group with ID ' + groupId + '?')) {
+    if (!window.confirm(t('deleteConfirm', { groupId }))) {
+    // if (!window.confirm('Are you sure you want to delete group with ID ' + groupId + '?')) {
       return;
     }
     console.log(`Удаление группы с ID: ${groupId}`);
@@ -110,13 +113,16 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
       await api.delete(groupId);
       setGroups(prevGroups => prevGroups.filter(group => group.group_id !== groupId));
     } catch (err) {
-      setError(new Error('Не удалось удалить группу.'));
+      setError(new Error(t('deleteError')));
+      // setError(new Error('Не удалось удалить группу.'));
       console.error('Ошибка при удалении группы:', err);
     }
   };
 
-  if (loading) return <p>Загрузка групп...</p>;
-  if (error) return <p style={{ color: 'red' }}>Ошибка: {error.message}</p>;
+  if (loading) return <p>{t('loadingMessage')}</p>;
+  if (error) return <p style={{ color: 'red' }}>{t('errorMessage', { error_message: error.message })}</p>;
+  // if (loading) return <p>Загрузка групп...</p>;
+  // if (error) return <p style={{ color: 'red' }}>Ошибка: {error.message}</p>;
 
   const defaultGroup: Group = {
     // group_id: 0,
@@ -139,18 +145,16 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
   const getRowId: GridRowIdGetter<Group> = (row) => row.group_id ?? -1;
 
   const columns: GridColDef<Group>[] = [
-    { field: 'group_id', headerName: 'ID', width: 90 },
-    { field: 'name', headerName: 'Name', width: 250, flex: 1 },
-    {
-      field: 'point_id',
-      headerName: 'Point ID',
-      width: 150,
-      // You might want to display point name here if you fetch point details
-      // valueGetter: (params) => params.value || -1,
-    },
+    { field: 'group_id', headerName: t('columns.id'), width: 90 },
+    { field: 'name', headerName: t('columns.name'), width: 250, flex: 1 },
+    { field: 'point_id', headerName: t('columns.pointId'), width: 150 },
+    // { field: 'group_id', headerName: 'ID', width: 90 },
+    // { field: 'name', headerName: 'Name', width: 250, flex: 1 },
+    // { field: 'point_id', headerName: 'Point ID', width: 150, },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: t('columns.actions'),
+      // headerName: 'Actions',
       width: 200,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Group>) => (
@@ -161,7 +165,8 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
             size="small"
             variant="outlined"
           >
-            Edit
+              {t('actions.edit')}
+            {/* Edit */}
           </Button>
           <Button
             onClick={() => handleDeleteGroup(params.row.group_id ?? -1)}
@@ -170,7 +175,8 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
             color="error"
             disabled={isSubmitting}
           >
-            Delete
+              {t('actions.delete')}
+            {/* Delete */}
           </Button>
         </Stack>
       </Box>
@@ -182,7 +188,8 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
     <div>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Typography variant="h5">
-          Groups
+          {t('title')}
+          {/* Groups */}
         </Typography>
       </Stack>
 
@@ -192,11 +199,13 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
         // Disable if no point context OR if in customer mode and no customer selected/loading
         disabled={false}
       >
-        Add
+        {t('addButton')}
+        {/* Add */}
       </Button>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {/* {t('errorMessage', { error_message: error.message })} */}
           {error}
         </Alert>
       )}

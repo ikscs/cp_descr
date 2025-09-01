@@ -47,12 +47,14 @@ const fromReportDB = (report: ReportDB[]): Report[] => {
 
 export const executeReportQuery = async (
     id: number,
-    params: { name: string; value: string | number | boolean }[]
+    params: { name: string; value: string | number | boolean }[],
+    lang: string = 'en',
 ): Promise<ReportExecutionResult> => {
     const paramsToSend = {
         app_id: packageJson.name,
         report_id: id,
         parameters: params,
+        lang,
     };
     console.log('[executeReportQuery] run report with params:', paramsToSend);
     const res0 = await axios.post<IFetchResponse>('https://cnt.theweb.place/api/report/', paramsToSend);
@@ -66,6 +68,14 @@ export const executeReportQuery = async (
         return { columns: ['Message'], rows: [['Incorect report result']] };
     }
 }
+
+export const getReportsLang = async (lang: string = 'en'): Promise<Report[]> => {
+    console.log('[getReportsLang] Fetching reports');
+// curl -X GET "https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=mutant&report_id=5&lang=ua"
+    const path = `v_perm_report/?app_id=${packageJson.name}&lang=${lang}`;
+    const res = await axios.get<ReportDB[]>(path);
+    return fromReportDB(res.data);
+};
 
 export const getReports = async (report_id?: number): Promise<Report[]> => {
     console.log('[getReports] Fetching reports with report_id:', report_id);
