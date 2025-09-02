@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, Typography, Button, Box, Modal } from '@mui/material';
-import OrderForm from './OrderForm2';
+import OrderForm from './OrderForm4';
 import { api, Balance } from './api';
+import { useTranslation } from 'react-i18next';
 
 function calculateCurrentBalance(balance: Balance, currentDate: Date): number {
   if (typeof balance.value === 'string') {
@@ -11,18 +12,17 @@ function calculateCurrentBalance(balance: Balance, currentDate: Date): number {
     return 0;
 
   if (!balance.startDate || !balance.endDate) {
-    return balance.value; // Если нет дат — возвращаем исходный баланс
+    return balance.value;
   }
   const start = new Date(balance.startDate).getTime();
   const end = new Date(balance.endDate).getTime();
   const now = currentDate.getTime();
 
-  // Проверка, что текущая дата находится внутри периода
   if (now < start) {
-    return balance.value; // Период еще не начался
+    return balance.value;
   }
   if (now > end) {
-    return 0; // Период уже закончился
+    return 0;
   }
 
   const totalDuration = end - start;
@@ -31,7 +31,6 @@ function calculateCurrentBalance(balance: Balance, currentDate: Date): number {
   const usedValue = balance.value * (elapsedDuration / totalDuration);
   const remainingBalance = balance.value - usedValue;
   
-  // Округляем до 2 знаков после запятой
   return parseFloat(remainingBalance.toFixed(2));
 }
 
@@ -44,13 +43,11 @@ function formatDateTime(date: Date | undefined) {
 }
 
 const BalanceForm: React.FC = () => {
+  const { t } = useTranslation();
 
   const [balance, setBalance] = useState<Balance | null>(null);
-
   const [currentBalance, setCurrentBalance] = useState<number>(0);
-
   const [open, setOpen] = useState(false);
-
   const today = new Date(); 
 
   useEffect(() => {
@@ -58,59 +55,52 @@ const BalanceForm: React.FC = () => {
       try {
         const res = await api.getBalance();
         if (!res || res.value === undefined) {
-          console.error('Баланс не задан');
+          console.error(t('BalanceForm.NoBalanceError'));
           return;
         }
         setBalance(res);
       } catch (error) {
-        console.error('Ошибка при загрузке баланса:', error);
+        console.error(t('BalanceForm.LoadingError'), error);
         setBalance(null);
       }
     };
     fetchBalance();
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!balance) return;
     setCurrentBalance(calculateCurrentBalance(balance, new Date()));
   }, [balance]);
 
-  const handleReplenish = () => {
-      // Здесь можно сделать запрос к API для получения актуального баланса
-    // api.getBalance().then(data => setBalance(data));
-  }
-
   const handleReplenishClick = () => {
-    setOpen(true); // Открыть модалку
+    setOpen(true);
   };
 
-  // const handleClose = () => setOpen(false);
   const handleClose = () => {
     setOpen(false);
-  }
+  };
 
-  if (!balance) return (<div>Загрузка...</div>);
+  if (!balance) return (<div>{t('BalanceForm.Loading')}</div>);
 
   return (
     <>
       <Card sx={{ minWidth: 275 }}>
         <CardContent>
           <Typography variant="h5" component="div" gutterBottom>
-            Баланс
+            {t('BalanceForm.CardTitle')}
           </Typography>
           <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            {/* Станом на: {today.toISOString().slice(0, 19).replace('T', ' ')} */}
-            Станом на: {formatDateTime(today)}
+            {t('BalanceForm.AsOf')} {formatDateTime(today)}
           </Typography>
           <Typography variant="h4" component="div">
             {currentBalance.toFixed(2)} {balance.crn}
           </Typography>
           <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            Послуги сплачені до: {formatDateTime(balance.endDate)}
+            {t('BalanceForm.PaidUntil')} {formatDateTime(balance.endDate)}
           </Typography>
           <Box sx={{ mt: 2 }}>
             <Button variant="contained" onClick={handleReplenishClick}>
-              Поповнити
+              {t('BalanceForm.ReplenishButton')}
             </Button>
           </Box>
         </CardContent>
