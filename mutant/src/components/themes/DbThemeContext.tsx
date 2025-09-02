@@ -2,22 +2,23 @@
 import React, { createContext, useContext, useState, useMemo, ReactNode, useCallback, useEffect } from 'react';
 import { createTheme, ThemeProvider as MuiThemeProvider, Theme, CssBaseline } from '@mui/material';
 import { fetchAndParseThemes } from './api'; // Импортируем нашу утилиту
+import { defaultSidebarPalette, normalizeTheme } from '../../utils/normalizeTheme';
 
-const defaultSidebarPalette = {
-    background: '#ffffff', // или любой другой безопасный дефолт
-    text: '#000000',
-    item: {
-        background: 'transparent',
-        text: '#000000',
-    },
-    selected: {
-        background: '#e0e0e0',
-        text: '#000000',
-    },
-    hover: {
-        background: '#f5f5f5',
-    },
-};
+// const defaultSidebarPalette = {
+//     background: '#ffffff', // или любой другой безопасный дефолт
+//     text: '#000000',
+//     items: {
+//         background: 'transparent',
+//         text: '#000000',
+//     },
+//     selected: {
+//         background: '#e0e0e0',
+//         text: '#000000',
+//     },
+//     hover: {
+//         background: '#f5f5f5',
+//     },
+// };
 
 // Определите типы для контекста темы
 interface DbThemeContextType {
@@ -46,7 +47,15 @@ export const DbThemeProvider: React.FC<DbThemeProviderProps> = ({ children, appI
     const loadThemes = async () => {
       setIsLoadingThemes(true);
       const { themes, defaultThemeName, error } = await fetchAndParseThemes(appId);
-      setThemesMap(themes);
+
+      // 2025-09-02
+      const normalizedThemes: Record<string, Theme> = {};
+      for (const [name, rawTheme] of Object.entries(themes)) {
+        normalizedThemes[name] = normalizeTheme(rawTheme);
+      }
+      setThemesMap(normalizedThemes);
+
+      // setThemesMap(themes);
       setThemeError(error);
 
       // Устанавливаем тему из localStorage или тему по умолчанию, если она доступна

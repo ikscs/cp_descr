@@ -243,7 +243,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
       width: 200,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Origin>) => (
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" spacing={1} sx={{mt: 1}} >
           <Button
             onClick={() => handleOpenModal(params.row)}
             size="small"
