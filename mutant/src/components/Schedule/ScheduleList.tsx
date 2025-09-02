@@ -6,10 +6,11 @@ import {
     Checkbox,
     Modal,
     Stack, 
+    Tooltip, 
     Typography } from '@mui/material';
 import { useFetch } from "../../hooks/useFetch";
 import { useTranslation } from 'react-i18next';
-import { ReportName, Schedule } from './Schedule';
+import { DbSchedule, ParamValue, ReportName, Schedule } from './Schedule';
 import { api, cronFromLabel, cronToLabel } from './api';
 import LocalizedGrid from '../Shared/grid/LocalizedGrid';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -29,6 +30,62 @@ const style = {
     p: 4,
 };
 
+
+function mapParams(params: Object): ParamValue[] {
+  return Object.entries(params ?? {}).map(([name, value]) => ({
+    name,
+    value,
+  }));
+}
+
+function dbToSchedule(db: DbSchedule): Schedule {
+  return {
+    ...db,
+    params: mapParams(db.params),
+  };
+}
+
+function dbFromSchedule(sch: Schedule): DbSchedule {
+  return {
+    ...sch,
+    params: sch.params.reduce<Record<string, string | number | boolean>>(
+      (acc, { name, value }) => {
+        acc[name] = value;
+        return acc;
+      },
+      {}
+    ),
+  };
+}
+
+// TODO: cell with Tooltip black on white
+// const CellWithTooltip = ({ value }) => {
+//   return (
+//     <Tooltip
+//       title={value}
+//       placement="top"
+//       componentsProps={{
+//         tooltip: {
+//           sx: {
+//             bgcolor: 'common.white', // Белый фон
+//             color: 'text.primary', // Чёрный текст
+//             border: '1px solid #e0e0e0', // Светлая граница
+//           },
+//         },
+//       }}
+//     >
+//       <span style={{
+//         whiteSpace: 'nowrap',
+//         overflow: 'hidden',
+//         textOverflow: 'ellipsis',
+//         width: '100%',
+//       }}>
+//         {value}
+//       </span>
+//     </Tooltip>
+//   );
+// };
+
 const ScheduleList: React.FC = () => {
     const { t } = useTranslation();
     const { data: rawData, loading: loading, error: fetchError, setData } = useFetch<Schedule[]>(api.get, []);
@@ -42,6 +99,7 @@ const ScheduleList: React.FC = () => {
             rawData?.map(item => ({
                 ...item,
                 cron: cronToLabel(item.cron),
+                params: dbToSchedule(item).params,
                 })) ?? [],
         [rawData]
     );
@@ -60,14 +118,15 @@ const ScheduleList: React.FC = () => {
     const handleSaveSchedule = useCallback(async (savedSchedule: Schedule) => {
         setError(null);
         try {
+            const dbSchedule = dbFromSchedule(savedSchedule);
             if (selectedSchedule) {
                 // Если расписание уже существует (редактирование)
-                const patchedSchedule = await api.patch({...savedSchedule, cron: cronFromLabel(savedSchedule.cron)});
+                const patchedSchedule = await api.patch({...dbSchedule, cron: cronFromLabel(dbSchedule.cron)});
                 const patchedWithReportName = {...patchedSchedule, report_name: reports.find(report => report.report_id === patchedSchedule.report_id)?.report_name};
                 setData(prevData => prevData.map(item => item.id === patchedSchedule.id ? patchedWithReportName : item));
             } else {
                 // Если это новое расписание
-                const postedSchedule = await api.post({...savedSchedule, cron: cronFromLabel(savedSchedule.cron)});
+                const postedSchedule = await api.post({...dbSchedule, cron: cronFromLabel(dbSchedule.cron)});
                 setData(prevData => [...prevData, postedSchedule ]);
             }
             handleCloseModal();
@@ -103,7 +162,13 @@ const ScheduleList: React.FC = () => {
             ),
          },
         { field: 'maillist', headerName: t('ScheduleList.maillist'), width: 200 },
-        { field: 'params', headerName: t('ScheduleList.params'), width: 100 },
+        { field: 'params', headerName: t('ScheduleList.params'), width: 100, 
+            renderCell: (params: GridRenderCellParams<Schedule>) => (
+                <Tooltip title={JSON.stringify(params.value)}>
+                    <span>{JSON.stringify(params.value)}</span>
+                </Tooltip>
+            ),
+        },
         { field: 'enable', headerName: t('ScheduleList.enable'), width: 100,
             renderCell: (params: GridRenderCellParams<Schedule>) => (
                 <Checkbox checked={params.value} disabled />

@@ -1,19 +1,40 @@
-export interface Schedule {
-    id: number;
-    customer_id: number;
-    app_id: string;
-    report_id: number;
-    report_name?: string;
-    maillist: string;
-    lang: string;
-    cron: string;
-    enable: boolean;
-    params: Object;
-    // params: { name: string; value: string | number | boolean }[];
+export interface DbSchedule {
+  id: number;
+  customer_id: number;
+  app_id: string;
+  report_id: number;
+  report_name?: string;
+  maillist: string;
+  lang: string;
+  cron: string;
+  enable: boolean;
+  params: Object; // сырые данные
 }
+
+export interface Schedule extends Omit<DbSchedule, "params"> {
+  params: ParamValue[];
+}
+
+// export interface Schedule {
+//     id: number;
+//     customer_id: number;
+//     app_id: string;
+//     report_id: number;
+//     report_name?: string;
+//     maillist: string;
+//     lang: string;
+//     cron: string;
+//     enable: boolean;
+//     params: ParamValue[];
+// }
 
 export interface ReportName {
     report_id: number;
     report_name: string;
 
+}
+
+export interface ParamValue {
+    name: string;
+    value: string | number | boolean;
 }

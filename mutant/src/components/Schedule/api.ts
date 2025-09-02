@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ReportName, Schedule } from './Schedule';
+import { DbSchedule, ReportName, Schedule } from './Schedule';
 
 const API_URL = 'https://cnt.theweb.place/api/pcnt/report_schedule/';
 
@@ -8,11 +8,11 @@ const get = async (): Promise<Schedule[]> => {
     return res.data;
 }
 
-const post = async (data: Partial<Omit<Schedule, 'id'>>): Promise<Schedule> => {
+const post = async (data: Partial<Omit<DbSchedule, 'id'>>): Promise<Schedule> => {
     const res = await axios.post<Schedule>(API_URL, data);
     return res.data;
 }
-const patch = async (data: Schedule): Promise<Schedule> => {
+const patch = async (data: DbSchedule): Promise<Schedule> => {
     const { id } = data;
     console.log('[Schedule api] patch called for id:', id);
     const res = await axios.put<Schedule>(API_URL + `${id}/`, data);

@@ -3,18 +3,20 @@ import QueryParam, { QueryParamProps } from "../../pages/Reports/QueryParam";
 import { getReports, getReportsLang, type Report } from "../../api/data/reportToolsDrf";
 import { ParsedReport, ReportToParsedReport } from "../../pages/Reports/ReportList";
 import { useGet } from "../../hooks/useGet";
-import { ReportDescriptor } from "../../pages/Reports/QueryEdit";
+// import { ReportDescriptor } from "../../pages/Reports/QueryEdit";
 import { useCustomer } from "../../context/CustomerContext";
+import { ParamValue } from "./Schedule";
 // import { MakeParsedReport } from "../../pages/Reports/QueryTest";
 
 // interface ScheduleParamProps extends QueryParamProps {
 interface ScheduleParamProps {
   reportId?: number;
+  params: ParamValue[];
   onClose: () => void;
   onSave: (params: { name: string; value: string | number | boolean }[]) => void;
 }
 
-const ScheduleParam: FC<ScheduleParamProps> = ({ reportId, onClose, onSave}) => {
+const ScheduleParam: FC<ScheduleParamProps> = ({ reportId, params, onClose, onSave}) => {
     const [selectedReport, setSelectedReport] = useState<ParsedReport>();
     // TODO: actual query
     const { data: reports } = useGet<Report[]>(
@@ -35,9 +37,10 @@ const ScheduleParam: FC<ScheduleParamProps> = ({ reportId, onClose, onSave}) => 
         }
     }, []); 
 
-    const [queryParams, setQueryParams] = useState<
-        { name: string; value: string | number | boolean }[]
-    >([]);
+    // const [queryParams, setQueryParams] = useState<
+    //     { name: string; value: string | number | boolean }[]
+    // >([]);
+    const [queryParams, setQueryParams] = useState<ParamValue[]>(params);
     
     const handleExecute = (params: { name: string; value: string | number | boolean }[]) => {
         console.log(params)

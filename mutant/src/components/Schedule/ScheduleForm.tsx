@@ -51,18 +51,20 @@ export interface ScheduleFormProps {
 
 // Схема валидации с помощью Yup
 const validationSchema = yup.object().shape({
-  id: yup.number().required(), // `id` is a number and required. -1 for new schedule
-  app_id: yup.string().required('App ID is required'),
-  customer_id: yup.number().required('customer_id is required').typeError('customer_id must be a number'),
-  report_id: yup.number().required('Report is required').typeError('Report must be a number'),
-//   report_name: yup.string().optional().nullable(), // It might be undefined/null on creation.
-//   report_name: yup.string().default('').required(),
-  maillist: yup.string().required('Mailing list is required'),
-  lang: yup.string().required('Language is required'),
-  cron: yup.string().required('CRON expression is required'),
-//   enable: yup.boolean().optional(), // `enable` can be undefined.
-  enable: yup.boolean().required().default(true),
-  params: yup.object().required().default({}),
+    id: yup.number().required(), // `id` is a number and required. -1 for new schedule
+    app_id: yup.string().required('App ID is required'),
+    customer_id: yup.number().required('customer_id is required').typeError('customer_id must be a number'),
+    report_id: yup.number().required('Report is required').typeError('Report must be a number'),
+    maillist: yup.string().required('Mailing list is required'),
+    lang: yup.string().required('Language is required'),
+    cron: yup.string().required('CRON expression is required'),
+    enable: yup.boolean().required().default(true),
+    params: yup.array().of(
+        yup.object({
+            name: yup.string().required(),
+            value: yup.mixed<string | number | boolean>().required(),
+        })
+    ).required().default([]),
 });
 
 const ScheduleForm: React.FC<ScheduleFormProps> = ({
@@ -134,13 +136,14 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
     };
 
     const handleSaveParam = (params: { name: string; value: string | number | boolean }[]) => {
-        const paramsObject = params.reduce((acc: any, param) => {
-            acc[param.name] = param.value;
-            return acc;
-        }, {});
+        // const paramsObject = params.reduce((acc: any, param) => {
+        //     acc[param.name] = param.value;
+        //     return acc;
+        // }, {});
 
-        setValue('params', paramsObject);
-        // setValue('params', params, { shouldDirty: true });
+        // setValue('params', paramsObject);
+        setValue('params', params, { shouldDirty: true });
+        if (scheduleToEdit) scheduleToEdit.params = params;
         setIsParamOpen(false);
     }
 
@@ -306,7 +309,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                         <Button onClick={handleClose} color="secondary">
                             Відмінити
                         </Button>
-                        <Button type="submit" color="primary">
+                        <Button type="submit" color="primary" variant="contained">
                             Зберегти
                         </Button>
                     </DialogActions>
@@ -322,6 +325,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                 <Box sx={style}>
                     <ScheduleParam
                         reportId={scheduleToEdit?.report_id}
+                        params={scheduleToEdit?.params || []}
                         // open={isParamOpen}
                         onSave={handleSaveParam}
                         onClose={handleCloseModal}
