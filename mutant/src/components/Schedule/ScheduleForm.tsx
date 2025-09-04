@@ -224,7 +224,31 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                     )}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12}>{/*maillist*/}
+                                <Controller
+                                    name="maillist"
+                                    control={control}
+                                    render={({ field, fieldState: { error } }) => (
+                                        <TextField
+                                            {...field}
+                                            label={t('ScheduleForm.maillist')}
+                                            multiline
+                                            rows={4} 
+                                            fullWidth
+                                            margin="normal"
+                                            required
+                                            // defaultValue="asd@mail.co"
+                                            error={!!error}
+                                            helperText={error?.message}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+<Grid item xs={12}>
+  <Grid container direction="row" spacing={2} alignItems="center">
+
+                            <Grid item xs={6}>{/*cron*/}
                                 <Controller
                                     name="cron"
                                     control={control}
@@ -254,26 +278,22 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                     rules={{ required: 'Это поле обязательно' }}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={6}>{/*enable*/}
                                 <Controller
-                                    name="maillist"
+                                    name="enable"
                                     control={control}
-                                    render={({ field, fieldState: { error } }) => (
-                                        <TextField
-                                            {...field}
-                                            label={t('ScheduleForm.maillist')}
-                                            multiline
-                                            rows={4} 
-                                            fullWidth
-                                            margin="normal"
-                                            required
-                                            // defaultValue="asd@mail.co"
-                                            error={!!error}
-                                            helperText={error?.message}
+                                    render={({ field }) => (
+                                        <FormControlLabel
+                                            control={<Checkbox {...field} checked={field.value} />}
+                                            label="Включено"
                                         />
                                     )}
                                 />
                             </Grid>
+
+  </Grid>
+</Grid>
+
                             {/* <Grid item xs={12}>
                                 <Controller
                                     name="lang"
@@ -304,18 +324,6 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                     )}
                                 />
                             </Grid> */}
-                            <Grid item xs={12}>
-                                <Controller
-                                    name="enable"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <FormControlLabel
-                                            control={<Checkbox {...field} checked={field.value} />}
-                                            label="Включено"
-                                        />
-                                    )}
-                                />
-                            </Grid>
                         </Grid>
                     </DialogContent>
                     <DialogActions>

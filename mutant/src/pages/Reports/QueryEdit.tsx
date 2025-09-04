@@ -593,7 +593,7 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
           Тестовый отчет
         </Button>
         <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Save Report
+          Сохранить
         </Button>
       </Box>
       {/* Select Options Dialog */}

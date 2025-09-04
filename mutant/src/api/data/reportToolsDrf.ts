@@ -48,7 +48,7 @@ const fromReportDB = (report: ReportDB[]): Report[] => {
 export const executeReportQuery = async (
     id: number,
     params: { name: string; value: string | number | boolean }[],
-    lang: string = 'en',
+    lang: string = 'uk',
 ): Promise<ReportExecutionResult> => {
     const paramsToSend = {
         app_id: packageJson.name,
@@ -69,7 +69,7 @@ export const executeReportQuery = async (
     }
 }
 
-export const getReportsLang = async (lang: string = 'en'): Promise<Report[]> => {
+export const getReportsLang = async (lang: string = 'uk'): Promise<Report[]> => {
     console.log('[getReportsLang] Fetching reports');
 // curl -X GET "https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=mutant&report_id=5&lang=ua"
     const path = `v_perm_report/?app_id=${packageJson.name}&lang=${lang}`;
@@ -94,7 +94,7 @@ export const createReport = async (report: Report): Promise<Report | null> => {
     return res.data;
 }
 
-export const updateReport = async (report: Report): Promise<Report[]> => {
+export const updateReport = async (report: Report): Promise<Report> => {
     console.log('[updateReport] Updating report:', report);
     const rdb = toReportDB(report);
     const res = await axios.patch(`perm_report/${packageJson.name}/${rdb.report_id}/`);
