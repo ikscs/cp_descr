@@ -29,7 +29,7 @@ import {
   updateReport,
   deleteReport,
   type Report,
-} from '../../api/data/reportTools';
+} from '../../api/data/reportToolsDrf';
 import { QueryEdit, type ReportConfig, type ReportDescriptor } from '../Reports/QueryEdit';
 
 const ReporListEdit: React.FC = () => {

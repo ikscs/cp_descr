@@ -51,6 +51,7 @@ type ParamValue<K extends ParamKey> = Param[K];
 
 interface Column {
   field: string;
+  label: string;
   width: number;
 }
 
@@ -503,6 +504,7 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
                 <TableHead>
                   <TableRow>
                     <TableCell>Field</TableCell>
+                    <TableCell>Label</TableCell>
                     <TableCell>Width</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
@@ -514,6 +516,12 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
                         <TextField
                           value={column.field}
                           onChange={(e) => handleColumnChange(index, 'field', e.target.value)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          value={column.label}
+                          onChange={(e) => handleColumnChange(index, 'label', e.target.value)}
                         />
                       </TableCell>
                       <TableCell>

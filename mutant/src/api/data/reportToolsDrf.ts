@@ -44,6 +44,17 @@ const fromReportDB = (report: ReportDB[]): Report[] => {
     }));
 };
 
+const fromReportDB1 = (report: ReportDB): Report => {
+    return {
+        id: report.report_id,
+        name: report.report_name,
+        description: report.report_description,
+        params: report.params,
+        config: report.report_config,
+        query: report.query,
+    };
+};
+
 
 export const executeReportQuery = async (
     id: number,
@@ -81,7 +92,7 @@ export const getReports = async (report_id?: number): Promise<Report[]> => {
     console.log('[getReports] Fetching reports with report_id:', report_id);
     const path = report_id === undefined ? 
     //   `perm_report/${packageJson.name}/` : 
-      `perm_report/` : 
+      `perm_report/?app_id=${packageJson.name}` : 
       `perm_report/${packageJson.name}/${report_id}/`;
     const res = await axios.get<ReportDB[]>(path);
     return fromReportDB(res.data);
@@ -97,8 +108,9 @@ export const createReport = async (report: Report): Promise<Report | null> => {
 export const updateReport = async (report: Report): Promise<Report> => {
     console.log('[updateReport] Updating report:', report);
     const rdb = toReportDB(report);
-    const res = await axios.patch(`perm_report/${packageJson.name}/${rdb.report_id}/`);
-    return res.data;
+    const res = await axios.patch(`perm_report/${packageJson.name}/${rdb.report_id}/`, rdb);
+    const r = fromReportDB1(res.data);
+    return r;
 };
 
 export const deleteReport = async (reportId: number): Promise<boolean> => {
