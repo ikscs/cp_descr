@@ -141,7 +141,8 @@
     "showAsChart": "chart",
     "cancel": "Cancel",
     "execute": "Execute with parameteres",
-    "noParams": "No Parameters"
+    "noParams": "No Parameters",
+    "saveParaml": "Save"
   },
   "Common": {
     "RequiredField": "Required Field",
@@ -232,8 +233,8 @@
     "Save_Origin": "Save Origin",
     "Credentials_JSON": "Credentials JSON",
     "JSON_Placeholder": "Enter valid JSON. e.g., {\"user\":\"admin\", \"pass\":\"secret\"}. Leave empty or use {} for no credentials.",
-    "Edit_Credentials_JSON_Title": "Edit Credentials JSON",
-    "Apply_JSON_Button": "Apply JSON"
+    "Edit_Credentials_JSON_Title": "Edit Credentials",
+    "Apply_JSON_Button": "Apply"
   },
   "GroupForm": {
     "cancel": "Cancel",

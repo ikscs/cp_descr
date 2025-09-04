@@ -53,13 +53,15 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel, tenantId, t
 
   const initialValues: User = user || {
     username: '',
+    name: '',
     email: '',
     authorization: { [tenantId]: { roles: [] } },
     userId: 0,
   };
 
   const validationSchema = Yup.object({
-    username: Yup.string().required('Обязательно'),
+    username: Yup.string().required('Обязательно').matches(/^[a-zA-Z0-9_-]+$/, 'Имя пользователя должно состоять из букв, цифр, дефисов или подчеркиваний'),
+    name: Yup.string(),
     email: Yup.string().email('Некорректный email').required('Обязательно'),
     password: user
       ? Yup.string().min(6, 'Пароль должен быть не менее 6 символов').optional()
@@ -104,6 +106,20 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel, tenantId, t
                     fullWidth
                     id="username"
                     label="Имя пользователя"
+                    variant="outlined"
+                    margin="normal"
+                    error={meta.touched && !!meta.error}
+                    helperText={meta.touched && meta.error}
+                  />
+                )}
+              </Field>
+              <Field name="name">
+                {({ field, meta }: { field: any; meta: any }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    id="name"
+                    label="Имя"
                     variant="outlined"
                     margin="normal"
                     error={meta.touched && !!meta.error}

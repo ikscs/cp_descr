@@ -8,6 +8,7 @@
   "daily": "Щоденно",
   "weekly": "Щотижнево",
   "monthly": "Шомісячно",
+
   "menu": {
     "dashboard": "Дашборд",
     "adverts": "Реклама",
@@ -144,8 +145,9 @@
   "QueryParam": {
     "showAsChart": "графік",
     "cancel": "Скасувати",
-    "execute": "Виконати з параметрами",
-    "noParams": "Звіт не має параметрів"
+    "execute": "Показати звіт",
+    "noParams": "Звіт не має параметрів",
+    "saveParaml": "Зберегти"
   },
   "Common": {
     "RequiredField": "Обов'язкове поле",
@@ -237,8 +239,8 @@
     "Save_Origin": "Зберегти джерело",
     "Credentials_JSON": "JSON даних доступу",
     "JSON_Placeholder": "Введіть дійсний JSON. наприклад, {\"user\":\"admin\", \"pass\":\"secret\"}. Залиште порожнім або використовуйте {} для відсутності даних доступу.",
-    "Edit_Credentials_JSON_Title": "Редагувати JSON даних доступу",
-    "Apply_JSON_Button": "Застосувати JSON"
+    "Edit_Credentials_JSON_Title": "Редагувати облікові дані",
+    "Apply_JSON_Button": "Застосувати"
   },
   "GroupForm": {
     "cancel": "Відмінити",

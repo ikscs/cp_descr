@@ -189,8 +189,8 @@
     "Save_Origin": "Zapisz źródło",
     "Credentials_JSON": "JSON danych uwierzytelniających",
     "JSON_Placeholder": "Wprowadź poprawny JSON. np. {\"user\":\"admin\", \"pass\":\"secret\"}. Pozostaw puste lub użyj {} dla braku danych uwierzytelniających.",
-    "Edit_Credentials_JSON_Title": "Edytuj JSON danych uwierzytelniających",
-    "Apply_JSON_Button": "Zastosuj JSON"
+    "Edit_Credentials_JSON_Title": "Edytuj dane uwierzytelniające",
+    "Apply_JSON_Button": "Zastosuj"
   },
   "GroupForm": {
     "cancel": "Anulować",

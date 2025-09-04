@@ -19,6 +19,8 @@ import { originApi, type Origin, type CreateOriginData, type UpdateOriginData } 
 import { useCustomer } from '../../context/CustomerContext'; // Import useCustomer
 // If OriginsForm is still .jsx, you might need to adjust imports or use // @ts-ignore
 import OriginForm from './OriginForm'; // Ensure path is correct
+import CheckBalance from '../Billing/tools';
+import { useNavigate } from 'react-router-dom';
 
 // Values for the form, might differ slightly from the API's Origin type
 // e.g., IDs from dropdowns might be strings initially, credentials as JSON string
@@ -167,6 +169,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
           poling_period_s: formValues.poling_period_s,
           // The 'origin' textual identifier field is not part of UpdateOriginData in originApi
         };
+        // if (!CheckBalance()) return;
         await originApi.updateOrigin(selectedOrigin.id, updateData);
       } else { // Creating new origin
         const createData: CreateOriginData = {
@@ -187,6 +190,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
           setIsLoading(false); // Stop loading
           return; // Prevent API call
         }
+        // if (!CheckBalance()) return;
         await originApi.createOrigin(createData);
       }
       await fetchOrigins(); // Refresh list
@@ -197,8 +201,13 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
       setError(new Error(errorMessage));
     } finally {
       setIsLoading(false);
+      if (await CheckBalance()) {
+        navigate('/billing', { replace: true })
+      }
+
     }
   };
+  const navigate = useNavigate();
 
   const handleDeleteOrigin = async (originId: number) => {
     // if (!window.confirm('Are you sure you want to delete this origin?')) {

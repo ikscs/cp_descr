@@ -155,6 +155,22 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
         setIsParamOpen(true);
     };
 
+    const handleTestReport = async () => {
+        const data = methods.getValues();
+        const res = await api.testReport({
+            lang: data.lang,
+            app_id: data.app_id,
+            report_id: data.report_id,
+            parameters: data.params,
+            recipient: data.maillist
+        });
+        if (res) {
+            alert('Звіт успішно відправлено');
+        } else {
+            alert('Помилка відправки звіту');
+        }
+    };
+
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <FormProvider {...methods}>
@@ -258,7 +274,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                     )}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            {/* <Grid item xs={12}>
                                 <Controller
                                     name="lang"
                                     control={control}
@@ -278,7 +294,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                         </FormControl>
                                     )}
                                 />
-                            </Grid>
+                            </Grid> */}
                             {/* <Grid item xs={12}>
                                 <Controller
                                     name="cron"
@@ -303,10 +319,13 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                         </Grid>
                     </DialogContent>
                     <DialogActions>
+                        <Button onClick={handleTestReport} color="primary">
+                            Тестовий звіт
+                        </Button>
                         <Button onClick={handleParam} color="primary">
                             Параметри
                         </Button>
-                        <Button onClick={handleClose} color="secondary">
+                        <Button onClick={handleClose} color="primary">
                             Відмінити
                         </Button>
                         <Button type="submit" color="primary" variant="contained">

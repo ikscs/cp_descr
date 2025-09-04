@@ -376,6 +376,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
         </Grid>
       )}
       <Box mt={2} display="flex" justifyContent="flex-end" alignItems="center" gap={2}>
+        {!onSaveParams && (
         <FormControlLabel
           control={
             <Checkbox
@@ -387,6 +388,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           label={t('QueryParam.showAsChart')}
           sx={{ marginRight: 'auto' }} // Pushes buttons to the right
         />
+        )}
 
         {/* <Button onClick={handleParamChange}>
           {t('QueryParam.saveParam')}

@@ -4,6 +4,7 @@
 //   data, данные 
 //   loading, состояние загрузки
 //   error, ошибка
+//   setData, для обновления данных
 //
 // например
 //   const { data: basePrice, loading, error } = useFetch<BasePrice[]>(api.getBasePrice, []);

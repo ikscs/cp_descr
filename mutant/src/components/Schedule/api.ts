@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DbSchedule, ReportName, Schedule } from './Schedule';
+import { DbSchedule, ParamValue, ReportName, Schedule } from './Schedule';
 
 const API_URL = 'https://cnt.theweb.place/api/pcnt/report_schedule/';
 
@@ -36,12 +36,33 @@ const getReportName = async (): Promise<ReportName[]> => {
 //     return res.data;
 // }
 
+const testReport = async (rts: ReportToSend): Promise<boolean> => {
+    console.log('[Schedule api] testReport called ', rts);
+    try {
+        const res = await axios.post('https://cnt.theweb.place/api/report/', rts);
+        return res.status === 200;
+    } catch (error) {
+        console.error('Error:', error);
+        return false;
+    }
+
+}
+
+export interface ReportToSend {
+    lang: string;
+    app_id: string;
+    report_id: number;
+    parameters: ParamValue[];
+    recipient: string;
+}
+
 export const api = {
     getReportName,
     get,
     post,
     patch,
     del,
+    testReport,
 };
 
 export const cronTransitions   = [
