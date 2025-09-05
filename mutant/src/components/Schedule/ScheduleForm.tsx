@@ -327,13 +327,18 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleTestReport} color="primary">
+                        <Button onClick={handleTestReport} variant="outlined" color="primary">
                             Тестовий звіт
                         </Button>
-                        <Button onClick={handleParam} color="primary">
+                        <Button 
+                            onClick={handleParam} 
+                            variant="outlined" 
+                            color="primary"
+                            disabled={scheduleToEdit?.params?.length === 0}
+                            >
                             Параметри
                         </Button>
-                        <Button onClick={handleClose} color="primary">
+                        <Button onClick={handleClose} variant="outlined" color="primary">
                             Відмінити
                         </Button>
                         <Button type="submit" color="primary" variant="contained">
