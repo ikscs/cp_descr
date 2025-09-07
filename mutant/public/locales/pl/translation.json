@@ -271,6 +271,7 @@
     "CheckingPayment": "Sprawdzanie płatności..."
   },
   "ScheduleList": {
-    "addButton": "Dodaj raport"
+    "addButton": "Dodaj raport",
+    "Are_you_sure": "Czy na pewno chcesz usunąć ten harmonogram?"
   }
 }

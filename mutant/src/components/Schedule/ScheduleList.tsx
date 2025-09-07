@@ -17,6 +17,7 @@ import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import i18n from '../../i18n';
 import ScheduleForm from './ScheduleForm';
 import { LocaleKey } from '../Shared/grid/locales';
+import { customConfirm } from '../Shared/dialogs/confirm';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -137,9 +138,16 @@ const ScheduleList: React.FC = () => {
     }, [selectedSchedule, setData]);
 
     const handleDeleteSchedule = async (id: number) => {
-        if (!window.confirm(t('ScheduleList.Are_you_sure'))) {
+        const isConfirmed = await customConfirm(
+            t('ScheduleList.Are_you_sure'),
+            t('ScheduleList.title')
+        );
+        if (!isConfirmed) {
             return;
         }
+        // if (!window.confirm(t('ScheduleList.Are_you_sure'))) {
+        //     return;
+        // }
         setError(null);
         try {
             await api.del(id);

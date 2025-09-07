@@ -315,6 +315,7 @@
     "CheckingPayment": "Checking payment..."
   },
   "ScheduleList": {
-    "addButton": "Add report"
+    "addButton": "Add report",
+    "Are_you_sure": "Are you sure you want to delete this schedule?"
   }
 }
