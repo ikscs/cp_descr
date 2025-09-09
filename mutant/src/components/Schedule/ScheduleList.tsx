@@ -128,7 +128,8 @@ const ScheduleList: React.FC = () => {
             } else {
                 // Если это новое расписание
                 const postedSchedule = await api.post({...dbSchedule, cron: cronFromLabel(dbSchedule.cron)});
-                setData(prevData => [...prevData, postedSchedule ]);
+                const postedWithReportName = {...postedSchedule, report_name: reports.find(report => report.report_id === postedSchedule.report_id)?.report_name};
+                setData(prevData => [...prevData, postedWithReportName ]);
             }
             handleCloseModal();
         } catch (err: any) {
@@ -249,7 +250,7 @@ const ScheduleList: React.FC = () => {
                         open={isModalOpen}
                         onSave={handleSaveSchedule}
                         onClose={handleCloseModal}
-                        scheduleToEdit={selectedSchedule}
+                        initialSchedule={selectedSchedule}
                     />
                 </Box>
             </Modal>

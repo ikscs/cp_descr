@@ -272,6 +272,22 @@
   },
   "ScheduleList": {
     "addButton": "Dodaj raport",
-    "Are_you_sure": "Czy na pewno chcesz usunąć ten harmonogram?"
+    "Are_you_sure": "Czy na pewno chcesz usunąć ten harmonogram?",
+    "title": "Raporty pocztą",
+    "report_name": "Nazwa",
+    "cron": "Harmonogram",
+    "maillist": "Lista mailingowa",
+    "params": "Parametry",
+    "enable": "Włączony",
+    "Edit": "Redagować",
+    "Delete": "Usunąć"
+  },
+  "ScheduleForm": {
+    "editSchedule": "Edytuj harmonogram",
+    "addSchedule": "Dodaj harmonogram",
+    "reportName": "Raport",
+    "maillist": "Lista mailingowa (e-mail)",
+    "cron": "Harmonogram",
+    "select": "Wybierać"
   }
 }

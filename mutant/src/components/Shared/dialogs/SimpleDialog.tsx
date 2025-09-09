@@ -25,21 +25,31 @@ export const SimpleDialog: React.FC<SimpleDialogProps> = ({
   onCancel,
   showCancelButton = false,
 }) => {
+  // Определяем, какую функцию вызвать при закрытии диалога, 
+  // например, по нажатию Escape.
+  const handleClose = () => {
+    if (onCancel) {
+      onCancel();
+    } else {
+      onConfirm();
+    }
+  };
+
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onClose={handleClose}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        {showCancelButton && (
-          <Button onClick={onCancel}>
-            Отмена
-        </Button>
-        )}
-        <Button onClick={onConfirm} autoFocus>
+        <Button onClick={onConfirm} autoFocus variant="contained">
           ОК
         </Button>
+        {showCancelButton && (
+          <Button onClick={onCancel} variant="outlined">
+            Cancel
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

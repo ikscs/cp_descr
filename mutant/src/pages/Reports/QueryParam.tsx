@@ -405,6 +405,7 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           {t('QueryParam.cancel')}
         </Button>
 
+        {!onSaveParams && (
         <Button
           variant="contained"
           color="primary"
@@ -414,6 +415,8 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           {/* Виконати з параметрами */}
           {t('QueryParam.execute')}
         </Button>
+        )}
+        
       </Box>
     </Box>
   );

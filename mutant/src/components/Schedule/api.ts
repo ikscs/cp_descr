@@ -1,10 +1,14 @@
 import axios from 'axios';
 import { DbSchedule, ParamValue, ReportName, Schedule } from './Schedule';
+import packageJson from '../../../package.json';
+import i18n from '../../i18n';
+import { LocaleKey } from '../Shared/grid/locales';
 
 const API_URL = 'https://cnt.theweb.place/api/pcnt/report_schedule/';
 
 const get = async (): Promise<Schedule[]> => {
-    const res = await axios.get<Schedule[]>('https://cnt.theweb.place/api/pcnt/v_report_schedule/');
+    const lang = i18n.language as LocaleKey;
+    const res = await axios.get<Schedule[]>(`https://cnt.theweb.place/api/pcnt/v_report_schedule/?lang=${lang}`);
     return res.data;
 }
 
@@ -25,8 +29,10 @@ const del = async (id: number): Promise<void> => {
 }
 
 const getReportName = async (): Promise<ReportName[]> => {
+    const appId = packageJson.name;
+    const lang = i18n.language as LocaleKey;
     const res = await axios.get<ReportName[]>(
-        'https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=mutant&lang=uk');
+        `https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=${appId}&lang=${lang}`);
     return res.data;
 }
 

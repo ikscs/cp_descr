@@ -31,7 +31,8 @@ export interface Schedule extends Omit<DbSchedule, "params"> {
 export interface ReportName {
     report_id: number;
     report_name: string;
-
+    report_config: string;
+    // report_config: {params: ParamValue[]};
 }
 
 export interface ParamValue {

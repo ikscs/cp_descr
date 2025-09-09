@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { SimpleDialog } from './SimpleDialog';
 
-export const customConfirm = (message: string, title = 'Подтвердите действие'): Promise<boolean> => {
+export const customConfirm = (message: string, title = 'Підтвердіть дію'): Promise<boolean> => {
   return new Promise((resolve) => {
     const container = document.createElement('div');
     document.body.appendChild(container);

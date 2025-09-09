@@ -19,7 +19,7 @@ export default function LocalizedGrid({ lang = 'uk', ...rest }: LocalizedGridPro
       // localeText={selectedLocale.localizationProvider.components.MuiLocalizationProvider.localeText}
       localeText={selectedLocale.localizationProvider.components.MuiLocalizationProvider.defaultProps.localeText}
     >
-      <div style={{ height: 400, width: '100%' }}>
+      <div style={{ height: 600, width: '100%' }}>
         <DataGrid
           {...rest}
           // Используем локаль для DataGrid
