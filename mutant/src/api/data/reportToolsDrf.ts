@@ -11,6 +11,7 @@ export interface Report {
   params: Parameter[];
   config?: string,
   query: string;
+  tag: string | null;
 }
 
 export interface ReportDB {
@@ -20,6 +21,7 @@ export interface ReportDB {
   params: Parameter[];
   report_config?: string,
   query: string;
+  tag: string | null;
 }
 
 const toReportDB = (report: Report): ReportDB => (
@@ -30,6 +32,7 @@ const toReportDB = (report: Report): ReportDB => (
         params: report.params,
         report_config: report.config,
         query: report.query,
+        tag: report.tag,
     }
 );
 
@@ -41,6 +44,7 @@ const fromReportDB = (report: ReportDB[]): Report[] => {
         params: report.params,
         config: report.report_config,
         query: report.query,
+        tag: report.tag,
     }));
 };
 
@@ -52,6 +56,7 @@ const fromReportDB1 = (report: ReportDB): Report => {
         params: report.params,
         config: report.report_config,
         query: report.query,
+        tag: report.tag,
     };
 };
 

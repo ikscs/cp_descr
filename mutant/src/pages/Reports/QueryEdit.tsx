@@ -80,6 +80,7 @@ export interface ReportDescriptor {
   report_name: string;
   report_description: string;
   query: string;
+  tag: string | null;
   report_config: ReportConfig;
 }
 
@@ -216,6 +217,7 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
       report_name: '',
       report_description: '',
       query: '',
+      tag: null,
       report_config: { params: [] },
     }
   );
@@ -385,6 +387,13 @@ const QueryEdit: React.FC<QueryEditProps> = ({ initialData, onSubmit, onClose })
               margin="normal"
               multiline
               rows={3}
+            />
+            <TextField
+              fullWidth
+              label="Tag"
+              value={reportData.tag}
+              onChange={(e) => handleChange('tag', e.target.value)}
+              margin="normal"
             />
           </Box>
         )}

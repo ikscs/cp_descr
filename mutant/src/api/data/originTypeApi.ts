@@ -25,6 +25,7 @@ export interface OriginTypeOption {
 interface OriginTypeOptionRaw {
   origin_type_id: number;
   name: string;
+  enabled: boolean;
 }
 
 const ORIGIN_TYPE_TABLE_NAME = 'pcnt.origin_type';
@@ -40,7 +41,8 @@ interface RawOriginTypeData {
 const getOriginTypes = async (): Promise<OriginTypeOption[]> => {
   console.log('[originTypeApi] getOriginTypes called');
   const res = await axios.get<OriginTypeOptionRaw[]>(`https://cnt.theweb.place/api/pcnt/origin_type/`);
-  return res.data.map(item => ({
+  const enabled = res.data.filter(item => item.enabled);
+  return enabled.map(item => ({
     ...item,
     value: item.origin_type_id,
     label: item.name,

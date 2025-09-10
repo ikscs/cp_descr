@@ -280,7 +280,8 @@
     "params": "Parametry",
     "enable": "Włączony",
     "Edit": "Redagować",
-    "Delete": "Usunąć"
+    "Delete": "Usunąć",
+    "comment": "Komentarz"
   },
   "ScheduleForm": {
     "editSchedule": "Edytuj harmonogram",
@@ -288,6 +289,14 @@
     "reportName": "Raport",
     "maillist": "Lista mailingowa (e-mail)",
     "cron": "Harmonogram",
-    "select": "Wybierać"
+    "select": "Wybierać",
+    "enable": "Włączony",
+    "testReport": "Raport z testów",
+    "parameters": "Parametry",
+    "cancel": "Anulować",
+    "save": "Ratować"
+  },
+  "JsonForm": {
+    "chooseValue": "Wybierz wartość"
   }
 }

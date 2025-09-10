@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { DbSchedule, ParamValue, ReportName, Schedule } from './Schedule';
 import { api, cronFromLabel, cronToLabel } from './api';
 import LocalizedGrid from '../Shared/grid/LocalizedGrid';
-import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { GridColDef, GridColumnVisibilityModel, GridRenderCellParams } from '@mui/x-data-grid';
 import i18n from '../../i18n';
 import ScheduleForm from './ScheduleForm';
 import { LocaleKey } from '../Shared/grid/locales';
@@ -171,7 +171,8 @@ const ScheduleList: React.FC = () => {
             ),
          },
         { field: 'maillist', headerName: t('ScheduleList.maillist'), width: 200 },
-        { field: 'params', headerName: t('ScheduleList.params'), width: 100, 
+        { field: 'comment', headerName: t('ScheduleList.comment'), width: 200 },
+        { field: 'params', headerName: t('ScheduleList.params'), width: 100,
             renderCell: (params: GridRenderCellParams<Schedule>) => (
                 <Tooltip title={JSON.stringify(params.value)}>
                     <span>{JSON.stringify(params.value)}</span>
@@ -213,6 +214,10 @@ const ScheduleList: React.FC = () => {
     ];
     const lang = i18n.language as LocaleKey;
       
+    const [columnVisibilityModel, setColumnVisibilityModel] = React.useState<GridColumnVisibilityModel>({
+        params: false, // 👈 Скрываем колонку 'params'
+    });
+
     return (
         <div>        
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
@@ -237,6 +242,8 @@ const ScheduleList: React.FC = () => {
                 rows={data}
                 loading={loading}
                 columns={columns}
+                columnVisibilityModel={columnVisibilityModel}
+                onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
             />
 
             <Modal

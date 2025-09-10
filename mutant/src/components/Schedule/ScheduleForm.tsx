@@ -57,6 +57,8 @@ const validationSchema = yup.object().shape({
     customer_id: yup.number().required('customer_id is required').typeError('customer_id must be a number'),
     report_id: yup.number().required('Report is required').typeError('Report must be a number'),
     maillist: yup.string().required('Mailing list is required'),
+    // comment: yup.string().nullable().notRequired(),
+    comment: yup.string().nullable().default(null),
     lang: yup.string().required('Language is required'),
     cron: yup.string().required('CRON expression is required'),
     enable: yup.boolean().required().default(true),
@@ -97,6 +99,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
             report_id: -1,
             report_name: '',
             maillist: Userfront.user.email,
+            comment: '',
             lang: 'uk',
             cron: 'daily',
             enable: true,
@@ -209,14 +212,14 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                 <Controller
                                     name="app_id"
                                     control={control}
-                                    render={({ field,  }) => (
+                                    render={({ field }) => (
                                         <input type="hidden" {...field} />
                                     )}
                                 />
                                 <Controller
                                     name="customer_id"
                                     control={control}
-                                    render={({ field,  }) => (
+                                    render={({ field }) => (
                                         <input type="hidden" {...field} />
                                     )}
                                 />
@@ -257,7 +260,22 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                             fullWidth
                                             margin="normal"
                                             required
-                                            // defaultValue="asd@mail.co"
+                                            error={!!error}
+                                            helperText={error?.message}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>{/*comment*/}
+                                <Controller
+                                    name="comment"
+                                    control={control}
+                                    render={({ field, fieldState: { error } }) => (
+                                        <TextField
+                                            {...field}
+                                            label={t('ScheduleForm.comment')}
+                                            fullWidth
+                                            margin="normal"
                                             error={!!error}
                                             helperText={error?.message}
                                         />
@@ -295,7 +313,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                                     )}
                                                 </FormControl>
                                             )}
-                                            rules={{ required: 'Это поле обязательно' }}
+                                            // rules={{ required: 'Это поле обязательно' }}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>{/*enable*/}
@@ -305,7 +323,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                                             render={({ field }) => (
                                                 <FormControlLabel
                                                     control={<Checkbox {...field} checked={field.value} />}
-                                                    label="Включено"
+                                                    label={t('ScheduleForm.enable')}
                                                 />
                                             )}
                                         />
@@ -317,7 +335,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleTestReport} variant="outlined" color="primary">
-                            Тестовий звіт
+                            {t('ScheduleForm.testReport')}
                         </Button>
                         <Button 
                             onClick={handleParam} 
@@ -326,13 +344,13 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
                             // disabled={scheduleToEdit?.params?.length === 0}
                             disabled={paramCount == 0}
                             >
-                            Параметри
+                            {t('ScheduleForm.parameters')}
                         </Button>
                         <Button onClick={handleClose} variant="outlined" color="primary">
-                            Відмінити
+                            {t('ScheduleForm.cancel')}
                         </Button>
                         <Button type="submit" color="primary" variant="contained">
-                            Зберегти
+                            {t('ScheduleForm.save')}
                         </Button>
                     </DialogActions>
                 </form>

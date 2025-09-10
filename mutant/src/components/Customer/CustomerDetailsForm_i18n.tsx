@@ -40,6 +40,7 @@ export const CustomerDetailsForm = () => {
     const { t } = useTranslation();
     const userfront = useUserfront();
     const userId = userfront.user.userId;
+    const userEmail = userfront.user.email;
 
     // console.log(' isSubmitting:', _isSubmitting);
 
@@ -113,7 +114,7 @@ export const CustomerDetailsForm = () => {
             // setSubmitMessage({ type: 'error', text: 'Помилка: ID клієнта не визначено для оновлення.' });
             // 2025-07-17
             try {
-                const success = await registerCustomer(formData, userId);
+                const success = await registerCustomer(formData, userId, userEmail);
                 if (success) {
                     setSubmitMessage({ type: 'success', text: t('customerForm.messages.updateSuccess') });
                     // todo: extract new customer_id

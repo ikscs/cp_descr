@@ -15,6 +15,7 @@ import {
   FormControlLabel,
   FormHelperText,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export interface JsonFormField {
   name: string;
@@ -81,9 +82,10 @@ const JsonForm: React.FC<JsonFormProps> = ({
   onSubmit,
   onCancel,
   title,
-  submitButtonText = 'Сохранить',
-  cancelButtonText = 'Отмена',
+  submitButtonText = 'Save',
+  cancelButtonText = 'Cancel',
 }) => {
+  const { t } = useTranslation();
   const initialValues: Record<string, any> = {};
   template.fields.forEach(field => {
     initialValues[field.name] = getInitialValue(field, initialData);
@@ -193,6 +195,8 @@ const JsonForm: React.FC<JsonFormProps> = ({
     }, {} as Record<string, Yup.AnySchema>)
   );
 
+  const chooseValue = t('JsonForm.chooseValue');
+
   return (
     <Formik
       initialValues={initialValues}
@@ -252,7 +256,7 @@ const JsonForm: React.FC<JsonFormProps> = ({
                             label={field.label}
                             {...field.muiProps}
                           >
-                            <MenuItem value=""><em>{(field.muiProps?.defaultLabel) || 'Выберите значение'}</em></MenuItem>
+                            <MenuItem value=""><em>{(field.muiProps?.defaultLabel) || chooseValue}</em></MenuItem>
                             {field.options?.map(option => (
                               <MenuItem key={option.value.toString()} value={option.value}>
                                 {option.label}
@@ -291,7 +295,7 @@ const JsonForm: React.FC<JsonFormProps> = ({
               </Button>
             )}
             <Button type="submit" variant="contained" disabled={isSubmitting}>
-              {isSubmitting ? 'Сохранение...' : submitButtonText}
+              {isSubmitting ? 'Saving...' : submitButtonText}
             </Button>
           </Box>
         </Form>

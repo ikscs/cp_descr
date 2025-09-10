@@ -59,14 +59,14 @@ export const _getCustomer = async (customer_id: number): Promise<Customer[]> => 
     }
 }
 
-export const registerCustomer = async (data: Customer, _userId: number ): Promise<Customer | null> => {
+export const registerCustomer = async (data: Customer, _userId: number, email: string ): Promise<Customer | null> => {
     console.log('[registerCustomer] ', data);
     const res = await axios.post('https://cnt.theweb.place/api/register_customer/', {
         legal_name: data.legal_name,
         address: data.address, 
         country: data.country, 
         city: data.city, 
-        email: 'alexander.lavrikov2@gmail.com', // TODO: data.email,
+        email: email,
     });
     return res.data;
 }

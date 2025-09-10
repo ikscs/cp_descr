@@ -9,24 +9,12 @@ export interface DbSchedule {
   cron: string;
   enable: boolean;
   params: Object; // сырые данные
+  comment: string | null;
 }
 
 export interface Schedule extends Omit<DbSchedule, "params"> {
   params: ParamValue[];
 }
-
-// export interface Schedule {
-//     id: number;
-//     customer_id: number;
-//     app_id: string;
-//     report_id: number;
-//     report_name?: string;
-//     maillist: string;
-//     lang: string;
-//     cron: string;
-//     enable: boolean;
-//     params: ParamValue[];
-// }
 
 export interface ReportName {
     report_id: number;

@@ -111,6 +111,7 @@ const ReporListEdit: React.FC = () => {
       name: '',
       description: '',
       query: '',
+      tag: null,
       params: [], 
       config: JSON.stringify({ params: [], columns: [], chart: undefined }), // Пустая конфигурация по умолчанию
     });
@@ -140,6 +141,7 @@ const ReporListEdit: React.FC = () => {
         name: data.report_name,
         description: data.report_description,
         query: data.query,
+        tag: data.tag,
         config: JSON.stringify(data.report_config || { params: [], columns: [], chart: undefined }), // Сериализуем конфиг
     };
 
@@ -257,6 +259,7 @@ const ReporListEdit: React.FC = () => {
                 <TableCell>ID</TableCell>
                 <TableCell>Название</TableCell>
                 <TableCell>Описание</TableCell>
+                <TableCell>Tag</TableCell>
                 <TableCell align="right">Действия</TableCell>
               </TableRow>
             </TableHead>
@@ -273,6 +276,7 @@ const ReporListEdit: React.FC = () => {
                     </TableCell>
                     <TableCell>{report.name}</TableCell>
                     <TableCell>{report.description}</TableCell>
+                    <TableCell>{report.tag}</TableCell>
                     <TableCell align="right" sx={{ width: '150px' }}>
                       <IconButton
                         aria-label={`Редактировать отчет ${report.name}`}
@@ -327,6 +331,7 @@ const ReporListEdit: React.FC = () => {
                 report_name: selectedReport.name,
                 report_description: selectedReport.description,
                 query: selectedReport.query,
+                tag: selectedReport.tag,
                 report_config: getReportConfig(selectedReport), // Используем безопасную функцию парсинга
               }}
               onSubmit={handleQueryEditSubmit}
