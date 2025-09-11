@@ -247,6 +247,14 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
       ),
     },
     {
+      field: 'success',
+      headerName: t('OriginList.success'),
+      width: 120,
+      renderCell: (params: GridRenderCellParams<Origin>) => (
+        <Checkbox checked={params.value} disabled />
+      ),
+    },
+    {
       field: 'actions',
       headerName: t('OriginList.Actions'),
       width: 200,

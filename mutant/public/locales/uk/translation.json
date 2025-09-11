@@ -178,7 +178,8 @@
   "Sign In": "Увійти",
   "PointAdvancedForm": {
     "CamerasAndRegistrators": "Камери та реєстратори",
-    "Close": "Закрити"
+    "Close": "Закрити",
+    "title": "Розширене редагування пункта обрахунку"
   },
   "PointForm": {
     "title": "Форма пункту обрахунку",
@@ -205,7 +206,8 @@
     "Actions": "Дії",
     "Edit": "Редагувати",
     "Delete": "Видалити",
-    "Are_you_sure": "Ви впевнені, що хочете видалити це джерело?"
+    "Are_you_sure": "Ви впевнені, що хочете видалити це джерело?",
+    "success": "Success"
   },
   "OriginForm": {
     "Edit_Origin": "Редагувати джерело",
@@ -239,7 +241,10 @@
     "Credentials_JSON": "JSON даних доступу",
     "JSON_Placeholder": "Введіть дійсний JSON. наприклад, {\"user\":\"admin\", \"pass\":\"secret\"}. Залиште порожнім або використовуйте {} для відсутності даних доступу.",
     "Edit_Credentials_JSON_Title": "Редагувати облікові дані",
-    "Apply_JSON_Button": "Застосувати"
+    "Apply_JSON_Button": "Застосувати",
+    "succcess": "Успіх",
+    "TestConnection": "Тестове з'єднання",
+    "testResult": "test"
   },
   "GroupForm": {
     "cancel": "Відмінити",

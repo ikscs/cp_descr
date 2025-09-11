@@ -16,6 +16,7 @@ export interface Report {
   // config?: Object,
   config?: string,
   query: string;
+  tag: string | null;
 }
 
 const REPORT_TABLE = 'public.perm_report'; 
@@ -56,6 +57,7 @@ export const getReports = async (report_id?: number): Promise<Report[]> => {
         config: row.report_config,
         query: row.query,
         params: stringToParams(row.report_config),
+        tag: row.tag,
     }));
 };
 
@@ -105,6 +107,7 @@ export const _getReports = async (report_id?: number): Promise<Report[]> => {
         config: row.report_config,
         query: row.query,
         params: stringToParams(row.report_config),
+        tag: row.tag,
     }));
   } catch (err) {
     console.error('Error fetching initial reports:', err);

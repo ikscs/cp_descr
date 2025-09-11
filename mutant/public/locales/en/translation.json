@@ -174,7 +174,8 @@
   "Sign In": "Sign In",
   "PointAdvancedForm": {
     "CamerasAndRegistrators": "Cameras And Registrators",
-    "Close": "Close"
+    "Close": "Close",
+    "title": "Advanced editing of the Accounting point"
   },
   "PointForm": {
     "title": "Visitor counting point form",
@@ -200,7 +201,8 @@
     "Actions": "Actions",
     "Edit": "Edit",
     "Delete": "Delete",
-    "Are_you_sure": "Are you sure you want to delete this origin?"
+    "Are_you_sure": "Are you sure you want to delete this origin?",
+    "success": "Success"
   },
   "OriginForm": {
     "Edit_Origin": "Edit Origin",
@@ -234,7 +236,9 @@
     "Credentials_JSON": "Credentials JSON",
     "JSON_Placeholder": "Enter valid JSON. e.g., {\"user\":\"admin\", \"pass\":\"secret\"}. Leave empty or use {} for no credentials.",
     "Edit_Credentials_JSON_Title": "Edit Credentials",
-    "Apply_JSON_Button": "Apply"
+    "Apply_JSON_Button": "Apply",
+    "succcess": "Succcess",
+    "TestConnection": "Test connection"
   },
   "GroupForm": {
     "cancel": "Cancel",

@@ -116,7 +116,8 @@ export const CustomerDetailsForm = () => {
             try {
                 const success = await registerCustomer(formData, userId, userEmail);
                 if (success) {
-                    setSubmitMessage({ type: 'success', text: t('customerForm.messages.updateSuccess') });
+                	const text = t('customerForm.messages.updateSuccess');
+                    setSubmitMessage({ type: 'success', text });
                     // todo: extract new customer_id
                     setInitialData(prevData => ({ ...prevData, ...formData }));
                     

@@ -219,7 +219,7 @@ const ScheduleList: React.FC = () => {
     });
 
     return (
-        <div>        
+        <Box sx={{ p: 2 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                 <Typography variant="h5">
                     {t('ScheduleList.title')}
@@ -262,7 +262,7 @@ const ScheduleList: React.FC = () => {
                 </Box>
             </Modal>
 
-        </div>
+        </Box>
     );
 };
 

@@ -23,13 +23,13 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
     return (
         <>
             <Typography variant="h6" gutterBottom>
-                Розширене редагування пункта обрахунку: {point.name}
+                {t('PointAdvancedForm.title')}: {point.country} / {point.city} / {point.name}
             </Typography>
 
             <Grid container spacing={3}>
                 {/* Атрибуты точки */}
-                <Grid item xs={12}>
-                    <Paper sx={{ p: 2, mb: 2 }}>
+                {/* <Grid item xs={12}>
+                    <Paper sx={{ p: 2, mb: 2, }}>
                         <Typography variant="h6" gutterBottom>
                             Атрибути пункта обрахунку
                         </Typography>
@@ -52,13 +52,12 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
                             </Grid>
                         </Grid>
                     </Paper>
-                </Grid>
+                </Grid> */}
 
                 {/* Список камер */}
                 <Grid item xs={12}>
                     <Paper sx={{ p: 2 }}>
                         <Typography variant="h6" gutterBottom>
-                            {/* Камери та реєстратори */}
                             {t('PointAdvancedForm.CamerasAndRegistrators')}
                         </Typography>
                         <OriginList pointIdFilter={point.point_id} />
@@ -67,8 +66,7 @@ const PointAdvancedForm: React.FC<PointAdvancedFormProps> = ({
             </Grid>
 
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button onClick={onClose} sx={{ mr: 1 }}>
-                    {/* Закрити */}
+                <Button onClick={onClose} sx={{ mr: 1 }} variant='outlined'>
                     {t('PointAdvancedForm.Close')}
                 </Button>
             </Box>

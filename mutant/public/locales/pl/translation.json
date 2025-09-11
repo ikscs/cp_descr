@@ -130,7 +130,8 @@
   "Sign In": "Zalogować się",
   "PointAdvancedForm": {
     "CamerasAndRegistrators": "Kamery i rejestratory",
-    "Close": "Zamknąć"
+    "Close": "Zamknąć",
+    "title": "Zaawansowana edycja punktu rozliczeniowego"
   },
   "PointForm": {
     "title": "Formularz punktów liczenia odwiedzających",
@@ -156,7 +157,8 @@
     "Actions": "Akcje",
     "Edit": "Redagować",
     "Delete": "Usunąć",
-    "Are_you_sure": "Czy na pewno chcesz usunąć to źródło?"
+    "Are_you_sure": "Czy na pewno chcesz usunąć to źródło?",
+    "success": "Success"
   },
   "OriginForm": {
     "Edit_Origin": "Edytuj źródło",
@@ -190,7 +192,9 @@
     "Credentials_JSON": "JSON danych uwierzytelniających",
     "JSON_Placeholder": "Wprowadź poprawny JSON. np. {\"user\":\"admin\", \"pass\":\"secret\"}. Pozostaw puste lub użyj {} dla braku danych uwierzytelniających.",
     "Edit_Credentials_JSON_Title": "Edytuj dane uwierzytelniające",
-    "Apply_JSON_Button": "Zastosuj"
+    "Apply_JSON_Button": "Zastosuj",
+    "succcess": "Sukces",
+    "TestConnection": "Połączenie testowe"
   },
   "GroupForm": {
     "cancel": "Anulować",

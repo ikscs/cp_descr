@@ -26,6 +26,8 @@ import { pointApi } from '../../api/data/pointApi';
 import { useCustomer } from '../../context/CustomerContext';
 import { originTypeApi, OriginTypeOption } from '../../api/data/originTypeApi';
 import JsonForm, { type JsonFormTemplate } from '../common/JsonForm';
+import { originApi } from '../../api/data/originApi';
+// import { set } from 'date-fns';
 
 export interface OriginFormValues {
   id?: number;
@@ -36,6 +38,7 @@ export interface OriginFormValues {
   credentials?: string;
   is_enabled: boolean;
   poling_period_s?: number;
+  success: boolean | null;
 }
 
 export interface OriginFormProps {
@@ -59,6 +62,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
   const [isLoadingDropdowns, setIsLoadingDropdowns] = useState(true);
   const [dropdownError, setDropdownError] = useState<string | null>(null);
   const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
+  const [testResult, setTestResult] = useState<string>('');
 
   const defaultCredentialsEditorTemplate: JsonFormTemplate = {
     fields: [
@@ -135,6 +139,7 @@ const OriginForm: React.FC<OriginFormProps> = ({
     credentials: '{}',
     is_enabled: true,
     poling_period_s: undefined,
+    success: null,
   };
 
   const validationSchema = Yup.object({
@@ -175,6 +180,15 @@ const OriginForm: React.FC<OriginFormProps> = ({
     return <Alert severity="error">{dropdownError}</Alert>;
   }
 
+  // const onTestConnection = async () => {
+  //   const res = await originApi.checkConnection(originToEdit?.id || 0);
+  //   if (res.ok) {
+  //     setFieldValue('success', res.success);
+  //   } else {
+  //     setFieldValue('success', null);
+  //   }
+  // }
+
   return (
     <Formik
       initialValues={initialValues}
@@ -193,6 +207,17 @@ const OriginForm: React.FC<OriginFormProps> = ({
 
         const currentCredentialsTemplate: JsonFormTemplate =
           selectedOriginType?.template || defaultCredentialsEditorTemplate;
+
+        const onTestConnection = async () => {
+          const res = await originApi.checkConnection(originToEdit?.id || 0);
+          setTestResult(res.ok ? (res.description || '') : '');
+
+          // if (res.ok) {
+          //   setFieldValue('success', res.success);
+          // } else {
+          //   setFieldValue('success', null);
+          // }
+        }
 
         return (
           <Form>
@@ -303,16 +328,40 @@ const OriginForm: React.FC<OriginFormProps> = ({
                   />
                 )}
               </Field>
+              <Field name="success" type="checkbox">
+                {({ field }: { field: any }) => (
+                  <FormControlLabel
+                    control={<Checkbox {...field} checked={field.value} />}
+                    label={t('OriginForm.succcess')}
+                    disabled
+                  />
+                )}
+              </Field>
+
             </Stack>
 
-            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button onClick={onCancel} sx={{ mr: 1 }} disabled={formikProps.isSubmitting}>
-                {t('OriginForm.Cancel')}
+            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
+              <Button onClick={onTestConnection} sx={{ mr: 1 }} variant='outlined'>
+                  {t('OriginForm.TestConnection')}
               </Button>
-              <Button type="submit" variant="contained" disabled={formikProps.isSubmitting || !formikProps.isValid}>
-                {formikProps.isSubmitting ? t('OriginForm.Saving') : t('OriginForm.Save_Origin')}
-              </Button>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button onClick={onCancel} sx={{ mr: 1 }} disabled={formikProps.isSubmitting} variant='outlined'>
+                  {t('OriginForm.Cancel')}
+                </Button>
+                <Button type="submit" variant="contained" disabled={formikProps.isSubmitting || !formikProps.isValid}>
+                  {formikProps.isSubmitting ? t('OriginForm.Saving') : t('OriginForm.Save_Origin')}
+                </Button>
+              </Box>
             </Box>
+
+            <Stack direction="row" alignItems="center" spacing={1}>
+              {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                {t('OriginForm.testResult')}:
+              </Typography> */}
+              <Typography variant="body1">
+                {testResult}
+              </Typography>
+            </Stack>
 
             {isCredentialsModalOpen && (
               <Modal

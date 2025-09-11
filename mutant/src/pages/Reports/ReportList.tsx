@@ -606,7 +606,7 @@ const ReportList: React.FC<ReportListProps> = ({ reportFilterPredicate }) => {
         alignItems="center"
         mb={2}
       >
-        <Typography variant="h6" gutterBottom sx={{ mb: 0 }}>
+        <Typography variant="h5" gutterBottom sx={{ mb: 0 }}>
           {/* Перелік звітів для виконання */}
           {t('ReportList.title')}
         </Typography>

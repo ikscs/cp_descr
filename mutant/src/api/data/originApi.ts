@@ -25,6 +25,7 @@ export interface Origin {
   credentials?: object | null;  // Camera/NVR credentials (JSONB), optional
   is_enabled: boolean;  // Is this origin active?
   poling_period_s?: number; // Polling period in seconds, optional
+  success: boolean | null;
 }
 
 // Interface for an Origin linked to a customer, from v_customer_origin
@@ -55,11 +56,18 @@ const formatSqlValue = (value: any): string => {
   return `''${escapeSingleQuotes(String(value))}''`;
 };
 
-const API_URL = 'https://cnt.theweb.place/api/pcnt/origin/';
+const API_URL_ = 'https://cnt.theweb.place/api/pcnt/origin/';
 // const API_URL = 'origin/';
-const getOrigins = async (point_id: number): Promise<Origin[]> => {
+const getOrigins_ = async (point_id: number): Promise<Origin[]> => {
   console.log(`[originApi] getOrigins called for point_id: ${point_id}`);
   const res = await axios.get<Origin[]>(API_URL + `point/${point_id}/`);
+  return res.data;
+}
+
+const API_URL = 'https://cnt.theweb.place/api/pcnt/v_customer_origin/';
+const getOrigins = async (point_id: number): Promise<Origin[]> => {
+  console.log(`[originApi] getOrigins called for point_id: ${point_id}`);
+  const res = await axios.get<Origin[]>(API_URL + `?point_id=${point_id}`);
   return res.data;
 }
 
@@ -319,10 +327,23 @@ const getCustomerOrigins_ = async (customerId: number): Promise<CustomerOrigin[]
   }
 };
 
+const checkConnection = async (originId: number): Promise<{ok: boolean, success: boolean | null, description: string | null}> => {
+  console.log('[originApi] checkConnection called for origin:', originId);
+  try {
+    const res = await axios.get(`https://cnt.theweb.place/api/pcnt/check_connection/?origin_id=${originId}`);
+    return {...res.data, ok: true};
+// {"success":true,"description":"Ok"}
+  } catch (err) {
+    console.error('[originApi] Error during checkConnection:', err);
+    return {ok: false, success: null, description: null};
+  }
+};
+
 export const originApi = {
   getOrigins,
   createOrigin,
   updateOrigin,
   deleteOrigin,
   getCustomerOrigins,
+  checkConnection,
 };
