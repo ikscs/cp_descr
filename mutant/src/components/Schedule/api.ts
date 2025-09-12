@@ -31,8 +31,9 @@ const del = async (id: number): Promise<void> => {
 const getReportName = async (): Promise<ReportName[]> => {
     const appId = packageJson.name;
     const lang = i18n.language as LocaleKey;
-    const res = await axios.get<ReportName[]>(
-        `https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=${appId}&lang=${lang}`);
+    const tag = 'email';
+    const url = `https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=${appId}&lang=${lang}&tag=${tag}`;
+    const res = await axios.get<ReportName[]>(url);
     return res.data;
 }
 
