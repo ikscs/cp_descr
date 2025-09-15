@@ -209,6 +209,12 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
   };
   const navigate = useNavigate();
 
+  const SelectByBool = (v: boolean, t: string, f: string, none: string) => {
+    if (v === true) return t;
+    if (v === false) return f;
+    return none;
+  }
+
   const handleDeleteOrigin = async (originId: number) => {
     // if (!window.confirm('Are you sure you want to delete this origin?')) {
     if (!window.confirm(t('OriginList.Are_you_sure'))) {
@@ -246,13 +252,40 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
         <Checkbox checked={params.value} disabled />
       ),
     },
+    // {
+    //   field: 'success',
+    //   headerName: t('OriginList.success'),
+    //   width: 120,
+    //   renderCell: (params: GridRenderCellParams<Origin>) => (
+    //     <Checkbox checked={params.value} disabled />
+    //   ),
+    // },
     {
       field: 'success',
-      headerName: t('OriginList.success'),
-      width: 120,
-      renderCell: (params: GridRenderCellParams<Origin>) => (
-        <Checkbox checked={params.value} disabled />
-      ),
+        headerName: t('OriginList.success'),
+        width: 120,
+        renderCell: (params) => {
+          // let backgroundColor;
+          // if (params.value === true) {
+          //   backgroundColor = 'green';
+          // } else if (params.value === false) {
+          //   backgroundColor = 'red';
+          // } else {
+          //   backgroundColor = 'lightgray';
+          // }
+          return (
+            <Box
+              sx={{
+                mt: 2,
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                // backgroundColor: backgroundColor,
+                backgroundColor: SelectByBool(params.value, 'green', 'red', 'lightgray'),
+              }}
+            />
+          );
+        },      
     },
     {
       field: 'actions',
