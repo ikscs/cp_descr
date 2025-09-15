@@ -1,6 +1,7 @@
 // import React, { useEffect, useState } from "react";
 import { useFetch } from "../../hooks/useFetch";
-import DashboardView from "./DashboardBtView_copy";
+// import DashboardView from "./DashboardBtView_copy";
+import DashboardView from "./DashboardBtView";
 import PointList from "../../components/Points/PointList";
 import { Point } from "../../api/data/pointApi";
 import axios from "axios";
