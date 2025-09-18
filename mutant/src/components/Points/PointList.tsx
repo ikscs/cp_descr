@@ -176,7 +176,7 @@ const PointList: React.FC = () => {
     {
       field: 'actions',
       headerName: t('Points.PointList.columns.actions'),
-      width: 300,
+      width: 320,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Point>) => (
         <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
@@ -186,6 +186,7 @@ const PointList: React.FC = () => {
                 onClick={() => handleOpenAdvancedModal(params.row)}
                 size="small"
                 color="info"
+                variant='outlined'
               >
                 {t('Points.PointList.sources_button')}
               </Button>
@@ -194,6 +195,7 @@ const PointList: React.FC = () => {
               onClick={() => handleOpenModal(params.row)}
               size="small"
               sx={{ mr: 1 }}
+              variant='outlined'
             >
               {t('Points.PointList.edit_button')}
             </Button>
@@ -201,6 +203,7 @@ const PointList: React.FC = () => {
               onClick={() => handleDeletePoint(params.row.point_id)}
               size="small"
               color="error"
+              variant='outlined'
             >
               {t('Points.PointList.delete_button')}
             </Button>

@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { createTheme, Theme } from '@mui/material';
 import { dbThemeSchema, DbThemeData } from '../themes/themeSchema copy2';
+import { apiToken } from '../../api/data/fetchData';
 
 const API_BASE_URL = 'https://cnt.theweb.place/api'; // Базовый URL вашего API
 
@@ -16,6 +17,12 @@ export const fetchAndParseThemes = async (appId: string = 'mutant'): Promise<Fet
   let defaultThemeName: string = 'light'; // Или другое значение по умолчанию, если ничего не загрузится
   let error: string | null = null;
 
+  if (!apiToken || !apiToken.token) {
+    console.error('API token is not set. Please set the token before making requests.');
+    // throw new Error('API token is not set');
+    return { themes, defaultThemeName, error };
+  }
+
   try {
     const res = await axios.get<DbThemeData[]>(`${API_BASE_URL}/theme/`, {
       params: { app_id: appId }
@@ -29,7 +36,7 @@ export const fetchAndParseThemes = async (appId: string = 'mutant'): Promise<Fet
       return result.success;
     })
     .sort((a, b) => a.sortord - b.sortord )
-    // .filter((item) => item.enabled)
+    .filter((item) => item.enabled)
     ;
 
     if (validatedData.length === 0) {

@@ -290,16 +290,16 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
     {
       field: 'actions',
       headerName: t('OriginList.Actions'),
-      width: 200,
+      width: 220,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Origin>) => (
+      <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
         <Stack direction="row" spacing={1} sx={{mt: 1}} >
           <Button
             onClick={() => handleOpenModal(params.row)}
             size="small"
             variant="outlined"
           >
-            {/* Edit */}
             {t('OriginList.Edit')}
           </Button>
           <Button
@@ -308,10 +308,10 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
             variant="outlined"
             color="error"
           >
-            {/* Delete */}
             {t('OriginList.Delete')}
           </Button>
         </Stack>
+        </Box>
       ),
     },
   ];

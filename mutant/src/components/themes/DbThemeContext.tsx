@@ -72,11 +72,11 @@ export const DbThemeProvider: React.FC<DbThemeProviderProps> = ({ children, appI
                 '&:focus': {
                   boxShadow: 'none',
                   outline: '1px solid black',
-                  outlineOffset: '2px',
+                  outlineOffset: '0px',
                 },
                 '&:hover': {
                   outline: '1px solid',
-                  outlineOffset: '2px',
+                  outlineOffset: '0px',
                 },
               },
             },
