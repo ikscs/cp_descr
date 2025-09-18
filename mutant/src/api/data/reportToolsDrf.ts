@@ -88,7 +88,7 @@ export const executeReportQuery = async (
 export const getReportsLang = async (lang: string = 'uk'): Promise<Report[]> => {
     console.log('[getReportsLang] Fetching reports');
 // curl -X GET "https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=mutant&report_id=5&lang=ua"
-    const path = `v_perm_report/?app_id=${packageJson.name}&lang=${lang}`;
+    const path = `v_perm_report/?app_id=${packageJson.name}&lang=${lang}&tag=prod`;
     const res = await axios.get<ReportDB[]>(path);
     return fromReportDB(res.data);
 };

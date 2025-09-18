@@ -16,7 +16,7 @@ import {
   // type SelectChangeEvent,
 } from '@mui/material';
 //import { Report } from '../../api/data/reportTools';
-import { fetchData, getBackend } from '../../api/data/fetchData'; // For db_select
+import { fetchData, getBackend, queryData } from '../../api/data/fetchData'; // For db_select
 import { type ParsedReport } from './ReportList';
 import { t } from 'i18next';
 
@@ -130,11 +130,12 @@ const QueryParam: React.FC<QueryParamProps> = ({ report, onExecute, onClose, ini
           }
           // --- End Context Substitution ---
 
-          const queryResult: any = await fetchData({
-            backend_point: backend.backend_point_query,
-            query: finalQuery, // Use the processed query
-            // Potentially add app_id or other context if needed by the backend
-          });
+          // const queryResult: any = await fetchData({
+          //   backend_point: backend.backend_point_query,
+          //   query: finalQuery, // Use the processed query
+          //   // Potentially add app_id or other context if needed by the backend
+          // });
+          const queryResult: any = await queryData({ query: finalQuery });
 
           if (queryResult && Array.isArray(queryResult.data)) {
             const fetchedOptions: DbSelectOption[] = queryResult.data.map((row: any) => {

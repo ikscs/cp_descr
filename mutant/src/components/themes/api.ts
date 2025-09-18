@@ -27,7 +27,10 @@ export const fetchAndParseThemes = async (appId: string = 'mutant'): Promise<Fet
         console.error(`[Theme API] Некорректная тема получена с сервера:`, result.error.errors, item);
       }
       return result.success;
-    });
+    })
+    .sort((a, b) => a.sortord - b.sortord )
+    // .filter((item) => item.enabled)
+    ;
 
     if (validatedData.length === 0) {
       console.warn('[Theme API] Нет валидных тем, полученных с бэкенда. Использование темы по умолчанию.');

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useId } from 'react';
 import { Button, Typography } from '@mui/material';
 import { GenericBaseForm } from './GenericBaseForm';
+import { useTranslation } from 'react-i18next';
 
 // Припустимо, що GenericForm та його типи пропсів доступні.
 // Вам може знадобитися налаштувати ці імпорти на основі вашого фактичного компонента GenericForm.
@@ -68,6 +69,7 @@ export const GenericSimpleForm = <TData extends Record<string, any>>({
     FormRenderer,
     goEditing = false, // Додано для початку в режимі редагування
 }: GenericSimpleFormProps<TData>) => {
+    const { t } = useTranslation();
     const [isEditing, setIsEditing] = useState(goEditing);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formKey, setFormKey] = useState(() => Date.now()); // Для скидання GenericForm
@@ -125,12 +127,14 @@ export const GenericSimpleForm = <TData extends Record<string, any>>({
         }
     }, [onValuesChange]);
 
-    const actualSubmitButtonText = isSubmitting ? savingButtonText : saveButtonText;
+    // const actualSubmitButtonText = isSubmitting ? savingButtonText : saveButtonText;
+    const actualSubmitButtonText = isSubmitting ? t('GenericSimpleForm.savingButtonText', { defaultValue: savingButtonText }) : t('GenericSimpleForm.saveButtonText', { defaultValue: saveButtonText });
 
     const actions = isEditing ? (
         <>
             <Button variant="outlined" onClick={handleCancel} disabled={isSubmitting}>
-                {cancelButtonText}
+                {/* {cancelButtonText} */}
+                {t('GenericSimpleForm.cancelButtonText', { defaultValue: cancelButtonText })}
             </Button>
             <Button
                 type="submit" // Ця кнопка буде відправляти форму
@@ -144,13 +148,15 @@ export const GenericSimpleForm = <TData extends Record<string, any>>({
         </>
     ) : (
         <Button variant="contained" onClick={handleEdit} color="primary">
-            {editButtonText}
+            {/* {editButtonText} */}
+            {t('GenericSimpleForm.editButtonText', { defaultValue: editButtonText })}
         </Button>
     );
 
     return (
         <GenericBaseForm
             title={title} // Заголовок тепер обробляється GenericBaseForm
+            // title={t('GenericBaseForm.title', { title })}
             actions={actions}
         >
             <FormRenderer

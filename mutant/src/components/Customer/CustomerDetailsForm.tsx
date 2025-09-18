@@ -103,7 +103,7 @@ export const CustomerDetailsForm = () => {
         if (!initialData?.customer_id) {
             // setSubmitMessage({ type: 'error', text: 'Помилка: ID клієнта не визначено для оновлення.' });
             // 2025-07-17
-            const success = await registerCustomer(formData, userId);
+            const success = await registerCustomer(formData, userId, 'email');
             if (success) {
                 setSubmitMessage({ type: 'success', text: 'Дані клієнта успішно оновлено!' });
                 // todo: extract new customer_id

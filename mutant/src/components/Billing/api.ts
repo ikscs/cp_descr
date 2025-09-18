@@ -1,5 +1,6 @@
 import axios from "axios"
 import packageJson from '../../../package.json';
+import { basename } from "../../globals_VITE";
 // import { create } from "domain";
 
 export interface Balance {
@@ -27,7 +28,8 @@ const balanceKeyMap: Record<keyof Balance, string> = {
 };
 
 const getBalance = async (): Promise<Balance | null> => {
-    const res = await axios.get('https://cnt.theweb.place/api/billing/balance/');
+    // const res = await axios.get('https://cnt.theweb.place/api/billing/balance/');
+    const res = await axios.get(basename + '/api/billing/balance/');
     if (res.data && res.data.length > 0) {
         return {
             value: res.data[0].value,
@@ -44,7 +46,8 @@ const getBalance = async (): Promise<Balance | null> => {
 // const createOrder = async (orderId: string, amount: number, currency: string, description: string, param: any): Promise<any> => {
 const createOrder = async (amount: number, currency: string, description: string, param: any): Promise<any> => {
     try {
-        const res = await axios.post('https://cnt.theweb.place/api/billing/create_liqpay_order/', {
+        // const res = await axios.post('https://cnt.theweb.place/api/billing/create_liqpay_order/', {
+        const res = await axios.post(basename + '/billing/create_liqpay_order/', {
             // order_id: orderId,
             amount,
             currency,
@@ -60,7 +63,8 @@ const createOrder = async (amount: number, currency: string, description: string
 
 const getOrderStatus = async (orderId: string): Promise<any> => {
     try {
-        const res = await axios.get(`https://cnt.theweb.place/api/billing/pay_status/?order_id=${orderId}`);
+        // const res = await axios.get(`https://cnt.theweb.place/api/billing/pay_status/?order_id=${orderId}`);
+        const res = await axios.get(basename + `/billing/pay_status/?order_id=${orderId}`);
         return res.data ? res.data : null;
     } catch {
         return null;
@@ -68,12 +72,14 @@ const getOrderStatus = async (orderId: string): Promise<any> => {
 }
 
 const getBasePrice = async (): Promise<BasePrice[]> => {
-    const res = await axios.get('https://cnt.theweb.place/api/billing/subscription_base_price/');
+    // const res = await axios.get('https://cnt.theweb.place/api/billing/subscription_base_price/');
+    const res = await axios.get(basename + '/billing/subscription_base_price/');
     return res.data ? res.data : [];
 }
 
 const getCameraCatg = async (): Promise<CameraCatg[]> => {
-    const res = await axios.get('https://cnt.theweb.place/api/billing/camera_catg/');
+    // const res = await axios.get('https://cnt.theweb.place/api/billing/camera_catg/');
+    const res = await axios.get(basename + '/billing/camera_catg/');
     return res.data ? res.data : [];
 }
 

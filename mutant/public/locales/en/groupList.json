@@ -2,10 +2,10 @@
     "title": "Groups",
     "addButton": "Add",
     "loadingMessage": "Loading groups...",
-    "errorMessage": "Error: {error_message}",
+    "errorMessage": "Error: {{error_message}}",
     "fetchGroupsError": "Failed to load group list.",
     "fetchPointsError": "Failed to load points.",
-    "deleteConfirm": "Are you sure you want to delete group with ID {groupId}?",
+    "deleteConfirm": "Are you sure you want to delete group with ID {{groupId}}?",
     "deleteError": "Failed to delete group.",
     "saveError": "Failed to modify/add group.",
     "emptyIdError": "group_id cannot be empty.",
@@ -19,5 +19,5 @@
       "edit": "Edit",
       "delete": "Delete"
     },
-    "modalTitle": "Editing group: {groupName}"
+    "modalTitle": "Editing group: {{groupName}}"
 }

@@ -6,10 +6,12 @@ import GroupForm from './GroupForm';
 import { Alert, Box, Button, Modal, Stack, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowIdGetter } from '@mui/x-data-grid';
 // import { getData } from '../../api/data/dataTools';
-import { getPoints } from '../../api/data/customerTools';
+import { getPoints, getPointsDrf } from '../../api/data/customerTools';
 // import { fr } from 'date-fns/locale';
 // import { Point } from '../../api/data/pointApi';
 import { useTranslation } from 'react-i18next'; // Импортируем хук
+import { customConfirm } from '../Shared/dialogs/confirm';
+// import { useFetch } from '../../hooks/useFetch';
 
 interface LookupData {
   point_id: number;
@@ -28,30 +30,30 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
   const { t } = useTranslation('groupList');
   const { customerData, } = useCustomer();
   const [groups, setGroups] = useState<Group[]>([]);
-  const [points, setPoints] = useState<LookupData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [points, setPoints] = useState<LookupData[]>([]);
   const [error, setError] = useState<Error | null>(null);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  // todo: useFetch / useGet
+  // const { data: groups, setData: setGroups, loading, } = useFetch<Group[]>(api.get, []);
+  
   const fetchGroups = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // const groups: Group[] = await api.get('/groups', {customer_id: customerData?.customer});
-      // const groups: Group[] = await api.get(customerData?.customer || 0);
       const groups: Group[] = await api.get();
       setGroups(groups);
     } catch (err) {
-      setError(new Error('Не удалось загрузить список групп.'));
+      setError(new Error('Failed to load group list.'));
       console.error(err);
     } finally {
       setLoading(false);
     }
 
     try {
-      const pointsList = await getPoints(Number(customerData?.customer));
+      const pointsList = await getPointsDrf();
       setPoints(pointsList.map((point: any) => ({
         point_id: point.point_id,
         name: point.name,
@@ -96,7 +98,7 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
       }
       setEditingGroup(null); // Закрываем форму после сохранения
     } catch (err) {
-      setError(new Error('Не удалось изменить/добавить группу.'));
+      setError(new Error('Failed to edit/add group.'));
       console.error('Ошибка при сохранении/добавлении группы:', err);
     } finally {
       setIsSubmitting(false);
@@ -104,7 +106,9 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
   };
 
   const handleDeleteGroup = async (groupId: number) => {
-    if (!window.confirm(t('deleteConfirm', { groupId }))) {
+    const isConfirmed = await customConfirm(t('deleteConfirm', { groupId }));
+    if (!isConfirmed) {
+    // if (!confirm(t('deleteConfirm', { groupId }))) {
     // if (!window.confirm('Are you sure you want to delete group with ID ' + groupId + '?')) {
       return;
     }
@@ -115,7 +119,7 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
     } catch (err) {
       setError(new Error(t('deleteError')));
       // setError(new Error('Не удалось удалить группу.'));
-      console.error('Ошибка при удалении группы:', err);
+      console.error('Error deleting group:', err);
     }
   };
 
@@ -146,7 +150,7 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
 
   const columns: GridColDef<Group>[] = [
     { field: 'group_id', headerName: t('columns.id'), width: 90 },
-    { field: 'name', headerName: t('columns.name'), width: 250, flex: 1 },
+    { field: 'name', headerName: t('columns.name'), width: 150, flex: 1 },
     { field: 'point_id', headerName: t('columns.pointId'), width: 150 },
     // { field: 'group_id', headerName: 'ID', width: 90 },
     // { field: 'name', headerName: 'Name', width: 250, flex: 1 },
@@ -155,7 +159,7 @@ const GroupList: React.FC<GroupListProps> = (_props) => {
       field: 'actions',
       headerName: t('columns.actions'),
       // headerName: 'Actions',
-      width: 200,
+      width: 220,
       sortable: false,
       renderCell: (params: GridRenderCellParams<Group>) => (
       <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>

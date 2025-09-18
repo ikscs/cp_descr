@@ -16,6 +16,7 @@ import { getMenuItems } from "./menuItems_i18n";
 import { useTranslation } from "react-i18next";
 import { ThemeToggleButton, ColorModeContext } from './components/Shared/ThemeToggleButton';
 import { DbThemeProvider } from "./components/themes/DbThemeContext";
+import { basename } from "./globals_VITE";
 
 function App(): JSX.Element {
   const navigate = useNavigate();
@@ -111,7 +112,8 @@ function App(): JSX.Element {
 
       axios.defaults.headers.common["Content-Type"] = "application/json";
       axios.defaults.headers.common["Authorization"] = `Bearer ${userfront.tokens.accessToken}`;
-      axios.defaults.baseURL = "https://cnt.theweb.place/api/pcnt/";
+      // axios.defaults.baseURL = "https://cnt.theweb.place/api/pcnt/";
+      axios.defaults.baseURL = basename + "/api/pcnt/";
     } else {
       console.log("No tokens");
       setApiToken(null);
@@ -349,7 +351,11 @@ function App(): JSX.Element {
   }
 
   if (!userfront.tokens.accessToken || !user) {
-    return <AppNewbie appTitle={appTitle} />;
+    return (
+      <DbThemeProvider>
+        <AppNewbie appTitle={appTitle} />
+      </DbThemeProvider>
+    );
   }
 
   return (

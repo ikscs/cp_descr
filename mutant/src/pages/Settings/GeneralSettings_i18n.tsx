@@ -23,20 +23,14 @@ const GeneralSettings = () => {
                     <LanguageSwitcher sx={{ minWidth: 120 }} /> 
                 </div>          
 
-                {/* <div style={{ marginBottom: 20, marginTop: 20 }}>
-                    <ThemeToggleButton key={i18n.language} />
-                </div> */}
                 <div style={{ marginBottom: 20, marginTop: 20 }}>
                     <ThemeSwitcher sx={{ minWidth: 120 }} />
                 </div>          
-                {/* <div style={{ marginBottom: 20, marginTop: 20 }}>
-                    <ThemeToggleButton2 />
-                </div>           */}
             </Stack>
 
             <CustomerDetailsForm />
 
-            {Userfront.user && (
+            {false && Userfront.user && (
                 <Box mt={4} p={2} border={1} borderColor="grey.300" borderRadius={2}>
                     {/* <Typography variant="h5" mb={2}>{t('generalSettings.currentUserInfo')}</Typography>
                     <Typography><strong>{t('generalSettings.userId')}</strong> {Userfront.user.userId}</Typography>

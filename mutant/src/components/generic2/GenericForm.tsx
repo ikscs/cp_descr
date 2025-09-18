@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useId } from 'react';
-import { Button, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -72,7 +72,7 @@ export const GenericForm = <TData extends Record<string, any>>({
     const actualSubmitButtonText = isSubmitting ? t('GenericSimpleForm.savingButtonText', { defaultValue: savingButtonText }) : t('GenericSimpleForm.saveButtonText', { defaultValue: saveButtonText });
 
     const actions = isEditing ? (
-        <>
+        <Box sx={{ display: 'flex', gap: 2 }}>
             <Button variant="outlined" onClick={handleCancel} disabled={isSubmitting}>
                 {t('GenericSimpleForm.cancelButtonText', { defaultValue: cancelButtonText })}
             </Button>
@@ -86,7 +86,7 @@ export const GenericForm = <TData extends Record<string, any>>({
             >
                 {actualSubmitButtonText}
             </Button>
-        </>
+        </Box>
     ) : (
         <Button variant="contained" onClick={handleEdit} color="primary">
             {t('GenericSimpleForm.editButtonText', { defaultValue: editButtonText })}

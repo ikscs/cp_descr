@@ -11,18 +11,31 @@ export interface Group {
 }
 
 // переводим не axios / DRF
-const API_URL = 'https://cnt.theweb.place/api/pcnt/person_group/'; 
-// const get_ = async (customer_id: number): Promise<Group[]> => {
-//     console.log('[groupApi] get called with customer_id:', customer_id);
-//     const res = await axios.get<Group[]>(API_URL, {
-//         headers: {
-//             "Content-Type": "application/json",
-//             'authorization': `Bearer ${apiToken.token}`,
-//         }
-//     });
-//     return res.data;
-// }
- 
+// const API_URL = 'https://cnt.theweb.place/api/pcnt/person_group/'; 
+const API_URL = '/person_group/'; 
+const drfGet = async (customer_id: number): Promise<Group[]> => {
+    console.log('[groupApi] get called with customer_id:', customer_id);
+    const res = await axios.get<Group[]>(API_URL);
+    return res.data;
+}
+
+const drfPost = async (data: Partial<Omit<Group, 'group_id'>>): Promise<Group> => {
+    console.log('[groupApi] create called with data:', data);
+    const res = await axios.post<Group>(API_URL, data);
+    return res.data;
+}
+
+const drfPut = async (group_id: number, data: Partial<Omit<Group, 'group_id'>>): Promise<Group> => {
+  console.log('[groupApi] update called for group_id:', group_id, 'with data:', data);
+  const res = await axios.patch<Group>(`${API_URL}${group_id}/`, data);
+  return res.data;
+}
+
+const drfDelete = async (group_id: number): Promise<void> => {
+  console.log('[pointApi-Mock] deletePoint called for point_id:', group_id);
+  const res = await axios.delete(`${API_URL}${group_id}/`);
+}
+
 const TABLE_NAME = 'pcnt.person_group';
 const get = async (customer_id: number): Promise<Group[]> => {
 
@@ -207,10 +220,14 @@ const _delete = async (group_id: number): Promise<void> => {
 };
 
 const groupApi = {
-  get,
-  post,
-  put,
-  delete: _delete,
+  get: drfGet,
+  post: drfPost,
+  put: drfPut,
+  delete: drfDelete,
+  // get,
+  // post,
+  // put,
+  // delete: _delete,
 };
 
 export default groupApi;

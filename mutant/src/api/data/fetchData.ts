@@ -3,7 +3,8 @@
 // import { UserfrontProvider } from "@userfront/react";
 // import { Userfront } from "@userfront/react"
 // import Userfront from "@userfront/core";
-import { backendType } from "../../globals_VITE"
+import axios from "axios"
+import { backendType, basename } from "../../globals_VITE"
 
 const backend_rise = {
   backend_url: 'https://rise.theweb.place/back',
@@ -76,6 +77,16 @@ export type IFetchResponse = any[];
 
 export type FetchData = (props: IFetchBody) => Promise<IFetchResponse>;
 export type PostData = (props: IFetchBody) => Promise<IPostResponse>;
+
+export const queryData: FetchData = async (props: IFetchBody, lang: string = 'uk') => {
+  try {
+    const res = await axios.post(basename + `/api/f5?func=js_query_b&lang=${lang}`, props);
+    return res.data;
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    throw err;
+  }
+}
 
 export const fetchData: FetchData = async (props: IFetchBody) => {
 

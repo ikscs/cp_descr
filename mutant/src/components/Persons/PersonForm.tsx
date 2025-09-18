@@ -155,10 +155,10 @@ const PersonForm: React.FC<PersonFormProps> = ({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="secondary">
+          <Button onClick={onClose} color="secondary" variant="outlined">
             {t('PersonForm.Cancel')}
           </Button>
-          <Button type="submit" color="primary" disabled={isSubmitting || loadingGroups}>
+          <Button type="submit" color="primary" variant="contained" disabled={isSubmitting || loadingGroups}>
             {isSubmitting ? <CircularProgress size={24} /> : t('PersonForm.Save')}
           </Button>
         </DialogActions>

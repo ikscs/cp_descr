@@ -2,10 +2,10 @@
     "title": "Групи",
     "addButton": "Додати",
     "loadingMessage": "Завантаження груп...",
-    "errorMessage": "Помилка: {error_message}",
+    "errorMessage": "Помилка: {{error_message}}",
     "fetchGroupsError": "Не вдалося завантажити список груп.",
     "fetchPointsError": "Не вдалося завантажити точки.",
-    "deleteConfirm": "Ви впевнені, що хочете видалити групу з ID {groupId}?",
+    "deleteConfirm": "Ви впевнені, що хочете видалити групу з ID {{groupId}}?",
     "deleteError": "Не вдалося видалити групу.",
     "saveError": "Не вдалося змінити/додати групу.",
     "emptyIdError": "group_id не може бути порожнім.",
@@ -19,6 +19,6 @@
       "edit": "Редагувати",
       "delete": "Видалити"
     },
-    "modalTitle": "Редагування групи: {groupName}"
+    "modalTitle": "Редагування групи: {{groupName}}"
 
 }

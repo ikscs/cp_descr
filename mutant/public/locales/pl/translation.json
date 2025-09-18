@@ -158,7 +158,10 @@
     "Edit": "Redagować",
     "Delete": "Usunąć",
     "Are_you_sure": "Czy na pewno chcesz usunąć to źródło?",
-    "success": "Success"
+    "success": "Success",
+    "NoOriginsFound": "Nie znaleziono źródła dla tego elementu.",
+    "notEnoughBalance": "Za mało środków na wykonanie usługi. Doładuj saldo?",
+    "notEnoughStartBalance": "Za mało środków na uruchomienie usługi. Czy muszę uzupełnić saldo?"
   },
   "OriginForm": {
     "Edit_Origin": "Edytuj źródło",
@@ -184,7 +187,7 @@
     "Select_an_Origin_Type": "Wybierz typ źródła",
     "Credentials_Label": "Dane uwierzytelniające (format JSON)",
     "Credentials_Helper_Text": "Opcjonalnie. np. {\"user\":\"admin\", \"pass\":\"secret\"}",
-    "Edit_JSON_Button": "Edytuj JSON",
+    "Edit_JSON_Button": "Edytuj",
     "Enabled_Label": "Włączone",
     "Cancel": "Anuluj",
     "Saving": "Zapisywanie...",
@@ -194,7 +197,8 @@
     "Edit_Credentials_JSON_Title": "Edytuj dane uwierzytelniające",
     "Apply_JSON_Button": "Zastosuj",
     "succcess": "Sukces",
-    "TestConnection": "Połączenie testowe"
+    "TestConnection": "Połączenie testowe",
+    "Test_Result_Label": "Wyniki testów"
   },
   "GroupForm": {
     "cancel": "Anulować",
@@ -302,5 +306,12 @@
   },
   "JsonForm": {
     "chooseValue": "Wybierz wartość"
+  },
+  "SignupForm": {
+    "SignUp": "Zapisać się",
+    "Email": "Adres e-mail",
+    "AccountName": "Nazwa konta (pole niestandardowe)",
+    "Password": "Hasło",
+    "VerifyPassword": "Potwierdzenie hasła"
   }
 }

@@ -1,6 +1,3 @@
-// Перероблена форма з підтримкою i18n
-// Re-written form with i18n support
-// Formularz przepisany z obsługą i18n
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, type FormikProps, type FieldProps } from 'formik';
 import * as Yup from 'yup';
@@ -27,6 +24,7 @@ import { useCustomer } from '../../context/CustomerContext';
 import { originTypeApi, OriginTypeOption } from '../../api/data/originTypeApi';
 import JsonForm, { type JsonFormTemplate } from '../common/JsonForm';
 import { originApi } from '../../api/data/originApi';
+import { SelectByBool } from './OriginList';
 // import { set } from 'date-fns';
 
 export interface OriginFormValues {
@@ -209,7 +207,15 @@ const OriginForm: React.FC<OriginFormProps> = ({
           selectedOriginType?.template || defaultCredentialsEditorTemplate;
 
         const onTestConnection = async () => {
-          const res = await originApi.checkConnection(originToEdit?.id || 0);
+          setTestResult('Testing...');
+          const otid = Number(originToEdit?.origin_type_id);
+          const data = {
+            origin_type_id: otid,
+            name: values.name,
+            credentials: JSON.parse(values.credentials|| '{}'),
+          }
+          // const res = await originApi.checkConnection(originToEdit?.id || 0);
+          const res = await originApi.checkConnection(data);
           setTestResult(res.ok ? (res.description || '') : '');
 
           // if (res.ok) {
@@ -328,12 +334,23 @@ const OriginForm: React.FC<OriginFormProps> = ({
                   />
                 )}
               </Field>
-              <Field name="success" type="checkbox">
-                {({ field }: { field: any }) => (
+              <Field name="success">
+                {({ field }: { field: { value: boolean; name: string } }) => (
                   <FormControlLabel
-                    control={<Checkbox {...field} checked={field.value} />}
+                    control={
+                      <Box
+                        sx={{
+                          // mt: 2,
+                          ml: 1.5,
+                          mr: 1.5,
+                          width: 20,
+                          height: 20,
+                          borderRadius: '50%',
+                          backgroundColor: SelectByBool(field.value, 'green', 'red', 'lightgray'),
+                        }}
+                      />
+                    }
                     label={t('OriginForm.succcess')}
-                    disabled
                   />
                 )}
               </Field>
@@ -354,14 +371,24 @@ const OriginForm: React.FC<OriginFormProps> = ({
               </Box>
             </Box>
 
-            <Stack direction="row" alignItems="center" spacing={1}>
-              {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                {t('OriginForm.testResult')}:
-              </Typography> */}
+            {/* <Stack direction="row" alignItems="center" spacing={1}>
               <Typography variant="body1">
                 {testResult}
               </Typography>
-            </Stack>
+            </Stack> */}
+
+            <Box sx={{ mt: 2 }}>
+                <TextField
+                    fullWidth
+                    label={t('OriginForm.Test_Result_Label')}
+                    multiline
+                    rows={3}
+                    value={testResult}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+            </Box>
 
             {isCredentialsModalOpen && (
               <Modal

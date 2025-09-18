@@ -52,11 +52,43 @@ export const DbThemeProvider: React.FC<DbThemeProviderProps> = ({ children, appI
       const normalizedThemes: Record<string, Theme> = {};
       for (const [name, rawTheme] of Object.entries(themes)) {
         normalizedThemes[name] = normalizeTheme(rawTheme);
+
+        // customize button
+/**/        
+        normalizedThemes[name].components = {...normalizedThemes[name].components,
+          MuiButton: {
+            defaultProps: {
+              disableRipple: true,
+              disableFocusRipple: true,
+            },
+            styleOverrides: {
+              root: {
+                '&.Mui-focusVisible': {
+                  boxShadow: 'none',
+                  outline: '1px solid black',
+                  outlineOffset: '2px',
+                  backgroundColor: 'transparent',
+                },
+                '&:focus': {
+                  boxShadow: 'none',
+                  outline: '1px solid black',
+                  outlineOffset: '2px',
+                },
+                '&:hover': {
+                  outline: '1px solid',
+                  outlineOffset: '2px',
+                },
+              },
+            },
+          },
+        }
+/**/
+
       }
       setThemesMap(normalizedThemes);
 
       // setThemesMap(themes);
-      setThemeError(error);
+      // setThemeError(error);
 
       // Устанавливаем тему из localStorage или тему по умолчанию, если она доступна
       const storedTheme = localStorage.getItem('theme');

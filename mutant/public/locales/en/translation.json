@@ -202,7 +202,10 @@
     "Edit": "Edit",
     "Delete": "Delete",
     "Are_you_sure": "Are you sure you want to delete this origin?",
-    "success": "Success"
+    "success": "Success",
+    "NoOriginsFound": "No origins found for this point.",
+    "notEnoughBalance": "Not enough funds to perform the service, top up your balance?",
+    "notEnoughStartBalance": "Not enough funds to connect the service, do you need to top up your balance?"
   },
   "OriginForm": {
     "Edit_Origin": "Edit Origin",
@@ -228,7 +231,7 @@
     "Select_an_Origin_Type": "Select an Origin Type",
     "Credentials_Label": "Credentials (JSON format)",
     "Credentials_Helper_Text": "Optional. e.g., {\"user\":\"admin\", \"pass\":\"secret\"}",
-    "Edit_JSON_Button": "Edit JSON",
+    "Edit_JSON_Button": "Edit",
     "Enabled_Label": "Enabled",
     "Cancel": "Cancel",
     "Saving": "Saving...",
@@ -238,7 +241,8 @@
     "Edit_Credentials_JSON_Title": "Edit Credentials",
     "Apply_JSON_Button": "Apply",
     "succcess": "Succcess",
-    "TestConnection": "Test connection"
+    "TestConnection": "Test connection",
+    "Test_Result_Label": "Test results"
   },
   "GroupForm": {
     "cancel": "Cancel",
@@ -347,5 +351,12 @@
   },
   "JsonForm": {
     "chooseValue": "Choose Value"
+  },
+  "SignupForm": {
+    "SignUp": "Sign up",
+    "Email": "Email address",
+    "AccountName": "Account name (custom field)",
+    "Password": "Password",
+    "VerifyPassword": "Verify password"
   }
 }

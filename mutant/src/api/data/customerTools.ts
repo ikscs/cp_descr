@@ -1,7 +1,8 @@
 import { fetchData, getBackend, postData, type IFetchResponse, } from './fetchData';
 import { type CustomerPoint } from '../../context/CustomerContext';
 import axios from 'axios';
-import { mode, tenantId } from '../../globals_VITE';
+// import { mode, tenantId } from '../../globals_VITE';
+import { basename } from "../../globals_VITE";
 
 export interface Customer {
   customer_id: number; // Primary key
@@ -9,6 +10,12 @@ export interface Customer {
   address: string;
   country: string;
   city: string;
+}
+
+export const getPointsDrf = async (): Promise<CustomerPoint[]> => {
+    console.log('[getPointsDrf] called');
+    const res = await axios.get<CustomerPoint[]>('point/');
+    return res.data;
 }
 
 // use getPoints to get points for customer suitable for select
@@ -61,7 +68,8 @@ export const _getCustomer = async (customer_id: number): Promise<Customer[]> => 
 
 export const registerCustomer = async (data: Customer, _userId: number, email: string ): Promise<Customer | null> => {
     console.log('[registerCustomer] ', data);
-    const res = await axios.post('https://cnt.theweb.place/api/register_customer/', {
+    // const res = await axios.post(basename+'https://cnt.theweb.place/api/register_customer/', {
+    const res = await axios.post(basename+'/register_customer/', {
         legal_name: data.legal_name,
         address: data.address, 
         country: data.country, 

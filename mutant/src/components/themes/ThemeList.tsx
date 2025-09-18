@@ -22,6 +22,7 @@ import DynamicForm from './DynamicFormGenerator';
 import { getFormDefaultValues } from './zodUtils';
 import packageJson from '../../../package.json';
 import { ca } from 'date-fns/locale';
+import { basename } from "../../globals_VITE";
 
 const ThemeList: React.FC = () => {
   const [themes, setThemes] = useState<DbThemeData[]>([]);
@@ -36,7 +37,8 @@ const ThemeList: React.FC = () => {
   useEffect(() => {
     const fetchThemes = async () => {
       try {
-        const res = await axios.get(`https://cnt.theweb.place/api/theme/?app_id=mutant`);
+        // const res = await axios.get(`https://cnt.theweb.place/api/theme/?app_id=mutant`);
+        const res = await axios.get(basename + `/api/theme/?app_id=mutant`);
         // Валидируем каждую тему с помощью Zod
         const validatedData = res.data.filter((item: any): item is DbThemeData => {
           const result = dbThemeSchema.safeParse(item);
@@ -195,7 +197,7 @@ const ThemeList: React.FC = () => {
             <TableCell>ID</TableCell>
             <TableCell>Название темы</TableCell>
             <TableCell>Основной цвет</TableCell>
-            <TableCell>Режим</TableCell>
+            {/* <TableCell>Режим</TableCell> */}
             <TableCell>Действия</TableCell>
           </TableRow>
         </TableHead>
@@ -218,8 +220,7 @@ const ThemeList: React.FC = () => {
                   }}
                 />
               </TableCell>
-              <TableCell>{theme.value?.palette?.mode ? theme.value.palette.mode : 'N/A'}</TableCell>
-              {/* <TableCell>{theme.value.palette.mode}</TableCell> */}
+              {/* <TableCell>{theme.value?.palette?.mode ? theme.value.palette.mode : 'N/A'}</TableCell> */}
               <TableCell>
                 <Button
                   variant="outlined"

@@ -21,6 +21,7 @@ import { useCustomer } from '../../context/CustomerContext'; // Import useCustom
 import OriginForm from './OriginForm'; // Ensure path is correct
 import CheckBalance from '../Billing/tools';
 import { useNavigate } from 'react-router-dom';
+import { customConfirm } from '../Shared/dialogs/confirm';
 
 // Values for the form, might differ slightly from the API's Origin type
 // e.g., IDs from dropdowns might be strings initially, credentials as JSON string
@@ -156,6 +157,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
       }
     }
 
+    let message = '';
     try {
       if (selectedOrigin && selectedOrigin.id) { // Editing existing origin
         const updateData: UpdateOriginData = {
@@ -171,6 +173,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
         };
         // if (!CheckBalance()) return;
         await originApi.updateOrigin(selectedOrigin.id, updateData);
+        message = t('OriginList.notEnoughBalance');
       } else { // Creating new origin
         const createData: CreateOriginData = {
           name: formValues.name,
@@ -192,6 +195,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
         }
         // if (!CheckBalance()) return;
         await originApi.createOrigin(createData);
+        message = t('OriginList.notEnoughStartBalance');
       }
       await fetchOrigins(); // Refresh list
       handleCloseModal();
@@ -202,18 +206,14 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
     } finally {
       setIsLoading(false);
       if (await CheckBalance()) {
-        navigate('/billing', { replace: true })
+        if (await customConfirm(message)) {
+          navigate('/billing', { replace: true })
+        }
       }
 
     }
   };
   const navigate = useNavigate();
-
-  const SelectByBool = (v: boolean, t: string, f: string, none: string) => {
-    if (v === true) return t;
-    if (v === false) return f;
-    return none;
-  }
 
   const handleDeleteOrigin = async (originId: number) => {
     // if (!window.confirm('Are you sure you want to delete this origin?')) {
@@ -379,7 +379,7 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
 
       {/* Message if a specific point is selected, not loading, no origins, and no error */}
       {pointIdFilter !== undefined && pointIdFilter !== -1 && !isLoading && origins.length === 0 && !error && (
-        <Typography sx={{ my: 2 }}>No origins found for this point.</Typography>
+        <Typography sx={{ my: 2 }}>{t('OriginList.NoOriginsFound')}</Typography>
       )}
 
       {/* Message if customer-wide view, customer selected, not loading, no origins, and no error */}
@@ -431,3 +431,10 @@ const OriginList: React.FC<OriginsListProps> = ({ pointIdFilter }) => {
 };
 
 export default OriginList;
+
+export const SelectByBool = (v: boolean, t: string, f: string, none: string) => {
+  if (v === true) return t;
+  if (v === false) return f;
+  return none;
+}
+

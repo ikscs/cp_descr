@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { LoginForm, SignupForm, PasswordResetForm } from '@userfront/react';
+import { LoginForm, /*SignupForm,*/ PasswordResetForm } from '@userfront/react';
+import SignupForm from './components/Shared/userfront/SignupForm';
 import { Box, Typography, Paper, Button, Stack, ThemeProvider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { tenantId } from './globals_VITE';
 import AdvertsView from './pages/adverts/AdvertsView';
 import LanguageSwitcher from './components/Shared/LanguageSwitcher';
 import ThemeSwitcher from './components/Shared/ThemeSwitcher';
+import { DbThemeProvider } from './components/themes/DbThemeContext';
 // import { sendResetPasswdEmail } from './api/updateUser';
 
 interface AppNewbieProps {
@@ -51,16 +53,14 @@ const AppNewbie: React.FC<AppNewbieProps> = ({ appTitle }) => {
           {/* <Route path="/resetPasswd" element={<PasswordResetForm />} /> */}
           <Route path="/login" element={
             <>
-              <Stack direction="row" spacing={2} sx={{ marginBottom: 0, marginTop: 0 }}>
+              {/* <Stack direction="row" spacing={2} sx={{ marginBottom: 0, marginTop: 0 }}>
                   <div style={{ marginBottom: 20, marginTop: 20 }}>
                       <LanguageSwitcher sx={{ minWidth: 120 }} /> 
                   </div>          
-                  {/* <ThemeProvider theme={{}}>
                     <div style={{ marginBottom: 20, marginTop: 20 }}>
                         <ThemeSwitcher sx={{ minWidth: 120 }} />
                     </div>
-                  </ThemeProvider> */}
-              </Stack>
+              </Stack> */}
 
               {showLogin ? <LoginForm /> : <SignupForm />}
               <Button onClick={toggleForm} sx={{ marginTop: '10px' }}>

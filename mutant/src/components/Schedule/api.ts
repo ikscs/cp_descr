@@ -3,12 +3,15 @@ import { DbSchedule, ParamValue, ReportName, Schedule } from './Schedule';
 import packageJson from '../../../package.json';
 import i18n from '../../i18n';
 import { LocaleKey } from '../Shared/grid/locales';
+import { basename } from '../../globals_VITE';
 
-const API_URL = 'https://cnt.theweb.place/api/pcnt/report_schedule/';
+// const API_URL = 'https://cnt.theweb.place/api/pcnt/report_schedule/';
+const API_URL = '/pcnt/report_schedule/';
 
 const get = async (): Promise<Schedule[]> => {
     const lang = i18n.language as LocaleKey;
-    const res = await axios.get<Schedule[]>(`https://cnt.theweb.place/api/pcnt/v_report_schedule/?lang=${lang}`);
+    // const res = await axios.get<Schedule[]>(`https://cnt.theweb.place/api/pcnt/v_report_schedule/?lang=${lang}`);
+    const res = await axios.get<Schedule[]>(`/v_report_schedule/?lang=${lang}`);
     return res.data;
 }
 
@@ -32,7 +35,8 @@ const getReportName = async (): Promise<ReportName[]> => {
     const appId = packageJson.name;
     const lang = i18n.language as LocaleKey;
     const tag = 'email';
-    const url = `https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=${appId}&lang=${lang}&tag=${tag}`;
+    // const url = `https://cnt.theweb.place/api/pcnt/v_perm_report/?app_id=${appId}&lang=${lang}&tag=${tag}`;
+    const url = `/v_perm_report/?app_id=${appId}&lang=${lang}&tag=${tag}`;
     const res = await axios.get<ReportName[]>(url);
     return res.data;
 }
@@ -46,7 +50,8 @@ const getReportName = async (): Promise<ReportName[]> => {
 const testReport = async (rts: ReportToSend): Promise<boolean> => {
     console.log('[Schedule api] testReport called ', rts);
     try {
-        const res = await axios.post('https://cnt.theweb.place/api/report/', rts);
+        // const res = await axios.post('https://cnt.theweb.place/api/report/', rts);
+        const res = await axios.post(basename + '/report/', rts);
         return res.status === 200;
     } catch (error) {
         console.error('Error:', error);

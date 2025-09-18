@@ -207,7 +207,10 @@
     "Edit": "Редагувати",
     "Delete": "Видалити",
     "Are_you_sure": "Ви впевнені, що хочете видалити це джерело?",
-    "success": "Success"
+    "success": "Success",
+    "NoOriginsFound": "Для цього пункту не знайдено жодного джерела.",
+    "notEnoughBalance": "Недостатньо коштів для виконання послуги, поповнити баланс?",
+    "notEnoughStartBalance": "Недостатньо коштів для підключення послуги, чи поповнити баланс?"
   },
   "OriginForm": {
     "Edit_Origin": "Редагувати джерело",
@@ -233,7 +236,7 @@
     "Select_an_Origin_Type": "Оберіть тип джерела",
     "Credentials_Label": "Дані доступу (формат JSON)",
     "Credentials_Helper_Text": "Необов'язково. наприклад, {\"user\":\"admin\", \"pass\":\"secret\"}",
-    "Edit_JSON_Button": "Редагувати JSON",
+    "Edit_JSON_Button": "Редагувати",
     "Enabled_Label": "Увімкнено",
     "Cancel": "Скасувати",
     "Saving": "Збереження...",
@@ -244,7 +247,8 @@
     "Apply_JSON_Button": "Застосувати",
     "succcess": "Успіх",
     "TestConnection": "Тестове з'єднання",
-    "testResult": "test"
+    "testResult": "test",
+    "Test_Result_Label": "Результати тестування"
   },
   "GroupForm": {
     "cancel": "Відмінити",
@@ -308,7 +312,7 @@
   "OrderForm": {
     "Title": "Формування ордера",
     "PleaseAcceptAgreement": "Будь ласка, ознайомтесь та прийміть умови Публічного договору.",
-    "Description": "Оплата за відеоаналіз ордер N {{orderId}}",
+    "Description": "Оплата за відеоаналітику ордер N {{orderId}}",
     "FailedToCreateOrder": "Не вдалося створити замовлення",
     "PaymentStartedMessage": "Оплата розпочата. Після завершення перевірте статус замовлення.",
     "PaymentSuccessMessage": "✅ Оплата успішно завершена. Номер замовлення {{orderId}}",
@@ -353,5 +357,12 @@
   },
   "JsonForm": {
     "chooseValue": "Виберіть значення"
+  },
+  "SignupForm": {
+    "SignUp": "Зареєструватися",
+    "Email": "Адреса електронної пошти",
+    "AccountName": "Ім'я облікового запису (спеціальне поле)",
+    "Password": "Пароль",
+    "VerifyPassword": "Підтвердження паролю"
   }
 }

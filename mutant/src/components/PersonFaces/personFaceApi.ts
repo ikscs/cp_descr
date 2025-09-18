@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { apiToken, fetchData, getBackend, IFetchResponse, IPostResponse, postData } from '../../api/data/fetchData';
 import { PersonFace } from './personFace.types';
+import { basename } from '../../globals_VITE';
 
 // Утилита для преобразования Base64 строки в Uint8Array для браузера
 const base64ToUint8Array = (base64: string): Uint8Array => {
@@ -15,10 +16,16 @@ const base64ToUint8Array = (base64: string): Uint8Array => {
 
 // Утилита для преобразования Uint8Array в Data URL для img src
 // Эта функция уже была корректна
+// export const uint8ArrayToBase64_ = (array: Uint8Array): string => {
+//   const blob = new Blob([array], { type: 'image/png' }); // или 'image/jpeg' в зависимости от вашего формата
+//   return URL.createObjectURL(blob);
+// };
+
 export const uint8ArrayToBase64_ = (array: Uint8Array): string => {
-  const blob = new Blob([array], { type: 'image/png' }); // или 'image/jpeg' в зависимости от вашего формата
+  const blob = new Blob([array as BlobPart], { type: 'image/png' });
   return URL.createObjectURL(blob);
 };
+
 
 // Прозрачный GIF 1x1 пиксель в Base64
 // const transparentGifBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
@@ -80,8 +87,9 @@ export const uint8ArrayToBase64_ = (array: Uint8Array): string => {
 // };
 
 const API_URL = 'https://cnt.theweb.place/api/pcnt/face_referer_data';
+// const API_URL = '/face_referer_data';
 
-const uint8ArrayToBase64 = (array: Uint8Array): string => {
+export const uint8ArrayToBase64 = (array: Uint8Array): string => {
   const binaryString = String.fromCharCode(...array);
   return btoa(binaryString);
 }

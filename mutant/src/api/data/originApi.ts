@@ -2,6 +2,7 @@ import { fetchData, postData, getBackend, escapeSingleQuotes } from './fetchData
 import { selectData } from './genericApi'; // Used for fetching after update
 import type { IFetchResponse, IPostResponse } from './fetchData';
 import axios from 'axios';
+import { basename } from '../../globals_VITE';
 
 /**
  * Створення, редагування, видалення origin (камери або відеореєстратора)
@@ -56,8 +57,6 @@ const formatSqlValue = (value: any): string => {
   return `''${escapeSingleQuotes(String(value))}''`;
 };
 
-const API_URL_ = 'https://cnt.theweb.place/api/pcnt/origin/';
-// const API_URL = 'origin/';
 const getOrigins_ = async (point_id: number): Promise<Origin[]> => {
   console.log(`[originApi] getOrigins called for point_id: ${point_id}`);
   const res = await axios.get<Origin[]>(API_URL + `point/${point_id}/`);
@@ -113,7 +112,7 @@ export type CreateOriginData = Pick<Origin, 'point_id' | 'name' | 'origin'| 'ori
 
 const createOrigin = async (data: CreateOriginData): Promise<Origin> => {
   console.log('[originApi] createOrigin called with data:', data);
-  const res = await axios.post<Origin>(API_URL, {...data, face_width_px: 40});
+  const res = await axios.post<Origin>('origin/', {...data, face_width_px: 40});
   return res.data;
 }
 
@@ -179,7 +178,7 @@ export type UpdateOriginData = Partial<Omit<Origin, 'id' >>;
 
 const updateOrigin = async (id: number, data: UpdateOriginData): Promise<Origin> => {
   console.log('[originApi] updateOrigin called for id:', id, 'with data:', data);
-  const res = await axios.patch<Origin>(API_URL + `${id}/`, data);
+  const res = await axios.patch<Origin>(`origin/${id}/`, data);
   return res.data;
 }
 
@@ -257,7 +256,7 @@ const updateOrigin_OLD = async (id: number, data: UpdateOriginData): Promise<Ori
 */
 const deleteOrigin = async (id: number): Promise<boolean> => {
   console.log('[originApi] deleteOrigin called for id:', id);
-  const res = await axios.delete(API_URL + `${id}/`);
+  const res = await axios.delete(`origin/${id}/`);
   console.log(`[originApi] deleteOrigin response for id ${id}:`, res.data);
   return true;
 }
@@ -327,10 +326,23 @@ const getCustomerOrigins_ = async (customerId: number): Promise<CustomerOrigin[]
   }
 };
 
-const checkConnection = async (originId: number): Promise<{ok: boolean, success: boolean | null, description: string | null}> => {
-  console.log('[originApi] checkConnection called for origin:', originId);
+interface OriginCredentials {
+  origin_type_id: number;
+  credentials: Object;
+    // host: string,
+    // port: 64059,
+    // user: number,
+    // proto: string,
+    // chanel: number,
+    // password: number,
+}
+
+// const checkConnection = async (originId: number): Promise<{ok: boolean, success: boolean | null, description: string | null}> => {
+const checkConnection = async (data: OriginCredentials): Promise<{ok: boolean, success: boolean | null, description: string | null}> => {
+  console.log('[originApi] checkConnection called :', data);
   try {
-    const res = await axios.get(`https://cnt.theweb.place/api/pcnt/check_connection/?origin_id=${originId}`);
+    // const res = await axios.get(`https://cnt.theweb.place/api/pcnt/check_connection/?origin_id=${originId}`);
+    const res = await axios.post(basename + '/api/pcnt/check_connection/', data);
     return {...res.data, ok: true};
 // {"success":true,"description":"Ok"}
   } catch (err) {
